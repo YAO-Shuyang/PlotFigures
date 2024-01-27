@@ -92,7 +92,7 @@ Data = {"MiceID": np.array([], np.int64), "Maze Type": np.array([]), "Data Type"
 
 #with open(r"E:\Data\maze_learning\PlotFigures\STAT_CellReg\trace_mdays.pkl", 'rb') as handle:
 #with open(r"E:\Data\Cross_maze\10224\Super Long-term Maze 1\trace_mdays.pkl", 'rb') as handle:
-with open(r"E:\Data\Cross_maze\10212\Maze1-2-footprint\trace_mdays.pkl", 'rb') as handle:
+with open(r"E:\Data\Cross_maze\10212\Maze-2-footprint\trace_mdays.pkl", 'rb') as handle:
     trace = pickle.load(handle)
 
 field_num_mat = np.where(np.isnan(trace['field_reg']), 0, 1)[:, :]
