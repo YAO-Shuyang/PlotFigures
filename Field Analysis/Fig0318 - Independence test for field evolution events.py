@@ -1,0 +1,2 @@
+from mylib.statistic_test import *
+from mylib.stats.indeptest import indept_field_evolution_chi2, indept_field_evolution_mutual_info

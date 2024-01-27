@@ -14,185 +14,211 @@ code_id = '0017 - Spatial Information - Cross Maze'
 loc = os.path.join(figpath,code_id)
 mkdir(loc)
 
-idx = np.where((f1['MiceID'] != 10224)&(f1['MiceID'] != 10227))[0]
-if os.path.exists(os.path.join(figdata,code_id+'-pc.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['Cell','SI'], 
-                              file_idx=idx, func_kwgs={'is_placecell':True},
+if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
+    Data = DataFrameEstablish(variable_names = ['SI', 'Cell Type'], 
                               f = f1, function = SpatialInformation_Interface, 
-                              file_name = code_id+'-pc', behavior_paradigm = 'CrossMaze')
+                              file_name = code_id, behavior_paradigm = 'CrossMaze')
 else:
-    with open(os.path.join(figdata,code_id+'-pc.pkl'), 'rb') as handle:
+    with open(os.path.join(figdata,code_id+'.pkl'), 'rb') as handle: 
         Data = pickle.load(handle)
 
 
-from scipy.stats import zscore
-index6s = np.where((Data['MiceID'] == '11095')|(Data['MiceID'] == '11092'))[0]
-index6f = np.where((Data['MiceID'] == '10212')|(Data['MiceID'] == '10209'))[0]
+idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092)&(Data['Cell Type'] == 1))[0]
+Data = SubDict(Data, Data.keys(), idx)
 
-Data['SI Z-score'] = np.zeros_like(Data['SI'], dtype=np.int64)
-Data['SI Z-score'][index6f] = zscore(Data['SI'][index6f])
-Data['SI Z-score'][index6s] = zscore(Data['SI'][index6s])
-SubData = SubDict(Data, Data.keys(), np.concatenate([index6s, index6f]))
-
-# SI
+# Mean Rate
 uniq_day = ['Day 1', 'Day 2', 'Day 3', 'Day 4',
             'Day 5', 'Day 6', 'Day 7', 'Day 8',
             'Day 9', '>=Day 10']
+uniq_s = ['S'+str(i) for i in range(1,20)] + ['>=S20']
 
-idx = np.concatenate([np.where(SubData['Training Day'] == day)[0] for day in uniq_day])
-SubData = SubDict(SubData, SubData.keys(), idx)
+idx = np.concatenate([np.where(Data['Training Day'] == day)[0] for day in uniq_day])
+SubData = SubDict(Data, Data.keys(), idx)
 
 colors = sns.color_palette("rocket", 3)
-fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,3))
-ax1, ax2 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True), Clear_Axes(axes[1], close_spines=['top', 'right', 'left'], ifxticks=True)
-idx = np.where((SubData['Stage'] == 'Stage 1')&(SubData['Maze Type'] == 'Maze 1'))[0]
-SubData1 = SubDict(SubData, SubData.keys(), idx)
+markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
+"""
+fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,3))
+ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax2 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax3 = Clear_Axes(axes[2], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+idx = np.concatenate([np.where((Data['Stage'] == 'PRE')&(Data['Training Day'] == s))[0] for s in uniq_s])
+SubData1 = SubDict(Data, Data.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='SI',
     data=SubData1,
-    hue='MiceID',
+    hue='Maze Type',
     palette=colors,
     marker='o',
+    ax=ax1,
     markeredgecolor=None,
-    markersize=4,
+    markersize=2,
+    legend=False,
     err_style='bars',
-    err_kws={'capsize':3},
-    linewidth=1,
-    ax=ax1
+    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
+    linewidth=0.5,
 )
+SubSample = SubDict(SubData1, SubData1.keys(), np.random.choice(np.arange(len(SubData1['SI'])), replace=True, size=10000))
+sns.stripplot(
+    x='Training Day',
+    y='SI',
+    hue='Maze Type',
+    data=SubSample,
+    palette=markercolors,
+    edgecolor='black',
+    size=1,
+    linewidth=0.05,
+    ax = ax1,
+    dodge=True,
+    jitter=0.1
+)
+ax1.set_ylim([0, 6])
+ax1.set_yticks(np.linspace(0, 6, 7))
 
-idx = np.where((SubData['Stage'] == 'Stage 2')&(SubData['Maze Type'] == 'Maze 1'))[0]
+idx = np.where(SubData['Stage'] == 'Stage 1')[0]
 SubData2 = SubDict(SubData, SubData.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='SI',
     data=SubData2,
-    hue='MiceID',
+    hue='Maze Type',
     palette=colors,
     marker='o',
     markeredgecolor=None,
-    markersize=4,
+    markersize=2,
+    legend=False,
     err_style='bars',
-    err_kws={'capsize':3},
-    linewidth=1,
+    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
+    linewidth=0.5,
     ax=ax2
 )
+SubSample = SubDict(SubData2, SubData2.keys(), np.random.choice(np.arange(len(SubData2['SI'])), replace=True, size=10000))
+sns.stripplot(
+    x='Training Day',
+    y='SI',
+    hue='Maze Type',
+    data=SubSample,
+    palette=markercolors,
+    edgecolor='black',
+    size=1,
+    linewidth=0.05,
+    ax = ax2,
+    dodge=True,
+    jitter=0.1
+)
+ax2.set_ylim([0, 6])
+ax2.set_yticks(np.linspace(0, 6, 7))
+
+idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
+SubData3 = SubDict(SubData, SubData.keys(), idx)
+sns.lineplot(
+    x='Training Day',
+    y='SI',
+    data=SubData3,
+    hue='Maze Type',
+    palette=colors,
+    marker='o',
+    markeredgecolor=None,
+    markersize=2,
+    legend=False,
+    err_style='bars',
+    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
+    linewidth=0.5,
+    ax=ax3
+)
+SubSample = SubDict(SubData3, SubData3.keys(), np.random.choice(np.arange(len(SubData3['SI'])), replace=True, size=10000))
+sns.stripplot(
+    x='Training Day',
+    y='SI',
+    hue='Maze Type',
+    data=SubSample,
+    palette=markercolors,
+    edgecolor='black',
+    size=1,
+    linewidth=0.05,
+    ax = ax3,
+    dodge=True,
+    jitter=0.1
+)
+ax3.set_ylim([0, 6])
+ax3.set_yticks(np.linspace(0, 6, 7))
 plt.tight_layout()
-plt.savefig(join(loc, 'SI [pc-mouse].png'), dpi=600)
-plt.savefig(join(loc, 'SI [pc-mouse].svg'), dpi=600)
+plt.savefig(join(loc, 'SI.png'), dpi=2400)
+plt.savefig(join(loc, 'SI.svg'), dpi=2400)
 plt.close()
+"""
 
 
-'''
-# Fig0017-1: SI vs training day. ---------------------------------------------------------------------------------------------------------
-fig = plt.figure(figsize = (4,3))
-ax = Clear_Axes(plt.axes(), close_spines = ['top','right'], ifxticks=True, ifyticks=True)
-colors = sns.color_palette('rocket', 3)
-sns.lineplot(x = 'Training Day',y = 'SI', data = Data, hue = 'Maze Type', ax = ax, palette=colors,
-             err_style = 'bars', err_kws = {'elinewidth':1, 'capsize':3, 'capthick':1})
-ax.set_yticks(np.linspace(0,1.2,7))
-plt.tight_layout()
-plt.savefig(os.path.join(p,'[lineplot] SI.svg'), dpi = 2400)
-plt.savefig(os.path.join(p,'[lineplot] SI.png'), dpi = 2400)
+data_op_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m2_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+data_op_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m1_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10)
+print(levene(data_op_d1, data_op_d10))
+print(ttest_ind(data_op_d1, data_op_d10), cohen_d(data_op_d1, data_op_d10))
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10)
+print(levene(data_m1_d1, data_m1_d10))
+print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False, alternative='less'), cohen_d(data_m1_d1, data_m1_d10))
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10)
+print(levene(data_m2_d1, data_m2_d10))
+print(ttest_ind(data_m2_d1, data_m2_d10, equal_var=False, alternative='less'), cohen_d(data_m2_d1, data_m2_d10))
+
+compdata = {
+    "SI": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+}
+fig = plt.figure(figsize=(3,4))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x='Session',
+    y='SI',
+    hue='Maze Type',
+    data=compdata,
+    palette=colors,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5,
+    capsize=0.1,
+    width=0.8
+)
+data_op_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]], replace=True, size=1000)
+data_m1_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]], replace=True, size=1000)
+data_m2_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+
+data_op_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+data_m1_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+data_m2_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+compdata = {
+    "SI": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+}
+sns.stripplot(
+    x='Session',
+    y='SI',
+    hue='Maze Type',
+    data=compdata,
+    palette=markercolors,
+    edgecolor='black',
+    size=2,
+    linewidth=0.05,
+    ax = ax,
+    dodge=True,
+    jitter=0.15
+)
+ax.set_ylim([0,7])
+plt.savefig(join(loc, 'Comparison of Sessions.png'), dpi=2400)
+plt.savefig(join(loc, 'Comparison of Sessions.svg'), dpi=2400)
 plt.close()
-
-fig = plt.figure(figsize = (4,3))
-ax = Clear_Axes(plt.axes(), close_spines = ['top','right'], ifxticks=True, ifyticks=True)
-colors = sns.color_palette('rocket', 3)
-sns.barplot(x = 'Training Day',y = 'SI', data = Data, hue = 'Maze Type', ax = ax, palette=colors,
-            errcolor='black', errwidth=1, capsize=0.1)
-plt.tight_layout()
-plt.savefig(os.path.join(p,'[barplot] SI.svg'), dpi = 2400)
-plt.savefig(os.path.join(p,'[barplot] SI.png'), dpi = 2400)
-plt.close()
-
-# cross day significance test.
-op_d1_idx = np.where((Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Open Field'))[0]
-m1_d1_idx = np.where((Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
-m2_d1_idx = np.where((Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 2'))[0]
-op_d9_idx = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Open Field'))[0]
-m1_d9_idx = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Maze 1'))[0]
-m2_d9_idx = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Maze 2'))[0]
-
-print("Day 1 vs Day 9")
-print(ttest_ind(Data['SI'][op_d1_idx], Data['SI'][op_d9_idx]))
-print(ttest_ind(Data['SI'][m1_d1_idx], Data['SI'][m1_d9_idx]))
-print(ttest_ind(Data['SI'][m2_d1_idx], Data['SI'][m2_d9_idx]))
-
-# Spatial Information-------------------------------------------------------------------------------------------------------
-def plot_SI_lineplot(MiceID:list[str] = ['11095'], is_placecell:bool = False):
-
-    Author: YAO Shuyang
-    Date: Jan 26, 2023
-    Note: This function is to plot linegraph of SI changing tendency in maze.
-
-    # Read In Data:
-    file_path = '0017' if is_placecell == False else '0017-ac-'
-    if os.path.exists(os.path.join(figdata, file_path+'data.pkl')) == False:
-        Data = DataFrameEstablish(variable_names = ['Cell','SI'], f = f1, function = SpatialInformation_Interface, is_placecell = is_placecell,
-                                  file_name = file_path, behavior_paradigm = 'CrossMaze')
-    else:
-        with open(os.path.join(figdata, file_path+'data.pkl'), 'rb') as handle:
-            Data = pickle.load(handle)
-
-    # Get SubData
-    idx = np.array([], dtype = np.int64)
-    mice = ''
-    cell_type = 'Place Cells Only' if is_placecell else 'All Cells'
-    for m in MiceID:
-        idx = np.concatenate([idx, np.where(Data['MiceID'] == m)[0]])
-        # Get the title of the figure and the name of the figure file.
-        if m == MiceID[0]:
-            mice = mice+m
-        else: mice = mice+'&'+m            
-    
-    SubData = SubDict(Data, keys = ['MiceID', 'Training Day', 'Maze Type', 'Cell', 'SI'], idx = idx)
-
-    # plot figure
-    fs = 14
-
-    fig = plt.figure(figsize = (5,3.75))
-    ax = Clear_Axes(plt.axes(), close_spines = ['top','right'], ifxticks=True, ifyticks=True)
-    sns.lineplot(x = 'Training Day',y = 'SI', data = SubData, hue = 'Maze Type', ax = ax, legend = True, err_style = 'bars', errorbar = ('ci', 95), 
-                 err_kws = {'elinewidth':2, 'capsize':3, 'capthick':2})
-    ax.legend(edgecolor = 'white', facecolor = 'white', title = 'Maze Type', loc = 'upper left')
-    #ax.xaxis.set_major_locator(x)
-    ax.set_xlabel('Training Day', fontsize = fs)
-    ax.set_ylabel('Spatial Information', fontsize = fs)
-    ax.set_title(mice+'\n'+cell_type)
-    
-    ax.axis([-0.5,8.5,0,2])
-    plt.xticks(ticks = [0,1,2,3,4,5,6,7,8,9,10], labels = ['P1','P2', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6','D7', 'D8', 'D9'])
-    plt.tight_layout()
-    plt.savefig(os.path.join(p, mice+'-'+cell_type+'.svg'), dpi = 600)
-    plt.savefig(os.path.join(p, mice+'-'+cell_type+'.png'), dpi = 600)
-    plt.close()
-
-    # T test for increasing
-    day1_idx_maze1 = np.where((Data['Training Day'] == 'Pre 2')&(Data['Maze Type'] == 'Maze 1'))[0]
-    day9_idx_maze1 = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Maze 1'))[0]
-    _, pvalue1 = scipy.stats.ttest_ind(Data['SI'][day1_idx_maze1], Data['SI'][day9_idx_maze1], nan_policy = 'omit', alternative = 'less')
-
-    day1_idx_maze2 = np.where((Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 2'))[0]
-    day9_idx_maze2 = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Maze 2'))[0]
-    _, pvalue2 = scipy.stats.ttest_ind(Data['SI'][day1_idx_maze2], Data['SI'][day9_idx_maze2], nan_policy = 'omit', alternative = 'less')
-
-    # open field maintain t test
-    day1_idx_op = np.where((Data['Training Day'] == 'Pre 1')&(Data['Maze Type'] == 'Open Field'))[0]
-    day9_idx_op = np.where((Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Open Field'))[0]
-    _, pvalue0 = scipy.stats.ttest_ind(Data['SI'][day1_idx_op], Data['SI'][day9_idx_op], nan_policy = 'omit', alternative = 'less')
-    print('Open Field:',pvalue0)
-    print('Maze 1:',pvalue1)
-    print('Maze 2',pvalue2)
-
-
-plot_SI_lineplot(MiceID=['11095'],is_placecell=True)
-plot_SI_lineplot(MiceID=['11092'],is_placecell=True)
-
-plot_SI_lineplot(MiceID=['11095'],is_placecell=False)
-plot_SI_lineplot(MiceID=['11092'],is_placecell=False)
-'''
-#plot_SI_lineplot(MiceID=['11092','11095'],is_placecell=True)
-#plot_SI_lineplot(MiceID=['11092','11095'],is_placecell=False)
-

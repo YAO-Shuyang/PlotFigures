@@ -45,7 +45,7 @@ def select_roi(sfp: np.ndarray):
     
     return boundaries
 
-def plot_footprint(cell_idx:list|np.ndarray, SFP_loc:str = None, save_loc:str = None):
+def plot_footprint(cell_idx:list|np.ndarray, SFP_loc:str = None, save_loc:str = None, is_plot_boundary: bool = True):
     if os.path.exists(SFP_loc):
         with h5py.File(SFP_loc, 'r') as f:
             sfp = np.array(f['SFP'])
@@ -58,29 +58,99 @@ def plot_footprint(cell_idx:list|np.ndarray, SFP_loc:str = None, save_loc:str = 
 
     plt.figure(figsize=(4.5,7.5))
     ax = Clear_Axes(plt.axes())
-    #im = ax.imshow(footprint, cmap = 'gray')
-    #cbar = plt.colorbar(im, ax = ax)
-    for i in tqdm(range(n)):
-        if i in cell_idx:
+    
+    if is_plot_boundary:
+        #im = ax.imshow(footprint, cmap = 'gray')
+        #cbar = plt.colorbar(im, ax = ax)
+        for i in tqdm(range(n)):
+            if i in cell_idx:
+                continue
+            color = (169/255, 169/255, 169/255)
+            ax.plot(boundaries[i][:, 0, 0], boundaries[i][:, 0, 1], color = color, linewidth = 0.5, alpha=0.8)
+    
+        for i in cell_idx:
+            ax.plot(boundaries[i][:, 0, 0], boundaries[i][:, 0, 1], color = 'cornflowerblue', linewidth = 0.5, alpha=0.8)
+
+            peak = np.nanmax(sfp[:,:,i])
+            peak_idx = np.where(sfp[:,:,i] == peak)
+            #ax.plot(peak_idx[1][0], peak_idx[0][0], '.', markersize = 3, color ='yellow')
+            ax.text(x = peak_idx[1][0], y = peak_idx[0][0], s = str(i+1), color = 'red')
+    
+        ax.set_aspect("equal")
+
+        if save_loc is None:
+            plt.show()
+        else:
+            plt.savefig(save_loc+'.png', dpi = 2400)
+            plt.savefig(save_loc+'.svg', dpi = 2400)
+            
+
+#plot_footprint(np.array([4, 6, 9, 27, 36, 43, 44, 72, 85, 86])-1, SFP_loc = r'E:\Data\FinalResults\0006 - Footprint\10227\20230928\session 2\SFP.mat', 
+#               save_loc = r"E:\Data\FinalResults\0006 - Footprint\10227\20230928\session 2\footprint")
+
+def plot_overdays(
+    dir_name: str,
+    save_loc: str,
+    find_chars: str = "SFP"
+):
+    mkdir(save_loc)
+    files = os.listdir(dir_name)
+    
+    for file in tqdm(files):
+        if find_chars not in file:
             continue
-        color = (169/255, 169/255, 169/255)
-        ax.plot(boundaries[i][:, 0, 0], boundaries[i][:, 0, 1], color = color, linewidth = 0.4, alpha=0.8)
-    
-    for i in cell_idx:
-        ax.plot(boundaries[i][:, 0, 0], boundaries[i][:, 0, 1], color = 'cornflowerblue', linewidth = 1, alpha=0.8)
+        
+        with h5py.File(os.path.join(dir_name, file), 'r') as f:
+            sfp = np.array(f['SFP'])
+            for i in range(sfp.shape[2]):
+                sfp[:, :, i] = sfp[:, :, i] / np.nanmax(sfp[:, :, i])
 
-        peak = np.nanmax(sfp[:,:,i])
-        peak_idx = np.where(sfp[:,:,i] == peak)
-        #ax.plot(peak_idx[1][0], peak_idx[0][0], '.', markersize = 3, color ='yellow')
-        ax.text(x = peak_idx[1][0], y = peak_idx[0][0], s = str(i+1), color = 'red')
-    
-    ax.set_aspect("equal")
+            footprint = np.nanmax(sfp, axis = 2)
+        
+        plt.figure(figsize=(7.5,4.5))
+        ax = Clear_Axes(plt.axes())
+        ax.imshow(footprint.T, cmap='gray')
+        plt.savefig(os.path.join(save_loc, file.split('.')[0]+'.png'), dpi=600)
+        plt.savefig(os.path.join(save_loc, file.split('.')[0]+'.svg'), dpi=600)
+        plt.close()
+plot_overdays(r"E:\Data\Cross_maze\11095\Maze1-footprint", save_loc=os.path.join(p, "11095-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\11095\Open Field-2-footprint", save_loc=os.path.join(p, "11095-Stage2-Open Field2"))
+plot_overdays(r"E:\Data\Cross_maze\11095\Maze2-footprint", save_loc=os.path.join(p, "11095-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\11095\Open Field-footprint", save_loc=os.path.join(p, "11095-Stage2-Open Field1"))
+plot_overdays(r"E:\Data\Cross_maze\11092\Maze1-footprint", save_loc=os.path.join(p, "11092-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\11092\Open Field-2-footprint", save_loc=os.path.join(p, "11092-Stage2-Open Field2"))
+plot_overdays(r"E:\Data\Cross_maze\11092\Maze2-footprint", save_loc=os.path.join(p, "11092-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\11092\Open Field-footprint", save_loc=os.path.join(p, "11092-Stage2-Open Field1"))
+"""
+plot_overdays(r"E:\Data\Cross_maze\10227\Maze1-footprint", save_loc=os.path.join(p, "10227-Stage1-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Maze1-2-footprint", save_loc=os.path.join(p, "10227-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Maze2-footprint", save_loc=os.path.join(p, "10227-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Open Field-footprint", save_loc=os.path.join(p, "10227-Stage1-Open Field1"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Open Field-2-footprint", save_loc=os.path.join(p, "10227-Stage1-Open Field2"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Open Field-3-footprint", save_loc=os.path.join(p, "10227-Stage2-Open Field3"))
+plot_overdays(r"E:\Data\Cross_maze\10227\Open Field-4-footprint", save_loc=os.path.join(p, "10227-Stage2-Open Field4"))
 
-    if save_loc is None:
-        plt.show()
-    else:
-        plt.savefig(save_loc+'.png', dpi = 2400)
-        plt.savefig(save_loc+'.svg', dpi = 2400)
+plot_overdays(r"E:\Data\Cross_maze\10224\Maze1-footprint", save_loc=os.path.join(p, "10224-Stage1-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10224\Maze1-2-footprint", save_loc=os.path.join(p, "10224-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10224\Maze2-footprint", save_loc=os.path.join(p, "10224-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\10224\Open Field-footprint", save_loc=os.path.join(p, "10224-Stage1-Open Field1"))
+plot_overdays(r"E:\Data\Cross_maze\10224\Open Field-2-footprint", save_loc=os.path.join(p, "10224-Stage1-Open Field2"))
 
-plot_footprint(np.array([4,12,17,22,24,28,31,34,40])-1, SFP_loc = r'E:\Data\FinalResults\0006 - Footprint\11095\20220830\session 2\SFP.mat', 
-               save_loc = r"E:\Data\FinalResults\0006 - Footprint\11095\20220830\session 2\footprint")
+plot_overdays(r"E:\Data\Cross_maze\10224\Open Field-3-footprint", save_loc=os.path.join(p, "10224-Stage2-Open Field3"))
+plot_overdays(r"E:\Data\Cross_maze\10224\Open Field-4-footprint", save_loc=os.path.join(p, "10224-Stage2-Open Field4"))
+"""
+plot_overdays(r"E:\Data\Cross_maze\10212\Maze1-footprint", save_loc=os.path.join(p, "10212-Stage1-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Maze1-2-footprint", save_loc=os.path.join(p, "10212-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Maze2-footprint", save_loc=os.path.join(p, "10212-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Open Field-footprint", save_loc=os.path.join(p, "10212-Stage1-Open Field1"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Open Field-2-footprint", save_loc=os.path.join(p, "10212-Stage1-Open Field2"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Open Field-3-footprint", save_loc=os.path.join(p, "10212-Stage2-Open Field3"))
+plot_overdays(r"E:\Data\Cross_maze\10212\Open Field-4-footprint", save_loc=os.path.join(p, "10212-Stage2-Open Field4"))
+
+plot_overdays(r"E:\Data\Cross_maze\10209\Maze1-footprint", save_loc=os.path.join(p, "10209-Stage1-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Maze1-2-footprint", save_loc=os.path.join(p, "10209-Stage2-Maze 1"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Maze2-footprint", save_loc=os.path.join(p, "10209-Stage2-Maze 2"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Open Field-footprint", save_loc=os.path.join(p, "10209-Stage1-Open Field1"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Open Field-2-footprint", save_loc=os.path.join(p, "10209-Stage1-Open Field2"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Open Field-3-footprint", save_loc=os.path.join(p, "10209-Stage2-Open Field3"))
+plot_overdays(r"E:\Data\Cross_maze\10209\Open Field-4-footprint", save_loc=os.path.join(p, "10209-Stage2-Open Field4"))

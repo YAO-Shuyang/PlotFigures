@@ -31,7 +31,8 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         ax=ax1,
         content=smooth_map,
         maze_type=maze_type,
-        title=trace['SI_all'][i]
+        title=trace['SI_all'][i],
+        maze_args={'color':'white', 'linewidth': 0.5}
     )
     cbar.outline.set_visible(False)
     ax1.set_aspect("equal")
@@ -44,7 +45,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         spikes=spikes,
         spike_time=ms_time,
         maze_type=maze_type,
-        maze_kwargs={'color':'brown'},
+        maze_kwargs={'color':'brown', 'linewidth': 0.5},
         traj_kwargs={'linewidth': 0.5},
         markersize=2
     )
@@ -59,7 +60,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         content=old_map,
         maze_type=maze_type,
         M=MTOP,
-        linewidth=0.8
+        linewidth=0.5
     )
     ax3.set_xlim([0, len(CP)+1])
     y_max = np.nanmax(old_map)
@@ -73,12 +74,15 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
     rig = np.sort(rig + 1.5)
         
     for k in range(lef.shape[0]):
-        ax3.plot([lef[k], rig[k]], [-y_max*0.09, -y_max*0.09], color = colors[k+2])
+        ax3.plot([lef[k], rig[k]], [-y_max*0.09, -y_max*0.09], color = colors[k+2], linewidth=0.5)
         ax4.fill_betweenx(y=[0, np.nanmax(behav_time)/1000], x1=lef[k], x2=rig[k], color=colors[k+2], alpha=0.5, edgecolor=None)
-        field = CP[int(lef[k]-0.5):int(rig[k]-0.5)]
-        for fd in field:
-            y, x = (fd-1)//12*4-0.5, (fd-1)%12*4-0.5
-            ax2.fill_betweenx([y, y+4], x1=x, x2=x+4, color = colors[k+2], alpha=0.5, edgecolor=None)
+    
+    for k, center in enumerate(place_fields.keys()):
+        for fd in place_fields[center]:
+            if fd in incorrect_paths[(maze_type, 48)]:
+                continue
+            y, x = (fd-1)//48-0.5, (fd-1)%48-0.5
+            ax2.fill_betweenx([y, y+1], x1=x, x2=x+1, color = colors[k+2], alpha=0.5, edgecolor=None)
     
     frame_labels = get_spike_frame_label(
         ms_time=cp.deepcopy(trace['correct_time']), 
@@ -88,19 +92,19 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         window_length = 1
     )
     
-    indices = np.where(frame_labels==1)[0]
-    print(indices.shape[0], frame_labels.shape[0])
+    #indices = np.where(frame_labels==1)[0]
+    #print(indices.shape[0], frame_labels.shape[0])
     LocTimeCurveAxes(
         ax=ax4,
-        behav_time=behav_time[indices],
+        behav_time=behav_time,#[indices],
         spikes=spikes,
         spike_time=ms_time,
         maze_type=maze_type,
-        behav_nodes=behav_nodes[indices],
+        behav_nodes=behav_nodes,#[indices],
         line_kwargs={'markeredgewidth': 0, 'markersize': 0.6, 'color': 'black'},
-        bar_kwargs={'markeredgewidth': 0.6, 'markersize': 3}
+        bar_kwargs={'markeredgewidth': 0.2, 'markersize':3}
     )
-    ax4.set_xlim([0, len(CP)+1])
+    ax4.set_xlim([0, len(CP)+0.5])
     plt.tight_layout()
     plt.savefig(join(save_loc, file_name+'.png'), dpi=600)
     plt.savefig(join(save_loc, file_name+'.svg'), dpi=600)
@@ -117,7 +121,38 @@ def plot_cells(f: pd.DataFrame, i: int, cells: list, save_loc: str):
     for cell in cells:
         plot_sample_cell(trace=trace, i=cell-1, save_loc=save_loc, file_name=file_name+str(cell))
 
-    
+loc = os.path.join(figpath, "0004 - Sample Cells to CC")
+mkdir(loc)
+i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230930)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[261], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230928)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[5, 162], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230928)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[3, 111], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10227)&(f1['date'] == 20230930)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[280, 140], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10227)&(f1['date'] == 20230930)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[85, 165], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230728)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[126, 76], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230728)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[107, 36], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230724)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[101, 7], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230724)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[145, 33], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230728)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[9, 64, 65], save_loc=loc)
+"""
 new_emerge_loc = join(loc, 'newly emerge fields sample')
 mkdir(new_emerge_loc)
 dissapear_loc = join(loc, 'dissapear fields sample')
@@ -126,6 +161,12 @@ gap_loc = join(loc, 'gap sample')
 mkdir(gap_loc)
 switch_loc = join(loc, 'switch fields')
 mkdir(switch_loc)
+
+# 10227 Maze 1, 0930, i = 543
+plot_cells(f=f1, i=543, cells=[4, 9, 27, 79, 252, 249, 306], save_loc=loc)
+
+# 10224 Maze 1, 0930, i = 539
+plot_cells(f=f1, i=539, cells=[1, 2, 5, 17, 20, 31, 77, 152, 153, 189, 215, 247, 362], save_loc=loc)
 
 # 11095, Maze 1, 0830, i = 85
 plot_cells(f=f1, i=85, cells=[2], save_loc=loc)
@@ -148,7 +189,7 @@ plot_cells(save_loc=loc, f=f1, i=340, cells=[5, 6, 13, 14])
 # 10212, Maze 1, 0724, i = 339
 plot_cells(save_loc=loc, f=f1, i=339, cells=[13, 21, 88])
 # 10212, Maze 1, 0728, i = 361
-plot_cells(save_loc=loc, f=f1, i=361, cells=[35, 96, 223])
+plot_cells(save_loc=loc, f=f1, i=361, cells=[22, 35, 96, 223])
 
 # 11095, Maze 1, 0826, i = 69
 plot_cells(f=f1, i=69, cells=[16, 33], save_loc=dissapear_loc)
@@ -156,3 +197,4 @@ plot_cells(save_loc=switch_loc, f=f1, i=69, cells=[56, 127])
 plot_cells(save_loc=gap_loc, f=f1, i=69, cells=[50, 53])
 # 11095, Maze 2, 0830, i = 87
 plot_cells(f=f1, i=87, cells=[39, 115], save_loc=dissapear_loc)
+"""
