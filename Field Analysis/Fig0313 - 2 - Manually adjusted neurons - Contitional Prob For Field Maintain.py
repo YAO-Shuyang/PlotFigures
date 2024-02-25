@@ -1,5 +1,5 @@
 from mylib.statistic_test import *
-from mylib.multiday.field_tracker import conditional_prob, conditional_prob_jumpnan
+from mylib.field.field_tracker import conditional_prob, conditional_prob_jumpnan
 
 code_id = "0313 - Conditional Probability for Field Maintain"
 loc = join(figpath, code_id)
@@ -74,10 +74,11 @@ def calculate_survival_fraction(field_reg: np.ndarray):
     start_sessions = np.full((field_reg.shape[0], field_reg.shape[0]), np.nan)
     training_day = np.full((field_reg.shape[0], field_reg.shape[0]), np.nan)
     for i in tqdm(range(field_reg.shape[0])):
-        # start session
-        n_ori = np.where(field_reg[i, :] == 1)[0].shape[0]
+
         for j in range(i, field_reg.shape[0]):
             # compare session
+            # start session
+            n_ori = np.where((np.isnan(np.sum(field_reg[i:j+1, :], axis=0)) == False)&(field_reg[i, :] == 1))[0].shape[0]
             n_retain = np.where(np.nansum(field_reg[i:j+1, :], axis=0) == j-i+1)[0].shape[0]
             survival_frac[i, j] = n_retain / n_ori
             start_sessions[i, j] = i+1
@@ -92,13 +93,13 @@ Data = {"MiceID": np.array([], np.int64), "Maze Type": np.array([]), "Data Type"
 
 #with open(r"E:\Data\maze_learning\PlotFigures\STAT_CellReg\trace_mdays.pkl", 'rb') as handle:
 #with open(r"E:\Data\Cross_maze\10224\Super Long-term Maze 1\trace_mdays.pkl", 'rb') as handle:
-with open(r"E:\Data\Cross_maze\10212\Maze-2-footprint\trace_mdays.pkl", 'rb') as handle:
+with open(r"E:\Data\maze_learning\PlotFigures\STAT_CellReg\10224\trace_mdays_conc.pkl", 'rb') as handle:
     trace = pickle.load(handle)
 
 field_num_mat = np.where(np.isnan(trace['field_reg']), 0, 1)[:, :]
 num = np.count_nonzero(field_num_mat, axis=0)
-#idx = np.where(num >= 26)[0]
-#trace['field_reg'] = trace['field_reg'][:, idx] # [equal rate]
+idx = np.where(num >= 10)[0]
+trace['field_reg'] = trace['field_reg'][:, idx] # [equal rate]
 """    
 with open(r"E:\Data\FigData\PermenantFieldAnalysis\Mouse 1 [equal rate].pkl", 'rb') as handle: # [equal rate]
     trace = pickle.load(handle)

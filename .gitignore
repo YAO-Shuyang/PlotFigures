@@ -8,6 +8,7 @@ __pycache__/
 
 test*
 
+STAT_CellReg/
 # Distribution / packaging
 .Python
 build/

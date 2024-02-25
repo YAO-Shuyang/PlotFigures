@@ -18,10 +18,41 @@
 
 from mylib.statistic_test import *
 
-code_id = '0015 - Firing Rate - Cross Maze'
+code_id = '0015 - Firing Rate - Cross Maze [field peak rate]'
 loc = join(figpath, code_id)
 mkdir(loc)
 
+if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
+    Data = DataFrameEstablish(variable_names = ['peak_rate'], 
+                              f = f1, function = FieldPeakRateStatistic_Interface, 
+                              file_name = code_id+' [field peak rate].pkl', behavior_paradigm = 'CrossMaze')
+else:
+    with open(os.path.join(figdata,code_id+'.pkl'), 'rb') as handle:
+        Data = pickle.load(handle)
+
+idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
+Data = SubDict(Data, Data.keys(), idx)
+
+idx = [np.where((Data['MiceID'] == 10209)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 2')&(Data['Training Day'] == 'Day 1'))[0],
+       np.where((Data['MiceID'] == 10212)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 2')&(Data['Training Day'] == 'Day 1'))[0],
+       np.where((Data['MiceID'] == 10224)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 2')&(Data['Training Day'] == 'Day 1'))[0],
+       np.where((Data['MiceID'] == 10227)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 2')&(Data['Training Day'] == 'Day 1'))[0]]
+fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8,6))
+mice = [10209, 10212, 10224, 10227]
+for i, ax in enumerate([axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]]):
+
+    ax = Clear_Axes(ax, ifxticks=True,ifyticks=True, close_spines=['top', 'right'])
+    x = ax.hist(Data['peak_rate'][idx[i]], bins=100, range=(0, 6), density=True)[0]
+    ax.set_ylabel(str(mice[i]))
+    alpha, c, beta = gamma.fit(Data['peak_rate'][idx[i]])
+    x = np.linspace(0, 6, 10000)
+    y = gamma.pdf(x, alpha, loc=c, scale=beta)
+    ax.plot(x, y)
+    print(mice[i])
+    print("    ", alpha, c, beta)
+plt.show()
+               
+"""
 if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
     Data = DataFrameEstablish(variable_names = ['peak_rate','mean_rate', 'cell_type'], 
                               func_kwgs={'is_placecell':True},
@@ -254,6 +285,6 @@ for d in uniq_day:
     print(levene(meanrate_m1, meanrate_m2))
     print(ttest_ind(meanrate_m1, meanrate_m2, alternative='less', equal_var=False))
 print(end='\n\n')
-    
+"""
 
 
