@@ -5,7 +5,7 @@ loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['Half-half Correlation', 'Odd-even Correlation', 'Cell Type'], f = f1, 
+    Data = DataFrameEstablish(variable_names = ['Half-half Correlation', 'Odd-even Correlation'], f = f1, 
                               function = InterSessionCorrelation_Interface, 
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
 else:
@@ -15,7 +15,7 @@ else:
 def clear_nan_value(data):
     idx = np.where(np.isnan(data))[0]
     return np.delete(data, idx)
-idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092)&(Data['Cell Type'] == 1))[0]
+idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
 Data = SubDict(Data, Data.keys(), idx)
 
 # Mean Rate
@@ -41,6 +41,7 @@ sns.lineplot(
     y='Half-half Correlation',
     data=SubData1,
     hue='Maze Type',
+    hue_order=['Open Field'],
     palette=colors,
     marker='o',
     ax=ax1,
@@ -51,22 +52,22 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-SubSample = SubDict(SubData1, SubData1.keys(), np.random.choice(np.arange(len(SubData1['Half-half Correlation'])), replace=True, size=10000))
 sns.stripplot(
     x='Training Day',
     y='Half-half Correlation',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData1,
+    hue_order=['Open Field'],
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax1,
     dodge=True,
     jitter=0.1
 )
-ax1.set_ylim([-1, 1])
-ax1.set_yticks(np.linspace(-1, 1, 11))
+ax1.set_ylim([-0.2, 1])
+ax1.set_yticks(np.linspace(-0.2, 1, 7))
 
 idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 1')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1']])
 SubData2 = SubDict(SubData, SubData.keys(), idx)
@@ -85,24 +86,22 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax2
 )
-SubSample = SubDict(SubData2, SubData2.keys(), np.random.choice(np.arange(len(SubData2['Half-half Correlation'])), replace=True, size=10000))
-idx = np.concatenate([np.where((SubSample['Stage'] == 'Stage 2')&(SubSample['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1']])
-SubSample = SubDict(SubSample, SubSample.keys(), idx)
 sns.stripplot(
     x='Training Day',
     y='Half-half Correlation',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData2,
+    hue_order=['Open Field', 'Maze 1'],
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax2,
     dodge=True,
     jitter=0.1
 )
-ax2.set_ylim([-1, 1])
-ax2.set_yticks(np.linspace(-1, 1, 11))
+ax2.set_ylim([-0.2, 1])
+ax2.set_yticks(np.linspace(-0.2, 1, 7))
 
 idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
 SubData3 = SubDict(SubData, SubData.keys(), idx)
@@ -110,6 +109,7 @@ sns.lineplot(
     x='Training Day',
     y='Half-half Correlation',
     data=SubData3,
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     hue='Maze Type',
     palette=colors,
     marker='o',
@@ -121,24 +121,22 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax3
 )
-SubSample = SubDict(SubData3, SubData3.keys(), np.random.choice(np.arange(len(SubData3['Half-half Correlation'])), replace=True, size=10000))
-idx = np.concatenate([np.where((SubSample['Stage'] == 'Stage 2')&(SubSample['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
-SubSample = SubDict(SubSample, SubSample.keys(), idx)
 sns.stripplot(
     x='Training Day',
     y='Half-half Correlation',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData3,
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax3,
     dodge=True,
     jitter=0.1
 )
-ax3.set_ylim([-1, 1])
-ax3.set_yticks(np.linspace(-1, 1, 11))
+ax3.set_ylim([-0.2, 1])
+ax3.set_yticks(np.linspace(-0.2, 1, 7))
 plt.tight_layout()
 plt.savefig(join(loc, 'Half-half Correlation.png'), dpi=2400)
 plt.savefig(join(loc, 'Half-half Correlation.svg'), dpi=2400)
@@ -156,6 +154,7 @@ sns.lineplot(
     y='Odd-even Correlation',
     data=SubData1,
     hue='Maze Type',
+    hue_order=['Open Field'],
     palette=colors,
     marker='o',
     ax=ax1,
@@ -166,22 +165,22 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-SubSample = SubDict(SubData1, SubData1.keys(), np.random.choice(np.arange(len(SubData1['Odd-even Correlation'])), replace=True, size=10000))
 sns.stripplot(
     x='Training Day',
     y='Odd-even Correlation',
     hue='Maze Type',
-    data=SubSample,
+    hue_order=['Open Field'],
+    data=SubData1,
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax1,
     dodge=True,
     jitter=0.1
 )
-ax1.set_ylim([-1, 1])
-ax1.set_yticks(np.linspace(-1, 1, 11))
+ax1.set_ylim([-0.2, 1])
+ax1.set_yticks(np.linspace(-0.2, 1, 7))
 
 idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 1')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1']])
 SubData2 = SubDict(SubData, SubData.keys(), idx)
@@ -190,6 +189,7 @@ sns.lineplot(
     y='Odd-even Correlation',
     data=SubData2,
     hue='Maze Type',
+    hue_order=['Open Field', 'Maze 1'],
     palette=colors,
     marker='o',
     markeredgecolor=None,
@@ -200,24 +200,22 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax2
 )
-SubSample = SubDict(SubData2, SubData2.keys(), np.random.choice(np.arange(len(SubData2['Odd-even Correlation'])), replace=True, size=10000))
-idx = np.concatenate([np.where((SubSample['Stage'] == 'Stage 1')&(SubSample['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1']])
-SubSample = SubDict(SubSample, SubSample.keys(), idx)
 sns.stripplot(
     x='Training Day',
     y='Odd-even Correlation',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData2,
     palette=markercolors,
+    hue_order=['Open Field', 'Maze 1'],
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax2,
     dodge=True,
     jitter=0.1
 )
-ax2.set_ylim([-1, 1])
-ax2.set_yticks(np.linspace(-1, 1, 11))
+ax2.set_ylim([-0.2, 1])
+ax2.set_yticks(np.linspace(-0.2, 1, 7))
 
 idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
 SubData3 = SubDict(SubData, SubData.keys(), idx)
@@ -226,6 +224,7 @@ sns.lineplot(
     y='Odd-even Correlation',
     data=SubData3,
     hue='Maze Type',
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     palette=colors,
     marker='o',
     markeredgecolor=None,
@@ -236,25 +235,88 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax3
 )
-SubSample = SubDict(SubData3, SubData3.keys(), np.random.choice(np.arange(len(SubData3['Odd-even Correlation'])), replace=True, size=10000))
-idx = np.concatenate([np.where((SubSample['Stage'] == 'Stage 2')&(SubSample['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
-SubSample = SubDict(SubSample, SubSample.keys(), idx)
 sns.stripplot(
     x='Training Day',
     y='Odd-even Correlation',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData3,
     palette=markercolors,
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax3,
     dodge=True,
     jitter=0.1
 )
-ax3.set_ylim([-1, 1])
-ax3.set_yticks(np.linspace(-1, 1, 11))
+ax3.set_ylim([-0.2, 1])
+ax3.set_yticks(np.linspace(-0.2, 1, 7))
 plt.tight_layout()
 plt.savefig(join(loc, 'Odd-even Correlation.png'), dpi=2400)
 plt.savefig(join(loc, 'Odd-even Correlation.svg'), dpi=2400)
 plt.close()
+
+
+
+data_op_d1 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d1 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m2_d1 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+data_op_d10 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m1_d10 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10)
+print(levene(data_op_d1, data_op_d10))
+print(ttest_ind(data_op_d1, data_op_d10), cohen_d(data_op_d1, data_op_d10), end='\n\n')
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10)
+print(levene(data_m1_d1, data_m1_d10))
+print(ttest_ind(data_m1_d1, data_m1_d10), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10)
+print(levene(data_m2_d1, data_m2_d10))
+print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
+
+print("Cross Env comparison Stage 1:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 1'))[0]]
+    data_m1 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 1'))[0]]
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1), end='\n\n')
+    
+print("Cross Env comparison Stage 2:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    data_m1 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    data_m2 = SubData['Half-half Correlation'][np.where((SubData['Maze Type'] == 'Maze 2')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    
+    print("OP vs M1")
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1))
+
+    print("OP vs M2")
+    print_estimator(data_op)
+    print_estimator(data_m2)
+    print(levene(data_op, data_m2))
+    print(ttest_ind(data_op, data_m2), cohen_d(data_op, data_m2))

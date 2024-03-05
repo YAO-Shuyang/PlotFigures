@@ -22,7 +22,7 @@ else:
     ShuffleData = DataFrameEstablish(variable_names = ['Error'], f = f_decode_shuffle,
                               function = NeuralDecodingResults_Interface, f_member=['Lap ID'],
                               file_name = code_id+' [shuffle]', behavior_paradigm = 'decoding')
-"""
+
 SubData = {
     "Training Day": np.concatenate([Data['Training Day'], ShuffleData['Training Day']]),
     "Stage": np.concatenate([Data['Stage'], ShuffleData['Stage']]),
@@ -30,12 +30,11 @@ SubData = {
     "Maze Type": np.concatenate([Data['Maze Type'], ShuffleData['Maze Type']]),
     "Lap ID": np.concatenate([Data['Lap ID'], ShuffleData['Lap ID']]),
     "Error": np.concatenate([Data['Error'], ShuffleData['Error']]),
-    "Is Perfect": np.concatenate([Data['Is Perfect'], ShuffleData['Is Perfect']]),
     "Data Type": np.concatenate([np.repeat("Data", len(Data['Error'])), np.repeat("Shuffle", len(ShuffleData['Error']))]),
 }
-del Data, ShuffleData
+
 SubData['hue'] = np.array([SubData['Maze Type'][i] + SubData['Data Type'][i] for i in range(len(SubData['Maze Type']))])
-"""
+
 def create_example_video(res, save_loc: str):
     y_pred, y_test = res['y_pred'], res['y_test']
     """
@@ -65,15 +64,10 @@ def create_example_video(res, save_loc: str):
             r.remove()
     """
     images_to_video(save_loc, length = len(y_pred))
-"""
-print("initial:", DateTime())
+
+
 idx = np.where((SubData['MiceID'] != 11095)&(SubData['MiceID'] != 11092))[0]
 Data = SubDict(SubData, SubData.keys(), idx)
-del SubData
-"""
-print("initial:", DateTime())
-idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
-Data = SubDict(Data, Data.keys(), idx)
 Data['x'] = np.zeros_like(Data['Lap ID'])
 idx1 = np.where(Data['Lap ID'] == 1)[0]
 Data['x'][idx1] = 1
@@ -95,7 +89,7 @@ idx9 = np.where(Data['Lap ID'] == 9)[0]
 Data['x'][idx9] = 9
 idx10 = np.where(Data['Lap ID'] >= 10)[0]
 Data['x'][idx10] = 10
-"""
+
 idx = np.concatenate([np.where(Data['hue'] == hue)[0] for hue in ['Open FieldData', 'Open FieldShuffle', 'Maze 1Data', 'Maze 1Shuffle', 'Maze 2Data', 'Maze 2Shuffle']])
 Data = SubDict(Data, Data.keys(), idx)
 
@@ -111,8 +105,8 @@ Data = SubDict(Data, Data.keys(), idx)
 colors = sns.color_palette("rocket", 3)
 markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
 print("Start plot")
-"""
-"""
+
+
 # Open Field Decode
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,2))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -129,7 +123,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -149,7 +142,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -169,7 +161,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -181,8 +172,8 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Open Field Decode.png'), dpi=2400)
 plt.savefig(join(loc, 'Open Field Decode.svg'), dpi=2400)
 plt.close()
-"""
-"""
+
+
 # Maze 1 Decode
 colors = sns.color_palette("Blues", 2) + sns.color_palette("flare", 2)
 fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,2.3))
@@ -199,7 +190,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -219,7 +209,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -231,9 +220,9 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Maze Decode.png'), dpi=2400)
 plt.savefig(join(loc, 'Maze Decode.svg'), dpi=2400)
 plt.close()
-"""
 
-"""
+
+
 colors = sns.color_palette("Blues", 2) + sns.color_palette("flare", 2)
 fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,1.1))
 ax2 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -249,7 +238,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -270,7 +258,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -283,8 +270,7 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Maze Decode [zoom out2].png'), dpi=2400)
 plt.savefig(join(loc, 'Maze Decode [zoom out2].svg'), dpi=2400)
 plt.close()
-"""
-"""
+
 # Maze 2 Decode
 fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,2))
 ax2 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -301,7 +287,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -313,7 +298,7 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Maze 2 Decode.png'), dpi=2400)
 plt.savefig(join(loc, 'Maze 2 Decode.svg'), dpi=2400)
 plt.close()
-"""
+
 D11 = Data['Error'][np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1))[0]]
 print_estimator(D11)
 S11 = ShuffleData['Error'][np.where((ShuffleData['Maze Type'] == 'Maze 1')&(ShuffleData['Stage'] == 'Stage 1')&(ShuffleData['Training Day'] == 'Day 1')&(ShuffleData['Lap ID'] == 1))[0]]
@@ -329,7 +314,7 @@ Data['Error'] = Data['Error'] + np.random.rand(Data['Error'].shape[0])*0.2
 colors = [sns.color_palette("Blues", 2)[0], sns.color_palette("flare", 2)[0]]
 colors2 = sns.color_palette("Blues", 2) + [sns.color_palette("flare", 2)[1]]
 print(colors2)
-idx1 = np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1'))[0]
+idx1 = np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1))[0]
 fig = plt.figure(figsize=(2.5,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
@@ -342,7 +327,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -358,7 +342,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -385,7 +368,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -412,7 +394,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -440,7 +421,6 @@ sns.lineplot(
     markeredgecolor=None,
     markersize=2,
     legend=False,
-    estimator=np.median,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,

@@ -15,7 +15,7 @@ loc = os.path.join(figpath,code_id)
 mkdir(loc)
 
 if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['SI', 'Cell Type'], 
+    Data = DataFrameEstablish(variable_names = ['SI'], 
                               f = f1, function = SpatialInformation_Interface, 
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
 else:
@@ -23,7 +23,7 @@ else:
         Data = pickle.load(handle)
 
 
-idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092)&(Data['Cell Type'] == 1))[0]
+idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
 Data = SubDict(Data, Data.keys(), idx)
 
 # Mean Rate
@@ -37,7 +37,7 @@ SubData = SubDict(Data, Data.keys(), idx)
 
 colors = sns.color_palette("rocket", 3)
 markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
-"""
+
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,3))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax2 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -59,22 +59,21 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-SubSample = SubDict(SubData1, SubData1.keys(), np.random.choice(np.arange(len(SubData1['SI'])), replace=True, size=10000))
 sns.stripplot(
     x='Training Day',
     y='SI',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData1,
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax1,
     dodge=True,
     jitter=0.1
 )
-ax1.set_ylim([0, 6])
-ax1.set_yticks(np.linspace(0, 6, 7))
+ax1.set_ylim([0, 3])
+ax1.set_yticks(np.linspace(0, 3, 7))
 
 idx = np.where(SubData['Stage'] == 'Stage 1')[0]
 SubData2 = SubDict(SubData, SubData.keys(), idx)
@@ -93,22 +92,21 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax2
 )
-SubSample = SubDict(SubData2, SubData2.keys(), np.random.choice(np.arange(len(SubData2['SI'])), replace=True, size=10000))
 sns.stripplot(
     x='Training Day',
     y='SI',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData2,
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax2,
     dodge=True,
     jitter=0.1
 )
-ax2.set_ylim([0, 6])
-ax2.set_yticks(np.linspace(0, 6, 7))
+ax2.set_ylim([0, 3])
+ax2.set_yticks(np.linspace(0, 3, 7))
 
 idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
 SubData3 = SubDict(SubData, SubData.keys(), idx)
@@ -117,6 +115,7 @@ sns.lineplot(
     y='SI',
     data=SubData3,
     hue='Maze Type',
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     palette=colors,
     marker='o',
     markeredgecolor=None,
@@ -127,27 +126,26 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax3
 )
-SubSample = SubDict(SubData3, SubData3.keys(), np.random.choice(np.arange(len(SubData3['SI'])), replace=True, size=10000))
 sns.stripplot(
     x='Training Day',
     y='SI',
     hue='Maze Type',
-    data=SubSample,
+    data=SubData3,
     palette=markercolors,
     edgecolor='black',
-    size=1,
-    linewidth=0.05,
+    size=3,
+    linewidth=0.15,
     ax = ax3,
     dodge=True,
     jitter=0.1
 )
-ax3.set_ylim([0, 6])
-ax3.set_yticks(np.linspace(0, 6, 7))
+ax3.set_ylim([0, 3])
+ax3.set_yticks(np.linspace(0, 3, 7))
 plt.tight_layout()
 plt.savefig(join(loc, 'SI.png'), dpi=2400)
 plt.savefig(join(loc, 'SI.svg'), dpi=2400)
 plt.close()
-"""
+
 
 
 data_op_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
@@ -167,12 +165,12 @@ print("Maze 1: Day 1 vs Day 10")
 print_estimator(data_m1_d1)
 print_estimator(data_m1_d10)
 print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False, alternative='less'), cohen_d(data_m1_d1, data_m1_d10))
+print(ttest_ind(data_m1_d1, data_m1_d10), cohen_d(data_m1_d1, data_m1_d10))
 print("Maze 2: Day 1 vs Day 10")
 print_estimator(data_m2_d1)
 print_estimator(data_m2_d10)
 print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10, equal_var=False, alternative='less'), cohen_d(data_m2_d1, data_m2_d10))
+print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10))
 
 compdata = {
     "SI": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
@@ -193,13 +191,13 @@ sns.barplot(
     capsize=0.1,
     width=0.8
 )
-data_op_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]], replace=True, size=1000)
-data_m1_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]], replace=True, size=1000)
-data_m2_d1 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+data_op_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m2_d1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]]
 
-data_op_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
-data_m1_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
-data_m2_d10 = np.random.choice(SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]], replace=True, size=1000)
+data_op_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m1_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
 compdata = {
     "SI": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
     "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
@@ -212,13 +210,13 @@ sns.stripplot(
     data=compdata,
     palette=markercolors,
     edgecolor='black',
-    size=2,
-    linewidth=0.05,
+    size=4,
+    linewidth=0.15,
     ax = ax,
     dodge=True,
     jitter=0.15
 )
-ax.set_ylim([0,7])
+ax.set_ylim([0,3])
 plt.savefig(join(loc, 'Comparison of Sessions.png'), dpi=2400)
 plt.savefig(join(loc, 'Comparison of Sessions.svg'), dpi=2400)
 plt.close()
