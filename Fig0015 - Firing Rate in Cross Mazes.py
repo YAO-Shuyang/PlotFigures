@@ -18,10 +18,12 @@
 
 from mylib.statistic_test import *
 
-code_id = '0015 - Firing Rate - Cross Maze [field peak rate]'
+code_id = '0015 - Firing Rate - Cross Maze'
 loc = join(figpath, code_id)
 mkdir(loc)
 
+"""
+Peak rate of place fields
 if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
     Data = DataFrameEstablish(variable_names = ['peak_rate'], 
                               f = f1, function = FieldPeakRateStatistic_Interface, 
@@ -51,10 +53,10 @@ for i, ax in enumerate([axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]]):
     print(mice[i])
     print("    ", alpha, c, beta)
 plt.show()
-               
-"""
+"""               
+
 if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['peak_rate','mean_rate', 'cell_type'], 
+    Data = DataFrameEstablish(variable_names = ['peak_rate','mean_rate'], 
                               func_kwgs={'is_placecell':True},
                               f = f1, function = FiringRateProcess_Interface, 
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
@@ -65,7 +67,7 @@ else:
 
 from scipy.stats import zscore
 
-idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092)&(Data['cell_type'] == 1))[0]
+idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
 Data = SubDict(Data, Data.keys(), idx)
 
 # Mean Rate
@@ -78,6 +80,7 @@ idx = np.concatenate([np.where(Data['Training Day'] == day)[0] for day in uniq_d
 SubData = SubDict(Data, Data.keys(), idx)
 
 colors = sns.color_palette("rocket", 3)
+markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
 
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,3))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -100,6 +103,19 @@ sns.lineplot(
     linewidth=0.5,
     ax=ax1
 )
+sns.stripplot(
+    x='Training Day',
+    y='mean_rate',
+    data=SubData1,
+    hue='Maze Type',
+    palette=markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax1,
+    dodge=True,
+    jitter=0.1
+)
 ax1.set_ylim([0,1])
 ax1.set_yticks(np.linspace(0,1,6))
 
@@ -120,6 +136,19 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
+sns.stripplot(
+    x='Training Day',
+    y='mean_rate',
+    data=SubData2,
+    hue='Maze Type',
+    palette=markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax2,
+    dodge=True,
+    jitter=0.1
+)
 ax2.set_ylim([0,1])
 ax2.set_yticks(np.linspace(0,1,6))
 
@@ -139,6 +168,19 @@ sns.lineplot(
     legend=False,
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
+)
+sns.stripplot(
+    x='Training Day',
+    y='mean_rate',
+    data=SubData3,
+    hue='Maze Type',
+    palette=markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax3,
+    dodge=True,
+    jitter=0.1
 )
 ax3.set_ylim([0,1])
 ax3.set_yticks(np.linspace(0,1,6))
@@ -229,10 +271,10 @@ print_estimator(meanrate_op_10)
 print_estimator(meanrate_m1_10)
 print("mean rate: Day 1 vs Day 10 Open Field -----------------------------")
 print(levene(meanrate_op_1, meanrate_op_10))
-print(ttest_ind(meanrate_op_1, meanrate_op_10, alternative='less', equal_var=False), cohen_d(meanrate_op_1, meanrate_op_10))
+print(ttest_ind(meanrate_op_1, meanrate_op_10), cohen_d(meanrate_op_1, meanrate_op_10))
 print("mean rate: Day 1 vs Day 10 Maze 1 -----------------------------")
 print(levene(meanrate_m1_1, meanrate_m1_10))
-print(ttest_ind(meanrate_m1_1, meanrate_m1_10, alternative='less', equal_var=False), cohen_d(meanrate_m1_1, meanrate_m1_10), end='\n\n')
+print(ttest_ind(meanrate_m1_1, meanrate_m1_10), cohen_d(meanrate_m1_1, meanrate_m1_10), end='\n\n')
 
 
 for d in uniq_day:
@@ -242,7 +284,7 @@ for d in uniq_day:
     print_estimator(meanrate_op)
     print_estimator(meanrate_m1)
     print(levene(meanrate_op, meanrate_m1))
-    print(ttest_ind(meanrate_op, meanrate_m1, alternative='less', equal_var=False), cohen_d(meanrate_op, meanrate_m1))
+    print(ttest_ind(meanrate_op, meanrate_m1), cohen_d(meanrate_op, meanrate_m1), end='\n\n')
 print(end='\n\n')
 
 meanrate_op_1 = Data['mean_rate'][np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Open Field'))[0]]
@@ -259,13 +301,13 @@ print_estimator(meanrate_m1_10)
 print_estimator(meanrate_m2_10)
 print("mean rate: Day 1 vs Day 10 Open Field -----------------------------")
 print(levene(meanrate_op_1, meanrate_op_10))
-print(ttest_ind(meanrate_op_1, meanrate_op_10, alternative='less', equal_var=False), cohen_d(meanrate_op_1, meanrate_op_10))
+print(ttest_ind(meanrate_op_1, meanrate_op_10), cohen_d(meanrate_op_1, meanrate_op_10))
 print("mean rate: Day 1 vs Day 10 Maze 1 -----------------------------")
 print(levene(meanrate_m1_1, meanrate_m1_10))
-print(ttest_ind(meanrate_m1_1, meanrate_m1_10, alternative='less', equal_var=False), cohen_d(meanrate_m1_1, meanrate_m1_10))
+print(ttest_ind(meanrate_m1_1, meanrate_m1_10), cohen_d(meanrate_m1_1, meanrate_m1_10))
 print("mean rate: Day 1 vs Day 10 Maze 2 -----------------------------")
 print(levene(meanrate_m2_1, meanrate_m2_10))
-print(ttest_ind(meanrate_m2_1, meanrate_m2_10, alternative='less', equal_var=False), cohen_d(meanrate_m2_1, meanrate_m2_10), end='\n\n')
+print(ttest_ind(meanrate_m2_1, meanrate_m2_10), cohen_d(meanrate_m2_1, meanrate_m2_10), end='\n\n')
 
 for d in uniq_day:
     meanrate_op = Data['mean_rate'][np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == d) & (Data['Maze Type'] == 'Open Field'))[0]]
@@ -277,14 +319,12 @@ for d in uniq_day:
     print_estimator(meanrate_m2)
     print("   op vs m1")
     print(levene(meanrate_op, meanrate_m1))
-    print(ttest_ind(meanrate_op, meanrate_m1, alternative='less', equal_var=False))
+    print(ttest_ind(meanrate_op, meanrate_m1))
     print("   op vs m2")
     print(levene(meanrate_op, meanrate_m2))
-    print(ttest_ind(meanrate_op, meanrate_m2, alternative='less', equal_var=False))
+    print(ttest_ind(meanrate_op, meanrate_m2))
     print("   m1 vs m2")
     print(levene(meanrate_m1, meanrate_m2))
-    print(ttest_ind(meanrate_m1, meanrate_m2, alternative='less', equal_var=False))
+    print(ttest_ind(meanrate_m1, meanrate_m2))
 print(end='\n\n')
-"""
-
 
