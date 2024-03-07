@@ -98,8 +98,8 @@ def exp_func(x, k, b):
 def polynomial_converge2(x, k, b, c):
     return c - 1 / (k*x + b)
 
-def kww_decay(x, b, c):
-    return np.exp(-np.power(x/b, c))
+def kww_decay(x, a, b, c):
+    return a*np.exp(-np.power(x/b, c))
 
 def report_para(Data, name: str = 'KWW', key: str = 'Conditional Prob.'):
     mazes = ['Maze 1', 'Maze 2']
@@ -164,7 +164,8 @@ def report_para(Data, name: str = 'KWW', key: str = 'Conditional Prob.'):
 
 colors = sns.color_palette("rocket", 3)[1:]
 markercolors = [sns.color_palette("Blues", 3)[1], sns.color_palette("Blues", 3)[2]]
-"""
+chancecolors = ['#D4C9A8', '#8E9F85', '#C3AED6', '#FED7D7']
+
 #Data['hue'] = np.array([Data['Papadigm'][i] + ' ' + Data['Maze Type'][i] for i in range(Data['Duration'].shape[0])])
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (np.isnan(Data['Conditional Prob.']) == False)&
@@ -265,6 +266,12 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (Data['Maze Type'] != 'Open Field')&
                (Data['Type'] == 'Real'))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
+
+idx = np.where((Data['Paradigm'] == 'CrossMaze')&
+               (np.isnan(Data['Conditional Recover Prob.']) == False)&
+               (Data['Maze Type'] != 'Open Field')&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
 idx1 = np.where(SubData['Maze Type'] == 'Maze 1')[0]
 idx2 = np.where(SubData['Maze Type'] == 'Maze 2')[0]
 params1, _ = curve_fit(kww_decay, SubData['Duration'][idx1], SubData['Conditional Recover Prob.'][idx1]/100)
@@ -296,13 +303,28 @@ sns.stripplot(
     dodge=True,
     jitter=0.1
 )
-
-ax.set_ylim(-1, 45)
-ax.set_yticks(np.linspace(0, 45, 10))
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Conditional Recover Prob.'],
+    hue = ShufData['Maze Type'],
+    palette = chancecolors,
+    linewidth = 0.5,
+    err_kws={"edgecolor": None},
+    ax = ax
+)
+ax.set_ylim(-1, 40)
+ax.set_yticks(np.linspace(0, 40, 5))
 
 plt.savefig(join(loc, 'Conditional recover prob.png'), dpi = 600)
 plt.savefig(join(loc, 'Conditional recover prob.svg'), dpi = 600)
 plt.close()
+
+print("Maze A&B Conditional Recovery Prob. -----------------------------------------")
+for i in range(1, 25):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
+                    ShufData['Conditional Recover Prob.'][ShufData['Duration'] == i]))
+print()
 
 fig = plt.figure(figsize=(5, 2.5))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -337,32 +359,22 @@ plt.savefig(join(loc, 'off-next num.png'), dpi = 600)
 plt.savefig(join(loc, 'off-next num.svg'), dpi = 600)
 plt.close()
 
-idx = np.where((Data['Paradigm'] == 'CrossMaze')&
-               (np.isnan(Data['Global Recover Prob.']) == False)&
-               (Data['Type'] == 'Shuffle'))[0]
-SubData = SubDict(Data, Data.keys(), idx=idx)
-idx0 = np.where(SubData['Maze Type'] == 'Open Field')[0]
-idx1 = np.where(SubData['Maze Type'] == 'Maze 1')[0]
-idx2 = np.where(SubData['Maze Type'] == 'Maze 2')[0]
-params0, _ = curve_fit(kww_decay, SubData['Duration'][idx0], SubData['Global Recover Prob.'][idx0]/100)
-x0 = np.linspace(min(SubData['Duration'][idx0]), max(SubData['Duration'][idx0]), 10000)
-print("Global Recovery Prob")
-print(params0)
-params1, _ = curve_fit(kww_decay, SubData['Duration'][idx1], SubData['Global Recover Prob.'][idx1]/100)
-x1 = np.linspace(min(SubData['Duration'][idx1]), max(SubData['Duration'][idx1]), 10000)
-print(params1)
-params2, _ = curve_fit(kww_decay, SubData['Duration'][idx2], SubData['Global Recover Prob.'][idx2]/100)
-x2 = np.linspace(min(SubData['Duration'][idx2]), max(SubData['Duration'][idx2]), 10000)
-print(params2, end='\n\n')
-
 
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (np.isnan(Data['Conditional Prob.']) == False)&
                (Data['Maze Type'] == 'Open Field')&
                (Data['Type'] == 'Real'))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
+
+idx = np.where((Data['Paradigm'] == 'CrossMaze')&
+               (np.isnan(Data['Conditional Prob.']) == False)&
+               (Data['Maze Type'] == 'Open Field')&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
+
 params2, _ = curve_fit(polynomial_converge2, SubData['Duration'], SubData['Conditional Prob.']/100)
 x2 = np.linspace(min(SubData['Duration']), max(SubData['Duration']), 10000)
+print("Open Field P1")
 print(params2)
 
 fig = plt.figure(figsize=(4, 2))
@@ -455,12 +467,28 @@ sns.stripplot(
     dodge=True,
     jitter=0.1
 )
-ax.set_ylim(0, 60)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Conditional Recover Prob.'],
+    hue = ShufData['Maze Type'],
+    palette = chancecolors,
+    linewidth = 0.5,
+    err_kws={"edgecolor": None},
+    ax = ax
+)
+ax.set_ylim(-1, 60)
 ax.set_yticks(np.linspace(0, 60, 7))
 
 plt.savefig(join(loc, '[Open Field] conditional recovery prob.png'), dpi = 600)
 plt.savefig(join(loc, '[Open Field] conditional recovery prob.svg'), dpi = 600)
 plt.close()
+
+print("Open Field Recovery Statistic Test")
+for i in range(1, 12):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
+                    ShufData['Conditional Recover Prob.'][ShufData['Duration'] == i]))
+print()
 
 fig = plt.figure(figsize=(4, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -529,6 +557,7 @@ idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
 params4, _ = curve_fit(polynomial_converge2, SubData['Duration'][idx], SubData['Conditional Prob.'][idx]/100, bounds=bounds)
 x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params4)
+    
 y4 = polynomial_converge2(x4, *params4)
 colors = ['#6D9BA8', '#A3CBB2', '#E9D985', '#D57A66']
 ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
@@ -561,35 +590,56 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze')&
                (np.isnan(Data['Conditional Recover Prob.']) == False)&
                (Data['Type'] == 'Real'))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
+
+idx = np.where((Data['Paradigm'] != 'CrossMaze')&
+               (np.isnan(Data['Conditional Recover Prob.']) == False)&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
+
 fig = plt.figure(figsize=(4, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 
 # Fit parameters
-bounds = [[]]
+bounds = [[0, 0, 0], [np.inf, np.inf, 1]]
+initial_guesses = [1, 1, 0.5]
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze cis')[0]
-params1, _ = curve_fit(kww_decay, SubData['Duration'][idx], SubData['Conditional Recover Prob.'][idx]/100)
+params1, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
 x1 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print("Hairpin&Reverse Conditional Recover Prob.")
 print(params1)
 y1 = kww_decay(x1, *params1)
 
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze trs')[0]
-params2, _ = curve_fit(kww_decay, SubData['Duration'][idx], SubData['Conditional Recover Prob.'][idx]/100)
+params2, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
 x2 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params2)
 y2 = kww_decay(x2, *params2)
 
 idx = np.where(SubData['Paradigm'] == 'ReverseMaze cis')[0]
-params3, _ = curve_fit(kww_decay, SubData['Duration'][idx], SubData['Conditional Recover Prob.'][idx]/100)
+params3, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
 x3 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params3)
 y3 = kww_decay(x3, *params3)
 
-idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
-params4, _ = curve_fit(kww_decay, SubData['Duration'][idx], SubData['Conditional Recover Prob.'][idx]/100)
-x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
-print(params4)
-y4 = kww_decay(x4, *params4)
+try:
+    idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
+    params4, _ = curve_fit(lambda x, c, b: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100)
+    x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+    print(params4)
+except:
+    params4 = [np.nan, np.nan, np.nan]
+
+y4 = kww_decay(x4, 1, *params4)
 colors = ['#6D9BA8', '#A3CBB2', '#E9D985', '#D57A66']
 ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
 ax.plot(x2-1, y2*100, color=colors[1], linewidth = 0.5)
@@ -609,13 +659,47 @@ sns.stripplot(
     ax = ax,
     jitter=0.2
 )
-ax.set_ylim(0, 45)
-ax.set_yticks(np.linspace(0, 45, 10))
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Conditional Recover Prob.'],
+    hue = ShufData['Paradigm'],
+    hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
+    palette = chancecolors,
+    linewidth = 0.5,
+    err_kws={"edgecolor": None},
+    ax = ax
+)
+ax.set_ylim(0, 40)
+ax.set_yticks(np.linspace(0, 40, 5))
 
 plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.svg'), dpi = 600)
 plt.close()
-"""
+
+print("HairpinMaze cis Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]],
+                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]]))
+print()
+print("HairpinMaze trs Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]],
+                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]]))
+print()
+print("Reverse cis Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]],
+                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]]))
+print()
+print("Reverse trs Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]],
+                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]]))
+print()
 
 # Global Recovery Prob.
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
@@ -624,19 +708,30 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (Data['Type'] == 'Real'))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
 
+idx = np.where((Data['Paradigm'] == 'CrossMaze')&
+               (np.isnan(Data['Global Recover Prob.']) == False)&
+               (Data['Maze Type'] != 'Open Field')&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
+
 idx1 = np.where(SubData['Maze Type'] == 'Maze 1')[0]
 idx2 = np.where(SubData['Maze Type'] == 'Maze 2')[0]
 
-params1, _ = curve_fit(kww_decay, SubData['Duration'][idx1], SubData['Global Recover Prob.'][idx1]/100)
-params2, _ = curve_fit(kww_decay, SubData['Duration'][idx2], SubData['Global Recover Prob.'][idx2]/100)
+params1, _ = curve_fit(kww_decay, SubData['Duration'][idx1], SubData['Global Recover Prob.'][idx1]/100,
+                       bounds=[[0, 0, 0], [np.inf, np.inf, 1]],
+                       p0=[0.5, 0.5, 0.5])
+params2, _ = curve_fit(kww_decay, SubData['Duration'][idx2], SubData['Global Recover Prob.'][idx2]/100,
+                       bounds=[[0, 0, 0], [np.inf, np.inf, 1]],
+                       p0=[0.5, 0.5, 0.5])
 print("Maze A&B global recover prob.")
 print(params1)
-print(params2)
+print(params2, end='\n\n')
 
 x1 = np.linspace(min(SubData['Duration'][idx1]), max(SubData['Duration'][idx1]), 10000)
 x2 = np.linspace(min(SubData['Duration'][idx2]), max(SubData['Duration'][idx2]), 10000)
 y1 = kww_decay(x1, *params1)
 y2 = kww_decay(x2, *params2)
+colors = sns.color_palette("rocket", 3)[1:]
 
 fig = plt.figure(figsize=(4,2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -646,7 +741,7 @@ sns.stripplot(
     x = 'Duration',
     y = 'Global Recover Prob.',
     data=SubData,
-    hue = "Paradigm",
+    hue = "Maze Type",
     hue_order=['Maze 1', 'Maze 2'],
     palette = markercolors,
     edgecolor='black',
@@ -657,9 +752,315 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(0, 103)
-ax.set_yticks(np.linspace(0, 100, 6))
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    data=ShufData,
+    hue=ShufData['Maze Type'],
+    palette=chancecolors,
+    err_kws={"edgecolor": None},
+    linewidth = 0.5,
+    ax = ax
+)
+ax.set_ylim(-2, 40)
+ax.set_yticks(np.linspace(0, 40, 5))
 
 plt.savefig(join(loc, 'Global recover prob.png'), dpi = 600)
 plt.savefig(join(loc, 'Global recover prob.svg'), dpi = 600)
 plt.close()
+
+fig = plt.figure(figsize=(4,2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
+ax.plot(x2-1, y2*100, color=colors[1], linewidth = 0.5)
+sns.stripplot(
+    x = 'Duration',
+    y = 'Global Recover Prob.',
+    data=SubData,
+    hue = "Maze Type",
+    hue_order=['Maze 1', 'Maze 2'],
+    palette = markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    alpha=0.9,
+    jitter=0.1,
+    dodge=True,
+    ax = ax
+)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    data=ShufData,
+    hue=ShufData['Maze Type'],
+    palette=chancecolors,
+    err_kws={"edgecolor": None},
+    linewidth = 0.5,
+    ax = ax
+)
+ax.semilogy()
+ax.set_ylim(0.01, 40)
+
+plt.savefig(join(loc, 'Global recover prob [semilogy].png'), dpi = 600)
+plt.savefig(join(loc, 'Global recover prob [semilogy].svg'), dpi = 600)
+plt.close()
+
+print("Maze A&B statistic test global recovery.")
+for i in range(1, 23):
+    print("Day ", i)
+    print(levene(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
+                ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]]))
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
+                ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]], equal_var=False))
+    
+    
+# Global Recovery Prob. Open Field
+idx = np.where((Data['Paradigm'] == 'CrossMaze')&
+               (np.isnan(Data['Global Recover Prob.']) == False)&
+               (Data['Maze Type'] == 'Open Field')&
+               (Data['Type'] == 'Real'))[0]
+SubData = SubDict(Data, Data.keys(), idx=idx)
+
+idx = np.where((Data['Paradigm'] == 'CrossMaze')&
+               (np.isnan(Data['Global Recover Prob.']) == False)&
+               (Data['Maze Type'] == 'Open Field')&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
+
+params, _ = curve_fit(kww_decay, SubData['Duration'], SubData['Global Recover Prob.']/100,
+                       bounds=[[0, 0, 0], [np.inf, np.inf, 1]],
+                       p0=[0.5, 0.5, 0.5])
+print("Open Field global recover prob.")
+print(params, end='\n\n')
+
+x = np.linspace(min(SubData['Duration']), max(SubData['Duration']), 10000)
+y = kww_decay(x, *params)
+colors = sns.color_palette("rocket", 3)[:1]
+
+fig = plt.figure(figsize=(4,2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(x-1, y*100, color=colors[0], linewidth = 0.5)
+sns.stripplot(
+    x = 'Duration',
+    y = 'Global Recover Prob.',
+    data=SubData,
+    hue = "Maze Type",
+    palette = markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    alpha=0.9,
+    jitter=0.1,
+    dodge=True,
+    ax = ax
+)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    data=ShufData,
+    hue=ShufData['Maze Type'],
+    palette=chancecolors,
+    err_kws={"edgecolor": None},
+    linewidth = 0.5,
+    ax = ax
+)
+ax.set_ylim(-2, 40)
+ax.set_yticks(np.linspace(0, 40, 5))
+
+plt.savefig(join(loc, '[Open Field] Global recover prob.png'), dpi = 600)
+plt.savefig(join(loc, '[Open Field] Global recover prob.svg'), dpi = 600)
+plt.close()
+
+fig = plt.figure(figsize=(4,2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(x-1, y*100, color=colors[0], linewidth = 0.5)
+sns.stripplot(
+    x = 'Duration',
+    y = 'Global Recover Prob.',
+    data=SubData,
+    hue = "Maze Type",
+    palette = markercolors,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    alpha=0.9,
+    jitter=0.1,
+    dodge=True,
+    ax = ax
+)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    data=ShufData,
+    hue=ShufData['Maze Type'],
+    palette=chancecolors,
+    err_kws={"edgecolor": None},
+    linewidth = 0.5,
+    ax = ax
+)
+ax.semilogy()
+ax.set_ylim(0.01, 40)
+
+plt.savefig(join(loc, '[Open Field] Global recover prob [semilogy].png'), dpi = 600)
+plt.savefig(join(loc, '[Open Field] Global recover prob [semilogy].svg'), dpi = 600)
+plt.close()
+
+print("Open Field Global recovery statistic test")
+for i in range(1, 12):
+    print("Day ",i)
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
+                ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]], alternative='greater'))
+print()
+
+
+# Global Recovery Prob. Hairpin
+idx = np.where((Data['Paradigm'] != 'CrossMaze')&
+               (np.isnan(Data['Global Recover Prob.']) == False)&
+               (Data['Type'] == 'Real'))[0]
+SubData = SubDict(Data, Data.keys(), idx=idx)
+
+idx = np.where((Data['Paradigm'] != 'CrossMaze')&
+               (np.isnan(Data['Global Recover Prob.']) == False)&
+               (Data['Type'] == 'Shuffle'))[0]
+ShufData = SubDict(Data, Data.keys(), idx=idx)
+
+
+# Fit parameters
+bounds = [[0, 0, 0], [np.inf, np.inf, 1]]
+initial_guesses = [1, 1, 0.5]
+idx = np.where(SubData['Paradigm'] == 'HairpinMaze cis')[0]
+params1, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
+x1 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+print("Hairpin&Reverse Global Recover Prob.")
+print(params1)
+y1 = kww_decay(x1, *params1)
+
+idx = np.where(SubData['Paradigm'] == 'HairpinMaze trs')[0]
+params2, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
+x2 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+print(params2)
+y2 = kww_decay(x2, *params2)
+
+idx = np.where(SubData['Paradigm'] == 'ReverseMaze cis')[0]
+params3, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, 
+                       bounds=bounds, 
+                       p0=initial_guesses)
+x3 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+print(params3)
+y3 = kww_decay(x3, *params3)
+
+idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
+params4, _ = curve_fit(lambda x, b, c: kww_decay(x, 36, b, c), SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100)
+x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+print(params4)
+
+
+y4 = kww_decay(x4, 36, *params4)
+colors = ['#6D9BA8', '#A3CBB2', '#E9D985', '#D57A66']
+
+fig = plt.figure(figsize=(4, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
+ax.plot(x2-1, y2*100, color=colors[1], linewidth = 0.5)
+ax.plot(x3-1, y3*100, color=colors[2], linewidth = 0.5)
+ax.plot(x4-1, y4*100, color=colors[3], linewidth = 0.5)
+sns.stripplot(
+    x = 'Duration',
+    y = 'Global Recover Prob.',
+    data=SubData,
+    hue = "Paradigm",
+    hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
+    palette = colors,
+    edgecolor='black',
+    size=2,
+    linewidth=0.1,
+    alpha=0.9,
+    ax = ax,
+    jitter=0.2
+)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    hue = ShufData['Paradigm'],
+    hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
+    palette = chancecolors,
+    linewidth = 0.5,
+    err_kws={"edgecolor": None},
+    ax = ax
+)
+ax.set_ylim(-1, 40)
+ax.set_yticks(np.linspace(0, 40, 5))
+
+plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob.png'), dpi = 600)
+plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob.svg'), dpi = 600)
+plt.close()
+
+fig = plt.figure(figsize=(4, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
+ax.plot(x2-1, y2*100, color=colors[1], linewidth = 0.5)
+ax.plot(x3-1, y3*100, color=colors[2], linewidth = 0.5)
+ax.plot(x4-1, y4*100, color=colors[3], linewidth = 0.5)
+sns.stripplot(
+    x = 'Duration',
+    y = 'Global Recover Prob.',
+    data=SubData,
+    hue = "Paradigm",
+    hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
+    palette = colors,
+    edgecolor='black',
+    size=2,
+    linewidth=0.1,
+    alpha=0.9,
+    ax = ax,
+    jitter=0.2
+)
+sns.lineplot(
+    x = ShufData['Duration']-1,
+    y = ShufData['Global Recover Prob.'],
+    hue = ShufData['Paradigm'],
+    hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
+    palette = chancecolors,
+    linewidth = 0.5,
+    err_kws={"edgecolor": None},
+    ax = ax
+)
+ax.semilogy()
+ax.set_ylim(0.01, 40)
+
+plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob [semilogy].png'), dpi = 600)
+plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob [semilogy].svg'), dpi = 600)
+plt.close()
+
+print("HairpinMaze cis Global Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]],
+                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]]))
+print()
+print("HairpinMaze trs Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]],
+                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]]))
+print()
+print("Reverse cis Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]],
+                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]]))
+print()
+print("Reverse trs Recovery Statistic Test")
+for i in range(1, 11):
+    print("Day ",i)
+    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]],
+                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]]))
+print()
