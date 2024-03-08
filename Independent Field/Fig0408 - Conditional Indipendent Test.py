@@ -140,13 +140,14 @@ sns.barplot(
     y='Pair Num',
     data = SubData,
     hue = 'Maze Type',
-    palette='rocket',
+    palette=['#003366', '#66CCCC', '#D4C9A8'],
     ax = ax,
     errwidth=0.5,
     capsize=0.15,
     errcolor='black',
     width = 0.8
 )
+"""
 sns.stripplot(
     x='MiceID',
     y='Pair Num',
@@ -159,7 +160,9 @@ sns.stripplot(
     linewidth=0.1,
     jitter=0.1,
     dodge=True
-)
+)"""
+ax.set_ylim(0, 16000)
+ax.set_yticks(np.linspace(0, 16000, 9))
 plt.savefig(join(loc, "Number of Field Pairs used for statistic test.png"), dpi=600)
 plt.savefig(join(loc, "Number of Field Pairs used for statistic test.svg"), dpi=600)
 plt.close()
@@ -173,7 +176,7 @@ sns.barplot(
     y='Chi2 Statistic',
     data = Data,
     hue = 'hue',
-    palette='rocket',
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#D4C9A8', '#8E9F85'],
     hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
     ax = ax,
     errwidth=0.5,
@@ -181,6 +184,7 @@ sns.barplot(
     errcolor='black',
     width = 0.8
 )
+"""
 sns.stripplot(
     x='Variable',
     y='Chi2 Statistic',
@@ -195,6 +199,9 @@ sns.stripplot(
     jitter=0.1,
     dodge=True
 )
+"""
+ax.set_ylim(0, 3000)
+ax.set_yticks(np.linspace(0, 3000, 7))
 plt.savefig(join(loc, "Chi2 Statistic.png"), dpi=600)
 plt.savefig(join(loc, "Chi2 Statistic.svg"), dpi=600)
 plt.close()
@@ -242,13 +249,14 @@ sns.barplot(
     data = Data,
     hue = 'hue',
     hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
-    palette='rocket',
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#D4C9A8', '#8E9F85'],
     ax = ax,
     errwidth=0.5,
     capsize=0.08,
     errcolor='black',
     width = 0.8
 )
+"""
 sns.stripplot(
     x='Variable',
     y='Mutual Information',
@@ -263,6 +271,9 @@ sns.stripplot(
     jitter=0.1,
     dodge=True
 )
+"""
+ax.set_ylim(0, 0.4)
+ax.set_yticks(np.linspace(0, 0.4, 5))
 plt.savefig(join(loc, "Mutual Information.png"), dpi=600)
 plt.savefig(join(loc, "Mutual Information.svg"), dpi=600)
 plt.close()

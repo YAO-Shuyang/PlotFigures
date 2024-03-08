@@ -321,7 +321,6 @@ sns.stripplot(
     size=3,
     linewidth=0.15,
     ax = ax,
-    dodge=True,
     jitter=0.2
 )
 ax.set_ylim([0, 1])
