@@ -71,10 +71,13 @@ index_map = Read_and_Sort_IndexMap(
         '20230728'])
 )
 """
+# index_map = GetMultidayIndexmap(mouse=10224, stage='Stage 1+2', session=2, occu_num=2)
+index_map = GetMultidayIndexmap(mouse=10227, stage='Stage 1+2', session=2, occu_num=2, f=f_CellReg_modi)
+index_map[np.where(np.isnan(index_map))] = 0
+index_map = index_map.astype(np.int64)
 
-index_map = GetMultidayIndexmap(mouse=10224, stage='Stage 1+2', session=2, occu_num=2)
-
-cellnum = np.where(index_map == 0, 0, 1)
+#cellnum = np.where(index_map == 0, 0, 1)
+cellnum = np.where(index_map > 0, 1, 0)
 cellnum = np.nansum(cellnum, axis=0)
 
 dates = [ 20230806, 20230808, 20230810, 20230812, 
@@ -91,8 +94,9 @@ dates = [ 20230806, 20230808, 20230810, 20230812,
 for n in range(26, 1, -1):
     
     idx = np.where(cellnum == n)[0]
-    mkdir(join(loc, '10224-Stage 1+2-Maze 1', str(n)+' Cells'))
-
+    print(n, idx)
+    mkdir(join(loc, '10227-Stage 1+2-Maze 1 [footprint]', str( n)+' Cells'))
+    """
     MultiDayLayout.visualize_cells(
         index_map=index_map,
         cell_pairs=idx,
@@ -107,5 +111,19 @@ for n in range(26, 1, -1):
         loctimecurve_kwargs = {'bar_kwargs':{'markeredgewidth': 3, 'markersize': 5}},
         layout_kw={"width_ratios": [2, 2, 10, 2]}
     )
-
-
+    """
+    MultiDayLayout3.visualize_cells(
+        index_map=index_map,
+        cell_pairs=idx,
+        f=f1,
+        footprint_dirs=[os.path.join(r"E:\Data\Cross_maze\10227\Super Long-term Maze 1", 
+                                     "SFP"+str(date)+".mat") for date in dates],
+        mouse=10227,
+        maze_type=1,
+        session=2,
+        dates=dates,
+        save_loc=join(loc, '10227-Stage 1+2-Maze 1 [footprint]', str(n)+' Cells'),
+        is_show=False,
+        loctimecurve_kwargs = {'bar_kwargs':{'markeredgewidth': 3, 'markersize': 5}},
+        layout_kw={"width_ratios": [2, 2, 2, 10]}
+    )
