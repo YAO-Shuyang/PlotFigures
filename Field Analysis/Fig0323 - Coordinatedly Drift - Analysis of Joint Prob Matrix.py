@@ -10,8 +10,8 @@ if __name__ == '__main__':
     from tqdm import tqdm
 
 idx = np.where(f_CellReg_modi['Type'] == 'Real')[0]
-if os.path.exists(join(figdata, code_id+' [new].pkl')):
-    with open(join(figdata, code_id+' [new].pkl'), 'rb') as handle:
+if os.path.exists(join(figdata, code_id+'.pkl')):
+    with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
     Data = DataFrameEstablish(
