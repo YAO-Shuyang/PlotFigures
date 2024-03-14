@@ -328,3 +328,75 @@ for d in uniq_day:
     print(ttest_ind(meanrate_m1, meanrate_m2))
 print(end='\n\n')
 
+data_op_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m2_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+data_op_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m1_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10)
+print(levene(data_op_d1, data_op_d10))
+print(ttest_ind(data_op_d1, data_op_d10), cohen_d(data_op_d1, data_op_d10))
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10)
+print(levene(data_m1_d1, data_m1_d10))
+print(ttest_ind(data_m1_d1, data_m1_d10), cohen_d(data_m1_d1, data_m1_d10))
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10)
+print(levene(data_m2_d1, data_m2_d10))
+print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10))
+
+compdata = {
+    "mean_rate": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+}
+fig = plt.figure(figsize=(3,4))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x='Session',
+    y='mean_rate',
+    hue='Maze Type',
+    data=compdata,
+    palette=colors,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5,
+    capsize=0.1,
+    width=0.8
+)
+data_op_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m2_d1 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+data_op_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m1_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['mean_rate'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+compdata = {
+    "mean_rate": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+}
+sns.stripplot(
+    x='Session',
+    y='mean_rate',
+    hue='Maze Type',
+    data=compdata,
+    palette=markercolors,
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True,
+    jitter=0.15
+)
+ax.set_ylim([0,1.5])
+plt.savefig(join(loc, 'Comparison of Sessions.png'), dpi=2400)
+plt.savefig(join(loc, 'Comparison of Sessions.svg'), dpi=2400)
+plt.close()

@@ -106,7 +106,7 @@ colors = sns.color_palette("rocket", 3)
 markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
 print("Start plot")
 
-
+"""
 # Open Field Decode
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,2))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -298,6 +298,7 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Maze 2 Decode.png'), dpi=2400)
 plt.savefig(join(loc, 'Maze 2 Decode.svg'), dpi=2400)
 plt.close()
+"""
 
 D11 = Data['Error'][np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1))[0]]
 print_estimator(D11)
@@ -314,33 +315,18 @@ Data['Error'] = Data['Error'] + np.random.rand(Data['Error'].shape[0])*0.2
 colors = [sns.color_palette("Blues", 2)[0], sns.color_palette("flare", 2)[0]]
 colors2 = sns.color_palette("Blues", 2) + [sns.color_palette("flare", 2)[1]]
 print(colors2)
-idx1 = np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1))[0]
-fig = plt.figure(figsize=(2.5,3))
+idx1 = np.where((Data['Maze Type'] == 'Maze 1')&
+                (Data['Stage'] == 'Stage 1')&
+                (Data['Training Day'] == 'Day 1')&
+                (Data['Data Type'] == 'Data'))[0]
+fig = plt.figure(figsize=(1.8, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
     x=Data['x'][idx1],
     y=Data['Error'][idx1],
     hue=Data['Maze Type'][idx1],
     palette=colors2,
-    marker='o',
     ax=ax,
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
-    err_style='bars',
-    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
-    linewidth=0.5,
-)
-idx1 = np.where((ShuffleData['Maze Type'] == 'Maze 1')&(ShuffleData['Stage'] == 'Stage 1')&(ShuffleData['Training Day'] == 'Day 1'))[0]
-sns.lineplot(
-    x=ShuffleData['Lap ID'][idx1],
-    y=ShuffleData['Error'][idx1],
-    hue=ShuffleData['Maze Type'][idx1],
-    palette=colors2[1:],
-    marker='o',
-    ax=ax,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -348,14 +334,18 @@ sns.lineplot(
 )
 ax.set_yticks(np.linspace(0, 180, 10))
 ax.set_ylim(0, 180)
-ax.set_xticks(np.linspace(1, 10, 10))
+ax.set_xticks(np.linspace(1, 6, 6))
+ax.set_xlim(0.5, 6.5)
 plt.tight_layout()
 plt.savefig(join(loc, 'Stage 1 Day 1 Laps.png'), dpi=2400)
 plt.savefig(join(loc, 'Stage 1 Day 1 Laps.svg'), dpi=2400)
 plt.close()
 
 
-idx1 = np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == '>=Day 10'))[0]
+idx1 = np.where((Data['Maze Type'] == 'Maze 1')&
+                (Data['Stage'] == 'Stage 1')&
+                (Data['Training Day'] == '>=Day 10')&
+                (Data['Data Type'] == 'Data'))[0]
 fig = plt.figure(figsize=(2.5,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
@@ -363,17 +353,13 @@ sns.lineplot(
     y=Data['Error'][idx1],
     hue = Data['Maze Type'][idx1],
     palette = colors2,
-    marker='o',
     ax=ax,
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-ax.set_ylim(0,15)
-ax.set_yticks(np.linspace(0,15,6))
+ax.set_ylim(0,25)
+ax.set_yticks(np.linspace(0,25,6))
 ax.set_xticks(np.linspace(1, 10, 10))
 plt.tight_layout()
 plt.savefig(join(loc, 'Stage 1 Day 10 Laps.png'), dpi=2400)
@@ -381,19 +367,18 @@ plt.savefig(join(loc, 'Stage 1 Day 10 Laps.svg'), dpi=2400)
 plt.close()
 
 
-idx1 = np.where((Data['Maze Type'] != 'Open Field')&(Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1'))[0]
+idx1 = np.where((Data['Maze Type'] != 'Open Field')&
+                (Data['Stage'] == 'Stage 2')&
+                (Data['Training Day'] == 'Day 1')&
+                (Data['Data Type'] == 'Data'))[0]
 fig = plt.figure(figsize=(2.5,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
     x=Data['x'][idx1],
     y=Data['Error'][idx1],
-    hue = Data['Maze Type'][idx1],
+    hue = Data['hue'][idx1],
     palette=colors,
-    marker='o',
     ax=ax,
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
@@ -408,19 +393,18 @@ plt.savefig(join(loc, 'Stage 2 Day 1 Laps.svg'), dpi=2400)
 plt.close()
 
 
-idx1 = np.where((Data['Maze Type'] != 'Open Field')&(Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10'))[0]
+idx1 = np.where((Data['Maze Type'] != 'Open Field')&
+                (Data['Stage'] == 'Stage 2')&
+                (Data['Training Day'] == '>=Day 10')&
+                (Data['Data Type'] == 'Data'))[0]
 fig = plt.figure(figsize=(2.5,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
     x=Data['x'][idx1],
     y=Data['Error'][idx1],
-    hue = Data['Maze Type'][idx1],
+    hue = Data['hue'][idx1],
     palette=colors,
-    marker='o',
     ax=ax,
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
