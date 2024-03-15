@@ -24,3 +24,8 @@ print_estimator(Data['Overlap'][np.where(Data['Data Type'] == 'Data')[0]])
 print_estimator(Data['Overlap'][np.where(Data['Data Type'] == 'Shuffle')[0]])
 print(levene(Data['Overlap'][np.where(Data['Data Type'] == 'Data')[0]], Data['Overlap'][np.where(Data['Data Type'] == 'Shuffle')[0]]))
 print(ttest_ind(Data['Overlap'][np.where(Data['Data Type'] == 'Data')[0]], Data['Overlap'][np.where(Data['Data Type'] == 'Shuffle')[0]]))
+
+print_estimator(HPData['Overlap'][np.where(HPData['Data Type'] == 'Data')[0]])
+print_estimator(HPData['Overlap'][np.where(HPData['Data Type'] == 'Shuffle')[0]])
+print(levene(HPData['Overlap'][np.where(HPData['Data Type'] == 'Data')[0]], HPData['Overlap'][np.where(HPData['Data Type'] == 'Shuffle')[0]]))
+print(ttest_ind(HPData['Overlap'][np.where(HPData['Data Type'] == 'Data')[0]], HPData['Overlap'][np.where(HPData['Data Type'] == 'Shuffle')[0]]))

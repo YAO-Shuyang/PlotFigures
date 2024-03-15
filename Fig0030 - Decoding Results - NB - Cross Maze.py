@@ -106,7 +106,69 @@ colors = sns.color_palette("rocket", 3)
 markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[3], sns.color_palette("flare", 9)[0]]
 print("Start plot")
 
-"""
+
+# Statistic Test
+data_op_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1')&(SubData['Data Type'] == 'Data'))[0]]
+data_m1_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1')&(SubData['Data Type'] == 'Data'))[0]]
+data_m2_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+
+data_op_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+data_m1_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+data_m2_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10)
+print(levene(data_op_d1, data_op_d10))
+print(ttest_ind(data_op_d1, data_op_d10, equal_var=False), cohen_d(data_op_d1, data_op_d10))
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10)
+print(levene(data_m1_d1, data_m1_d10))
+print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False), cohen_d(data_m1_d1, data_m1_d10))
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10)
+print(levene(data_m2_d1, data_m2_d10))
+print(ttest_ind(data_m2_d1, data_m2_d10, equal_var=False), cohen_d(data_m2_d1, data_m2_d10))
+
+compdata = {
+    "Error": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+}
+fig = plt.figure(figsize=(3,4))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x='Session',
+    y='Error',
+    hue='Maze Type',
+    data=compdata,
+    palette=colors,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5,
+    capsize=0.1,
+    width=0.8
+)
+sns.stripplot(
+    x='Session',
+    y='Error',
+    hue='Maze Type',
+    data=compdata,
+    palette=markercolors,
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True,
+    jitter=0.15
+)
+plt.savefig(join(loc, 'Comparison of Sessions.png'), dpi=2400)
+plt.savefig(join(loc, 'Comparison of Sessions.svg'), dpi=2400)
+plt.close()
+
+
 # Open Field Decode
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,2))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -298,7 +360,6 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Maze 2 Decode.png'), dpi=2400)
 plt.savefig(join(loc, 'Maze 2 Decode.svg'), dpi=2400)
 plt.close()
-"""
 
 D11 = Data['Error'][np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1))[0]]
 print_estimator(D11)
@@ -358,8 +419,8 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-ax.set_ylim(0,25)
-ax.set_yticks(np.linspace(0,25,6))
+ax.set_ylim(0,30)
+ax.set_yticks(np.linspace(0, 30, 7))
 ax.set_xticks(np.linspace(1, 10, 10))
 plt.tight_layout()
 plt.savefig(join(loc, 'Stage 1 Day 10 Laps.png'), dpi=2400)
@@ -367,7 +428,7 @@ plt.savefig(join(loc, 'Stage 1 Day 10 Laps.svg'), dpi=2400)
 plt.close()
 
 
-idx1 = np.where((Data['Maze Type'] != 'Open Field')&
+idx1 = np.where((Data['Maze Type'] == 'Maze 2')&
                 (Data['Stage'] == 'Stage 2')&
                 (Data['Training Day'] == 'Day 1')&
                 (Data['Data Type'] == 'Data'))[0]
@@ -383,8 +444,8 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-ax.set_ylim(0,120)
-ax.set_yticks(np.linspace(0,120,7))
+ax.set_ylim(0, 150)
+ax.set_yticks(np.linspace(0, 150, 6))
 ax.set_xticks(np.linspace(1, 10, 10))
 
 plt.tight_layout()
@@ -393,7 +454,7 @@ plt.savefig(join(loc, 'Stage 2 Day 1 Laps.svg'), dpi=2400)
 plt.close()
 
 
-idx1 = np.where((Data['Maze Type'] != 'Open Field')&
+idx1 = np.where((Data['Maze Type'] == 'Maze 2')&
                 (Data['Stage'] == 'Stage 2')&
                 (Data['Training Day'] == '>=Day 10')&
                 (Data['Data Type'] == 'Data'))[0]
@@ -409,8 +470,8 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
-ax.set_ylim(0,15)
-ax.set_yticks(np.linspace(0,15,6))
+ax.set_ylim(0, 20)
+ax.set_yticks(np.linspace(0, 20, 5))
 ax.set_xticks(np.linspace(1, 10, 10))
 
 plt.tight_layout()

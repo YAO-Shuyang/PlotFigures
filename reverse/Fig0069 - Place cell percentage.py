@@ -20,12 +20,34 @@ else:
     HPData = DataFrameEstablish(variable_names = ['Percentage', 'Direction'], 
                               f = f4, function = PlacecellPercentage_Reverse_Interface, 
                               file_name = code_id + ' [hairpin]', behavior_paradigm = 'HairpinMaze')
-
+    
+if os.path.exists(join(figdata, code_id+' [overlap MA].pkl')):
+    with open(join(figdata, code_id+' [overlap MA].pkl'), 'rb') as handle:
+        Overlap = pickle.load(handle)
+else:
+    Overlap = DataFrameEstablish(variable_names = ['Percentage'], 
+                              f = f3, function = PlacecellPercentageOverlap_Reverse_Interface, 
+                              file_name = code_id+' [overlap MA]', behavior_paradigm = 'ReverseMaze')    
+    
+if os.path.exists(join(figdata, code_id+' [overlap HP].pkl')):
+    with open(join(figdata, code_id+' [overlap HP].pkl'), 'rb') as handle:
+        HPOverlap = pickle.load(handle)
+else:
+    HPOverlap = DataFrameEstablish(variable_names = ['Percentage'], 
+                              f = f4, function = PlacecellPercentageOverlap_Reverse_Interface, 
+                              file_name = code_id + ' [overlap HP]', behavior_paradigm = 'HairpinMaze')
+    
 Data['Percentage'] = Data['Percentage']*100
 HPData['Percentage'] = HPData['Percentage']*100
 
-print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'Cis')[0]])
-print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'Trs')[0]])
+print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'cis')[0]])
+print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'trs')[0]])
+print_estimator(HPData['Percentage'][np.where(HPData['Direction'] == 'cis')[0]])
+print_estimator(HPData['Percentage'][np.where(HPData['Direction'] == 'trs')[0]])
+
+
+print_estimator(Overlap['Percentage'])
+print_estimator(HPOverlap['Percentage'])
 
 colors = [sns.color_palette('Blues', 9)[5], sns.color_palette('YlOrRd', 9)[5], sns.color_palette('Blues', 9)[7], sns.color_palette('YlOrRd', 9)[7]]
 fig = plt.figure(figsize = (4,2))

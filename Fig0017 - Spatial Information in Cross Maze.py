@@ -220,3 +220,44 @@ ax.set_ylim([0,3])
 plt.savefig(join(loc, 'Comparison of Sessions.png'), dpi=2400)
 plt.savefig(join(loc, 'Comparison of Sessions.svg'), dpi=2400)
 plt.close()
+
+
+
+print("Cross Env comparison Stage 1:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 1'))[0]]
+    data_m1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 1'))[0]]
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1), end='\n\n')
+    
+print("Cross Env comparison Stage 2:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = SubData['SI'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    data_m1 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    data_m2 = SubData['SI'][np.where((SubData['Maze Type'] == 'Maze 2')&
+                                                        (SubData['Training Day'] == day)&
+                                                        (SubData['Stage'] == 'Stage 2'))[0]]
+    
+    print("OP vs M1")
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1))
+
+    print("OP vs M2")
+    print_estimator(data_op)
+    print_estimator(data_m2)
+    print(levene(data_op, data_m2))
+    print(ttest_ind(data_op, data_m2), cohen_d(data_op, data_m2))

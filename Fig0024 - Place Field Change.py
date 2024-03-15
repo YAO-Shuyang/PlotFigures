@@ -18,40 +18,44 @@ Data = SubDict(Data, Data.keys(), idx)
 
 idx = np.concatenate([np.where((Data['Maze Type']==m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
 
-data_op = Data['Field Number'][np.where(Data['Maze Type']=='Open Field')[0]]
-data_m1 = Data['Field Number'][np.where(Data['Maze Type']=='Maze 1')[0]]
-data_m2 = Data['Field Number'][np.where(Data['Maze Type']=='Maze 2')[0]]
 
-print_estimator(data_op)
-print_estimator(data_m1)
-print_estimator(data_m2)
+print("Open Field Day 1 vs Day 10, All")
+data_op_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Open Field')&(Data['Training Day']=='Day 1')&(Data['Stage'] == 'Stage 1'))[0]]
+data_op_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Open Field')&(Data['Training Day']=='>=Day 10')&(Data['Stage'] == 'Stage 2'))[0]]
+print_estimator(data_op_d1)
+print_estimator(data_op_d10)
+print(levene(data_op_d1, data_op_d10))
+print(ttest_ind(data_op_d1, data_op_d10), cohen_d(data_op_d1, data_op_d10), end='\n\n')
 
+print("Maze 1 Day 1 vs Day 10, All")
 data_m1_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 1'))[0]]
 data_m1_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
 print_estimator(data_m1_d1)
 print_estimator(data_m1_d10)
 print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10, alternative='greater'), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
+print(ttest_ind(data_m1_d1, data_m1_d10), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
+print("Maze 2 Day 1 vs Day 10, All")
 data_m2_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
 data_m2_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
 print_estimator(data_m2_d1)
 print_estimator(data_m2_d10)
 print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10, alternative='greater'), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
+print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
 
-
+print("Maze 1 Day 1 vs Day 10, CP")
 data_m1_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 1'))[0]]
 data_m1_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
 print_estimator(data_m1_d1)
 print_estimator(data_m1_d10)
 print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10, alternative='greater'), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
+print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
+print("Maze 2 Day 1 vs Day 10, CP")
 data_m2_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
 data_m2_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
 print_estimator(data_m2_d1)
 print_estimator(data_m2_d10)
 print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10, alternative='greater'), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
+print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
 
 # Mean Rate
 uniq_day = ['Day 1', 'Day 2', 'Day 3', 'Day 4',
@@ -328,3 +332,48 @@ sns.barplot(
 plt.savefig(join(loc, 'Field Number barplot [Maze 2].png'), dpi=600)
 plt.savefig(join(loc, 'Field Number barplot [Maze 2].svg'), dpi=600)
 plt.close()
+
+
+
+
+print("Cross Env comparison Stage 1:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = Data['Field Number'][np.where((Data['Maze Type'] == 'Open Field')&
+                                                        (Data['Training Day'] == day)&
+                                                        (Data['Stage'] == 'Stage 1'))[0]]
+    data_m1 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 1')&
+                                                        (Data['Training Day'] == day)&
+                                                        (Data['Stage'] == 'Stage 1')&
+                                                        (Data['Path Type'] == 'AP'))[0]]
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1), end='\n\n')
+    
+print("Cross Env comparison Stage 2:")
+for day in uniq_day:
+    print(f" OP vs M1 on Day {day} -------------------------")
+    data_op = Data['Field Number'][np.where((Data['Maze Type'] == 'Open Field')&
+                                                        (Data['Training Day'] == day)&
+                                                        (Data['Stage'] == 'Stage 2'))[0]]
+    data_m1 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 1')&
+                                                        (Data['Training Day'] == day)&
+                                                        (Data['Stage'] == 'Stage 2')&
+                                                        (Data['Path Type'] == 'AP'))[0]]
+    data_m2 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 2')&
+                                                        (Data['Training Day'] == day)&
+                                                        (Data['Stage'] == 'Stage 2')&
+                                                        (Data['Path Type'] == 'AP'))[0]]
+    
+    print("OP vs M1")
+    print_estimator(data_op)
+    print_estimator(data_m1)
+    print(levene(data_op, data_m1))
+    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1))
+
+    print("OP vs M2")
+    print_estimator(data_op)
+    print_estimator(data_m2)
+    print(levene(data_op, data_m2))
+    print(ttest_ind(data_op, data_m2), cohen_d(data_op, data_m2))
