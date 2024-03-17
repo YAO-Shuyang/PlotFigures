@@ -107,7 +107,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Maze 1, Dim {dt} - Day {i}", ttest_rel(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]))
+        print(f"    Maze 1, Dim {dt} - Day {i}", ttest_ind(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]))
         sib = np.where((Data['Maze Type'] == 'Maze 2')&
                        (Data['Type'] == 'Real')&
                        (Data['Dimension'] == dt)&
@@ -121,7 +121,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Maze 2, Dim {dt} - Day {i}", ttest_rel(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]))
+        print(f"    Maze 2, Dim {dt} - Day {i}", ttest_ind(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]))
         sib = np.where((Data['Maze Type'] == 'Open Field')&
                        (Data['Type'] == 'Real')&
                        (Data['Dimension'] == dt)&
@@ -135,7 +135,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Open Field, Dim {dt} - Day {i}", ttest_rel(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]), end='\n\n')
+        print(f"    Open Field, Dim {dt} - Day {i}", ttest_ind(Data['Chi-Square Statistic'][sib], Data['Chi-Square Statistic'][non]), end='\n\n')
         
         
 print("Maze A & B & Open Field Mutual Information Test Across Days:")
@@ -154,7 +154,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Maze 1, Dim {dt} - Day {i}", ttest_rel(Data['MI'][sib], Data['MI'][non]))
+        print(f"    Maze 1, Dim {dt} - Day {i}", ttest_ind(Data['MI'][sib], Data['MI'][non]))
         sib = np.where((Data['Maze Type'] == 'Maze 2')&
                        (Data['Type'] == 'Real')&
                        (Data['Dimension'] == dt)&
@@ -168,7 +168,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Maze 2, Dim {dt} - Day {i}", ttest_rel(Data['MI'][sib], Data['MI'][non]))
+        print(f"    Maze 2, Dim {dt} - Day {i}", ttest_ind(Data['MI'][sib], Data['MI'][non]))
         sib = np.where((Data['Maze Type'] == 'Open Field')&
                        (Data['Type'] == 'Real')&
                        (Data['Dimension'] == dt)&
@@ -182,7 +182,7 @@ for dt in range(2, 6):
                        (Data["Paradigm"] == 'CrossMaze')&
                        (Data["Pair Type"] == 'Non-sibling')&
                        (Data["Training Session"] == i))[0]
-        print(f"    Open Field, Dim {dt} - Day {i}", ttest_rel(Data['MI'][sib], Data['MI'][non]), end='\n\n')
+        print(f"    Open Field, Dim {dt} - Day {i}", ttest_ind(Data['MI'][sib], Data['MI'][non]), end='\n\n')
         
     
 

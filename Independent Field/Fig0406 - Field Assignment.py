@@ -126,11 +126,11 @@ else:
 m1_num = np.where((np.isnan(StatisticData['FSC Ttest P-Value']) == False)&(f1['maze_type'] == 1))[0].shape[0]
 m2_num = np.where((np.isnan(StatisticData['Length Ttest P-Value']) == False)&(f1['maze_type'] == 2))[0].shape[0]
 
-m1_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.025)&(f1['maze_type'] == 1))[0].shape[0]
-m2_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.025)&(f1['maze_type'] == 2))[0].shape[0]
+m1_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
 
-m1_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.025)&(f1['maze_type'] == 1))[0].shape[0]
-m2_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.025)&(f1['maze_type'] == 2))[0].shape[0]
+m1_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
 
 
 print(m1_num, m2_num)
