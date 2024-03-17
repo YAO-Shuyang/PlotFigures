@@ -129,7 +129,7 @@ for x in range(1, 32):
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
     print()
@@ -154,7 +154,7 @@ for x in range(1, 31):
                (Data['Axis'] == 'CP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
     print()
@@ -246,8 +246,8 @@ plt.savefig(join(loc, f"[Maze A & B] Dim = 4, deltaP - CP Axis.svg"), dpi = 600)
 plt.show()
 
 print("Maze A & B: Dim = 4")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 16):
+for x in range(1, 16):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} IP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 4) & 
@@ -265,14 +265,14 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()
 
 print("Maze A & B: Dim = 4")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 15):
+for x in range(1, 15):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} CP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 4) & 
@@ -290,10 +290,10 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'CP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()
 
 
 idx = np.where((Data['Paradigm'] == 'CrossMaze') & 
@@ -379,8 +379,8 @@ plt.savefig(join(loc, f"[Maze A & B] Dim = 3, deltaP - CP Axis.svg"), dpi = 600)
 plt.close()
 
 print("Maze A & B: Dim = 3")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 8):
+for x in range(1, 8):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} IP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 3) & 
@@ -398,14 +398,14 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()
 
 print("Maze A & B: Dim = 3")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 7):
+for x in range(1, 7):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} CP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 3) & 
@@ -423,10 +423,10 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'CP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()
 
 idx = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 2) & 
@@ -470,8 +470,8 @@ plt.savefig(join(loc, f"[Maze A & B] deltaP - IP Axis.svg"), dpi = 600)
 plt.close()
 
 print("Maze A & B: Dim = 2")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 4):
+for x in range(1, 4):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} IP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 2) & 
@@ -489,10 +489,10 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()
 
 
 idx = np.where((Data['Paradigm'] == 'CrossMaze') & 
@@ -538,8 +538,8 @@ plt.close()
 
 
 print("Maze A & B: Dim = 2")
-for maze in ['Maze 1', 'Maze 2']:
-    for x in range(1, 3):
+for x in range(1, 3):
+    for maze in ['Maze 1', 'Maze 2']:
         print(f"  {maze} CP axis X = {x}:")
         sib = np.where((Data['Paradigm'] == 'CrossMaze') & 
                (Data['Dimension'] == 2) & 
@@ -557,7 +557,7 @@ for maze in ['Maze 1', 'Maze 2']:
                (Data['Axis'] == 'CP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14) &
                (Data['Pair Type'] == 'Non-sibling'))[0]
-        print("    ", ttest_rel(Data['delta-P'][sib], Data['delta-P'][non]))
+        print("    ", ttest_ind(Data['delta-P'][sib], Data['delta-P'][non]))
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
-print()
+    print()

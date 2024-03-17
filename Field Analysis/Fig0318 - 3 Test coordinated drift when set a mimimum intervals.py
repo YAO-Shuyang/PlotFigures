@@ -60,7 +60,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
     print(f"Maze B dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'CrossMaze')&(Data['Maze Type'] == 'Maze 2')&
                    (np.isnan(Data['Chi-Square Statistic']) == False)&
@@ -74,7 +74,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
 print()
 
 # Maze A&B Mutual Information
@@ -112,7 +112,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]))
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]))
     print(f"Maze B dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'CrossMaze')&(Data['Maze Type'] == 'Maze 2')&
                    (np.isnan(Data['MI']) == False)&
@@ -126,7 +126,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
 print()
 
 
@@ -170,7 +170,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
     
     print(f"HairpinMaze trs, dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
@@ -185,7 +185,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
     
 
     print(f"ReverseMaze cis, dim {dim}")
@@ -201,7 +201,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
     
     print(f"ReverseMaze trs, dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
@@ -216,7 +216,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]), end='\n\n')
 print()
 
 # Maze A&B Mutual Information
@@ -254,7 +254,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]))
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]))
     
     print(f"HairpinMaze trs, dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
@@ -269,7 +269,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
     
 
     print(f"ReverseMaze cis, dim {dim}")
@@ -285,7 +285,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]))
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]))
     
     print(f"ReverseMaze trs, dim {dim}")
     sib_idx = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
@@ -300,7 +300,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]), end='\n\n')
 print()
 
 
@@ -345,7 +345,7 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
+    print(dim, ttest_ind(Data['Chi-Square Statistic'][sib_idx], Data['Chi-Square Statistic'][non_idx]))
 print()
 
 # Maze A&B Mutual Information
@@ -383,5 +383,5 @@ for dim in range(2, 6):
                    (Data['Dimension'] == dim)&
                    (Data['Pair Type'] == 'Non-sibling'))[0]
     
-    print(dim, ttest_rel(Data['MI'][sib_idx], Data['MI'][non_idx]))
+    print(dim, ttest_ind(Data['MI'][sib_idx], Data['MI'][non_idx]))
 print()
