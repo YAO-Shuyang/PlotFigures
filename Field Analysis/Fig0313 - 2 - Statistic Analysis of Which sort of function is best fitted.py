@@ -19,6 +19,81 @@ else:
                              file_name = code_id, behavior_paradigm = 'CrossMaze'
            )
 
+total_global_recovered_frac_m1 = np.array([34.37605233, 30.07888649, 39.20555751, 37.87930946, 36.06190628])
+
+idx1_1 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 1') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 1))[0]
+print("Maze 1, Recovery Prob.:")
+print("  Silent duration = 1:  ", end='')
+print_estimator(RData['Conditional Recover Prob.'][idx1_1])
+idx1_8 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 1') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 8))[0]
+print(idx1_1.shape, idx1_8.shape)
+print("  Silent duration = 8:  ", end='')
+print_estimator(RData['Conditional Recover Prob.'][idx1_8])
+print("  paired t test: ", end='')
+print(ttest_rel(RData['Conditional Recover Prob.'][idx1_1], RData['Conditional Recover Prob.'][idx1_8]), end='\n\n')
+
+idx2_1 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 2') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 1))[0]
+print("Maze 2, Recovery Prob.:")
+print("  Silent duration = 1:  ", end='')
+print_estimator(RData['Conditional Recover Prob.'][idx2_1])
+idx2_8 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 2') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 8))[0]
+print("  Silent duration = 8:  ", end='')
+print_estimator(RData['Conditional Recover Prob.'][idx2_8])
+print("  paired t test: ", end='')
+print(ttest_rel(RData['Conditional Recover Prob.'][idx2_1], RData['Conditional Recover Prob.'][idx2_8]), end='\n\n')
+
+
+
+idx1_1 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 1') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 1))[0]
+print("Maze 1, Retention Prob.:")
+print("  Retained duration = 1:  ", end='')
+print_estimator(RData['Conditional Prob.'][idx1_1])
+idx1_1 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 1') &
+               (RData['Type'] == 'Real') & 
+               ((RData['MiceID'] != 10212) | (RData['Stage'] != 'Stage 1'))&
+               (RData['Duration'] == 1))[0]
+idx1_12 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 1') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 12))[0]
+print("  Retained duration = 12:  ", end='')
+print_estimator(RData['Conditional Prob.'][idx1_12])
+print("  paired t test: ", end='')
+print(ttest_rel(RData['Conditional Prob.'][idx1_1], RData['Conditional Prob.'][idx1_12]), end='\n\n')
+
+idx2_1 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 2') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 1))[0]
+print("Maze 2, Retention Prob.:")
+print("  Retained duration = 1:  ", end='')
+print_estimator(RData['Conditional Prob.'][idx2_1])
+idx2_12 = np.where((RData['Paradigm'] == 'CrossMaze') & 
+               (RData['Maze Type'] == 'Maze 2') &
+               (RData['Type'] == 'Real') & 
+               (RData['Duration'] == 12))[0]
+print("  Retained duration = 12:  ", end='')
+print_estimator(RData['Conditional Prob.'][idx2_12])
+print("  paired t test: ", end='')
+print(ttest_rel(RData['Conditional Prob.'][idx2_1], RData['Conditional Prob.'][idx2_12]), end='\n\n')
+
+
 def r2(y_true, y_pred):
     # Calculate the total sum of squares (TSS)
     tss = np.sum((y_true - np.mean(y_true)) ** 2)
