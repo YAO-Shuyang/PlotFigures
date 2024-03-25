@@ -4,12 +4,11 @@ from mylib.multiday.multiday import MultiDayLayout, MultiDayLayout2, MultiDayLay
 from mylib.multiday.visualize.open_field import MultiDayLayoutOpenField
 from mylib.multiday.core import MultiDayCore
 
-code_id = "0310 - Test MultiDayModel"
-loc = join(figpath, 'Field Analysis', code_id)
+code_id = "0309 - Long-term Visualization of Place Cells in Open Field"
+loc = join(figpath, code_id)
 mkdir(loc)
 
-# index_map = GetMultidayIndexmap(mouse=10224, stage='Stage 1+2', session=2, occu_num=2)
-index_map = GetMultidayIndexmap(mouse=10227, stage='Stage 1+2', session=2, occu_num=2, f=f_CellReg_modi)
+index_map = GetMultidayIndexmap(mouse=10227, stage='Stage 1+2', session=1, occu_num=2)
 index_map[np.where(np.isnan(index_map))] = 0
 index_map = index_map.astype(np.int64)
 
@@ -32,7 +31,7 @@ for n in range(26, 1, -1):
     
     idx = np.where(cellnum == n)[0]
     print(n, idx)
-    mkdir(join(loc, '10227-Stage 1+2-Maze 1 [footprint]', str( n)+' Cells'))
+    mkdir(join(loc, '10227-Stage 1+2-Open Field', str( n)+' Cells'))
 
     MultiDayLayoutOpenField.visualize_cells(
         index_map=index_map,
@@ -41,12 +40,12 @@ for n in range(26, 1, -1):
         #footprint_dirs=[os.path.join(r"E:\Data\Cross_maze\10227\Super Long-term Maze 1", 
         #                             "SFP"+str(date)+".mat") for date in dates],
         mouse=10227,
-        maze_type=1,
-        session=2,
+        maze_type=0,
+        session=1,
         dates=dates,
-        save_loc=join(loc, '10227-Stage 1+2-Maze 1 [footprint]', str(n)+' Cells'),
+        save_loc=join(loc, '10227-Stage 1+2-Open Field', str(n)+' Cells'),
         is_show=False,
         loctimecurve_kwargs = {'bar_kwargs':{'markeredgewidth': 3, 'markersize': 5},
                                'line_kwargs':{'linewidth': 0.1, 'color': 'gray'}},
-        layout_kw={"width_ratios": [2, 2, 10,1]}
+        layout_kw={"width_ratios": [2, 2]}
     )

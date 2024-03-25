@@ -11,7 +11,7 @@ if os.path.exists(os.path.join(figdata,code_id+'.pkl')) == False:
 else:
     with open(os.path.join(figdata,code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
-        
+
 uniq_day = ['Day 1', 'Day 2', 'Day 3', 'Day 4',
             'Day 5', 'Day 6', 'Day 7', 'Day 8',
             'Day 9', '>=Day 10']
@@ -367,26 +367,6 @@ plt.savefig(join(loc, 'travel distance [Zoom out Stage 2].svg'), dpi=2400)
 plt.close()
 
 
-RS1, RS2 = RSPhaseCalculator(Data, 'Lap-wise Distance')
-fig = plt.figure(figsize=(4,3))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(np.arange(1, RS1.shape[0]+1), RS1[:, 0], label='Novel Maze 1, to start', linewidth=0.5)
-ax.plot(np.arange(1, RS1.shape[0]+1), RS1[:, 1], label='Novel Maze 1, to final', linewidth=0.5)
-ax.legend()
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 1].png"), dpi=600)
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 1].svg"), dpi=600)
-plt.close()
-
-fig = plt.figure(figsize=(4,3))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(np.arange(1, RS2.shape[0]+1), RS2[:, 0], label='Novel Maze 2, to start', linewidth=0.5)
-ax.plot(np.arange(1, RS2.shape[0]+1), RS2[:, 1], label='Novel Maze 2, to final', linewidth=0.5)
-ax.legend()
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 2].png"), dpi=600)
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 2].svg"), dpi=600)
-plt.close()
-
-
 # First Session & Second Session
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
 data_11 = Data['Lap-wise Distance'][idx]
@@ -637,17 +617,18 @@ print_estimator(data8)
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 9'))[0]
 data9 = Data['Lap-wise Distance'][idx]
 print_estimator(data9)
-idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == '>=Day 10'))[0]
+idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10'))[0]
 data10 = Data['Lap-wise Distance'][idx]
-print("Day 1 vs Day 10:  ", ttest_ind(data1, data10, alternative='greater'))
-print("Day 2 vs Day 10:  ", ttest_ind(data2, data10, alternative='greater'))
-print("Day 3 vs Day 10:  ", ttest_ind(data3, data10, alternative='greater'))
-print("Day 4 vs Day 10:  ", ttest_ind(data4, data10, alternative='greater'))
-print("Day 5 vs Day 10:  ", ttest_ind(data5, data10, alternative='greater'))
-print("Day 6 vs Day 10:  ", ttest_ind(data6, data10, alternative='greater'))
-print("Day 7 vs Day 10:  ", ttest_ind(data7, data10, alternative='greater'))
-print("Day 8 vs Day 10:  ", ttest_ind(data8, data10, alternative='greater'))
-print("Day 9 vs Day 10:  ", ttest_ind(data9, data10, alternative='greater'), end='\n\n')
+print_estimator(data10)
+print("    ", ttest_ind(data1, data10, equal_var=False))
+print("Day 2 vs Day 10:  ", levene(data2, data10))
+print("Day 3 vs Day 10:  ", levene(data3, data10))
+print("Day 4 vs Day 10:  ", levene(data4, data10))
+print("Day 5 vs Day 10:  ", levene(data5, data10))
+print("Day 6 vs Day 10:  ", levene(data6, data10))
+print("Day 7 vs Day 10:  ", levene(data7, data10))
+print("Day 8 vs Day 10:  ", levene(data8, data10))
+print("Day 9 vs Day 10:  ", levene(data9, data10), end='\n\n')
 
 print("Stage 2 Maze 2: ------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 2'))[0]
@@ -679,7 +660,10 @@ data229 = Data['Lap-wise Distance'][idx]
 print_estimator(data229)
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 2'))[0]
 data2210 = Data['Lap-wise Distance'][idx]
-print_estimator(data2210, end='\n\n')
+print_estimator(data2210)
+print("Maze 2, Day 1 vs Day 10")
+print(levene(data221, data2210))
+print(ttest_ind(data221, data2210, equal_var=False), end='\n\n')
 
 print("Stage 2 Maze 1: ------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -712,7 +696,6 @@ print_estimator(data219)
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 1'))[0]
 data2110 = Data['Lap-wise Distance'][idx]
 print_estimator(data2110, end='\n\n')
-
 
 
 
