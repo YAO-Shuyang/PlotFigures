@@ -11,7 +11,8 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 
-idx = np.where(Data['Stage'] == 'Stage 1')[0]
+idx = np.where((Data['MiceID']!=11092)&(Data['MiceID']!=11094)&(Data['MiceID']!=11095))[0]
+Data = SubDict(Data, Data.keys(), idx=idx)
 
 fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,3.2))
 ax_pre, ax1, ax2 = axes
@@ -156,6 +157,7 @@ print(f"  mean {np.nanmean(SubData['Cell Number'])}, ±std {np.nanstd(SubData['C
 print("Stage 1 + 2 all -----------------------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 1')|(Data['Stage'] == 'Stage 2'))[0]
 print_estimator(Data['Cell Number'][idx])
+print(len(idx))
 
 print("Stage 1 Maze 1 Cell Number Total --------------------------------------------------------------")
 idx = np.where((Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1'))[0]

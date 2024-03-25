@@ -1,255 +1,161 @@
 from mylib.statistic_test import *
 from scipy.stats import linregress
 
-# ================================================= Data Generation ==================================================================================
-mice = 11095
-maze_type = 1
-row = 19
-
 code_id = '0108 - Pairwise Correlation - Cell Aligned'
-loc = os.path.join(figpath, 'Cell Aligned', code_id)
+loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
-def is_high_quilified_pair(trace1, trace2, i, j):
-    return ((trace1['fir_sec_corr'][i] >= 0.6 or 
-             trace1['odd_even_corr'][i] >= 0.6) and 
-            (trace2['fir_sec_corr'][j] >= 0.6 or 
-             trace2['odd_even_corr'][j] >= 0.6))
-
-def pairwise_correlation(trace1, trace2, i, j):
-    return pearsonr(trace1['smooth_rate_map'][i], trace2['smooth_rate_map'][j])[0]
-
-if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    idx = np.where((f1['MiceID'] == 11095)&(f1['date'] >= 20220820)&(f1['date'] <= 20220830)&(f1['maze_type'] == 1))[0]
-    dateset = ['20220820','20220822','20220824','20220826','20220828','20220830']
-    traceset = TraceFileSet(idx = idx, tp = r"E:\Data\Cross_maze")
-    day = 6
+def get_correlation(
+    index_map: np.ndarray,
+    file_indices: np.ndarray,
+    f: pd.DataFrame = f1
+):
+    assert index_map.shape[0] == len(file_indices)
+    index_map[np.where(np.isnan(index_map))] = 0
+    index_map = index_map.astype(int)
     
-    for trace in traceset:
-        if 'laps' not in trace.keys():
-            trace = CrossLapsCorrelation(trace, behavior_paradigm = trace['paradigm'])
-            trace = OldMapSplit(trace)
-        if trace['laps'] == 1:
-            trace['fir_sec_corr'] = np.repeat(np.nan, trace['n_neuron'])
-            trace['odd_even_corr'] = np.repeat(np.nan, trace['n_neuron'])
-        if 'fir_sec_corr' not in trace.keys():
-            trace = half_half_correlation(trace)
-        if 'odd_even_corr' not in trace.keys():
-            trace = odd_even_correlation(trace)
+    session = np.arange(1, index_map.shape[0])
+    corr = np.zeros(index_map.shape[0]-1)
     
-    # Maze 1
-    index_map = Read_and_Sort_IndexMap(cellReg_95_maze1, occur_num=1)
-    Mat = np.zeros((5, int(day*(day-1)/2)*index_map.shape[1]), dtype = np.float64)
-    k = 0
-    for n in range(index_map.shape[1]):
-        for i in range(day-1):
-            for j in range(i+1, day):
-                
-                if index_map[i, n] != 0 and index_map[j, n] != 0:
-                    x, y = int(index_map[i, n]), int(index_map[j, n])
-                    if traceset[i]['is_placecell'][x-1] == 1 and traceset[j]['is_placecell'][y-1] == 1:
-                        Mat[0, k], _ = pearsonr(traceset[i]['smooth_map_all'][x-1],
-                                                traceset[j]['smooth_map_all'][y-1])
-                        Mat[2, k] = np.nanmean([traceset[i]['odd_even_corr'][x-1],
-                                                traceset[j]['odd_even_corr'][y-1]])
-                        Mat[3, k] = np.nanmean([traceset[i]['fir_sec_corr'][x-1],
-                                                traceset[j]['fir_sec_corr'][y-1]])
-                        Mat[4, k] = 1
-                        if is_high_quilified_pair(traceset[i], traceset[j], x-1, y-1):
-                            Mat[1, k] = 1
-                        else:
-                            Mat[1, k] = 0
-                    else:
-                        Mat[:, k] = np.nan    
-                else:
-                    Mat[:, k] = np.nan
-                k += 1
+    for i in range(index_map.shape[0]-1):
+        indexes = np.where((index_map[i, :] > 0) & (index_map[i+1, :] > 0))[0]
+        
+        with open(f['Trace File'][file_indices[i]], 'rb') as handle:
+            trace1 = pickle.load(handle)
 
-    # Delete NAN
-    a = np.sum(Mat, axis = 0)
-    nan_idx = np.where(np.isnan(np.sum(Mat, axis = 0)))[0]
-    Mat = np.delete(Mat, nan_idx, axis = 1)
-    data = {'pair-wise correlation': cp.deepcopy(Mat[0, :]), 
-            'Maze Type': cp.deepcopy(Mat[4, :]),
-            'In-session stability': cp.deepcopy(Mat[1, :]),
-            'In-session OEC': cp.deepcopy(Mat[2, :]),
-            'In-session FSC': cp.deepcopy(Mat[3, :])}
-
-    # Maze 2
-    idx = np.where((f1['MiceID'] == 11095)&(f1['date'] >= 20220820)&(f1['date'] <= 20220830)&(f1['maze_type'] == 2))[0]
-    dateset = ['20220820','20220822','20220824','20220826','20220828','20220830']
-    traceset = TraceFileSet(idx = idx, tp = r"E:\Data\Cross_maze")
-    day = 6
+        with open(f['Trace File'][file_indices[i+1]], 'rb') as handle:
+            trace2 = pickle.load(handle)
+            
+        pc_idx = np.where(
+            (trace1['is_placecell'][index_map[i, indexes]-1] == 1) &
+            (trace2['is_placecell'][index_map[i+1, indexes]-1] == 1)
+        )[0]
+        indexes = indexes[pc_idx]
+        
+        corrs = np.zeros(len(indexes))
+        for j in range(len(indexes)):
+            corrs[j], _ = pearsonr(
+                trace1['smooth_map_all'][index_map[i, indexes[j]] - 1, :],
+                trace2['smooth_map_all'][index_map[i+1, indexes[j]] - 1, :]
+            )
+        
+        corr[i] = np.nanmean(corrs)
     
-    for trace in traceset:
-        if 'laps' not in trace.keys():
-            trace = CrossLapsCorrelation(trace, behavior_paradigm = trace['paradigm'])
-            trace = OldMapSplit(trace)
-        if trace['laps'] == 1:
-            trace['fir_sec_corr'] = np.repeat(np.nan, trace['n_neuron'])
-            trace['odd_even_corr'] = np.repeat(np.nan, trace['n_neuron'])
-        if 'fir_sec_corr' not in trace.keys():
-            trace = half_half_correlation(trace)
-        if 'odd_even_corr' not in trace.keys():
-            trace = odd_even_correlation(trace)
-    
-    index_map = Read_and_Sort_IndexMap(cellReg_95_maze2, occur_num=1)
-    Mat = np.zeros((5, int(day*(day-1)/2)*index_map.shape[1]), dtype = np.float64)
-    k = 0
-    for n in range(index_map.shape[1]):
-        for i in range(day-1):
-            for j in range(i+1, day):
-                
-                if index_map[i, n] != 0 and index_map[j, n] != 0:
-                    x, y = int(index_map[i, n]), int(index_map[j, n])
-                    if traceset[i]['is_placecell'][x-1] == 1 and traceset[j]['is_placecell'][y-1] == 1:
-                        Mat[0, k], _ = pearsonr(traceset[i]['smooth_map_all'][x-1],
-                                                traceset[j]['smooth_map_all'][y-1])
-                        Mat[2, k] = np.nanmean([traceset[i]['odd_even_corr'][x-1],
-                                                traceset[j]['odd_even_corr'][y-1]])
-                        Mat[3, k] = np.nanmean([traceset[i]['fir_sec_corr'][x-1],
-                                                traceset[j]['fir_sec_corr'][y-1]])
-                        Mat[4, k] = 2
-                        if is_high_quilified_pair(traceset[i], traceset[j], x-1, y-1):
-                            Mat[1, k] = 1
-                        else:
-                            Mat[1, k] = 0
-                    else:
-                        Mat[:, k] = np.nan    
-                else:
-                    Mat[:, k] = np.nan
-                k += 1
-    nan_idx = np.where(np.isnan(np.sum(Mat, axis = 0)))[0]
-    Mat = np.delete(Mat, nan_idx, axis = 1)
-    
-    data['pair-wise correlation'] = np.concatenate([data['pair-wise correlation'], Mat[0, :]])
-    data['Maze Type'] = np.concatenate([data['Maze Type'], Mat[4, :]])
-    data['In-session stability'] = np.concatenate([data['In-session stability'], Mat[1, :]])
-    data['In-session OEC'] = np.concatenate([data['In-session OEC'], Mat[2, :]])
-    data['In-session FSC'] = np.concatenate([data['In-session FSC'], Mat[3, :]])
-
-    with open(os.path.join(figdata, code_id+'.pkl'), 'wb') as f:
-        pickle.dump(data,f)
-    
-    Fs = pd.DataFrame(data)
-    Fs.to_excel(os.path.join(figdata, code_id+'.xlsx'), index=False)
-
+    return session, corr 
+        
+            
+if exists(join(figdata, code_id+'.pkl')):
+    with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
+        Data = pickle.load(handle)
 else:
-    with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
-        data = pickle.load(handle)
+    Data = {
+        'Maze Type': np.array([]),
+        'MiceID': np.array([], np.int64),
+        'Session Number': np.array([], np.int64),
+        'Correlation': np.array([], np.float64),
+        'Aligned Methods': np.array([]),
+        'Paradigm': np.array([]),
+    }
+    
+    
+    for i in tqdm(range(len(f_CellReg_day))):
+        if f_CellReg_day['include'][i] == 0:
+            continue
+        
+        if f_CellReg_day['Type'][i] == 'Shuffle':
+            continue
+            
+        try:
+            index_map = GetMultidayIndexmap(
+                    i=i,
+                    occu_num=2
+            )            
+        except:
+            index_map = ReadCellReg(f_CellReg_day['cellreg_folder'][i])
+        index_map[np.where((index_map < 0)|np.isnan(index_map))] = 0
+        mat = np.where(index_map>0, 1, 0)
+        num = np.sum(mat, axis = 0)
+        index_map = index_map[:, np.where(num >= 2)[0]]  
 
-def y(x, slope, intercepts):
-    return slope*x + intercepts
- 
-fig = plt.figure(figsize=(2.5,2))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-colors = sns.color_palette("rocket", 2)
-sns.barplot(x = 'In-session stability', 
-            y = 'pair-wise correlation', 
-            hue = 'Maze Type',
-            data = data, 
-            palette=colors,
-            width = 0.6, capsize=0.05, errorbar=("ci",95), 
-            errwidth=0.5, errcolor='black')
-ax.legend(bbox_to_anchor = (1,1), loc = 'upper left', title='Maze Type', 
-          title_fontsize = 8, fontsize = 8, ncol = 1, facecolor = 'white',
-          edgecolor = 'white')
+        mouse = f_CellReg_day['MiceID'][i]
+        stage = f_CellReg_day['Stage'][i]
+        session = f_CellReg_day['session'][i]
 
-ax.set_ylabel("Pair-wise Correlation")
-ax.set_yticks(np.linspace(0,1,6))
-ax.set_xticks([0,1],['low', 'high'])
-ax.axis([-0.5, 1.5, 0,1])
-plt.tight_layout()
-plt.savefig(os.path.join(loc, 'Cross-day Correlation (familiar).png'), dpi=2400)
-plt.savefig(os.path.join(loc, 'Cross-day Correlation (familiar).svg'), dpi=2400)
-plt.close()
-print("Done Fig 1.")
+        file_indices = np.where((f1['MiceID'] == mouse) & (f1['Stage'] == stage) & (f1['session'] == session))[0]
+        if stage == 'Stage 1+2':
+            file_indices = np.where((f1['MiceID'] == mouse) & (f1['session'] == session) & ((f1['Stage'] == 'Stage 1') | (f1['Stage'] == 'Stage 2')))[0]
+        
+        if stage == 'Stage 1' and mouse in [10212] and session == 2:
+            file_indices = np.where((f1['MiceID'] == mouse) & (f1['session'] == session) & (f1['Stage'] == 'Stage 1') & (f1['date'] != 20230506))[0]
+        
+        session, corr = get_correlation(
+            index_map=index_map,
+            file_indices=file_indices
+        )
+        
+        days = len(session)
+        maze_type = 'Open Field' if f_CellReg_day['maze_type'][i] == 0 else 'Maze '+str(f_CellReg_day['maze_type'][i])
+        Data['Maze Type'] = np.concatenate([Data['Maze Type'], np.repeat(maze_type, days)])
+        Data['Aligned Methods'] = np.concatenate([Data['Aligned Methods'], np.repeat('CellReg', days)])
+        Data['Paradigm'] = np.concatenate([Data['Paradigm'], np.repeat('CrossMaze', days)])
+        Data['MiceID'] = np.concatenate([Data['MiceID'], np.repeat(f_CellReg_day['MiceID'][i], days)])
+        Data['Session Number'] = np.concatenate([Data['Session Number'], session])
+        Data['Correlation'] = np.concatenate([Data['Correlation'], corr])
+        
+    for i in tqdm(range(len(f_CellReg_modi))):
+        if f_CellReg_modi['include'][i] == 0 :
+            continue
+        
+        if f_CellReg_modi['Type'][i] == 'Shuffle':
+            continue
+            
+        if f_CellReg_modi['paradigm'][i] == 'CrossMaze':
+            if f_CellReg_modi['maze_type'][i] == 0:
+                index_map = GetMultidayIndexmap(
+                    mouse=f_CellReg_modi['MiceID'][i],
+                    stage=f_CellReg_modi['Stage'][i],
+                    session=f_CellReg_modi['session'][i],
+                    occu_num=2
+                )    
+            else:
+                with open(f_CellReg_modi['cellreg_folder'][i], 'rb') as handle:
+                    index_map = pickle.load(handle)
+        else:
+            continue
+            index_map = ReadCellReg(f_CellReg_modi['cellreg_folder'][i])
+                
+        index_map[np.where((index_map < 0)|np.isnan(index_map))] = 0
+        mat = np.where(index_map>0, 1, 0)
+        num = np.sum(mat, axis = 0)
+        index_map = index_map[:, np.where(num >= 2)[0]]  
+        
+        mouse = f_CellReg_modi['MiceID'][i]
+        stage = f_CellReg_modi['Stage'][i]
+        session = f_CellReg_modi['session'][i]
 
-
-idx_low = np.where((data['In-session stability'] == 0)&(data['Maze Type'] == 1))[0]
-idx_hig = np.where((data['In-session stability'] == 1)&(data['Maze Type'] == 1))[0]
-print("Fig 5D [maze 1]:", ttest_ind(data['pair-wise correlation'][idx_low], data['pair-wise correlation'][idx_hig]))
-idx_low = np.where((data['In-session stability'] == 0)&(data['Maze Type'] == 2))[0]
-idx_hig = np.where((data['In-session stability'] == 1)&(data['Maze Type'] == 2))[0]
-print("Fig 5D [maze 2]:", ttest_ind(data['pair-wise correlation'][idx_low], data['pair-wise correlation'][idx_hig]))
-
-
-x = np.linspace(np.nanmin(data['In-session OEC']),np.nanmax(data['In-session OEC']),1000)
-
-fig = plt.figure(figsize=(5,2))
-maze1_idx = np.where(data['Maze Type'] == 1)[0]
-maze2_idx = np.where(data['Maze Type'] == 2)[0]
-slope1, intercept1, r_value1, p_value1, std_err1 = linregress(data['In-session OEC'][maze1_idx], data['pair-wise correlation'][maze1_idx])
-print(linregress(data['In-session OEC'][maze1_idx], data['pair-wise correlation'][maze1_idx]))
-slope2, intercept2, r_value2, p_value2, std_err2 = linregress(data['In-session OEC'][maze2_idx], data['pair-wise correlation'][maze2_idx])
-print(linregress(data['In-session OEC'][maze2_idx], data['pair-wise correlation'][maze2_idx]))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.set_aspect('equal')
-ax.axhline(0, ls=':', color = 'black', linewidth = 0.5)
-colors = sns.color_palette("rocket", 2)
-sns.scatterplot(x = 'In-session OEC', 
-                y = 'pair-wise correlation', 
-                hue = 'Maze Type',
-                data = data, 
-                size='In-session OEC', alpha = 0.5,
-                palette=colors,
-                sizes=(0.3,0.8)
-                )
-ax.plot(x, y(x, slope1, intercept1), color = colors[0], linewidth = 0.5,
-        label = f'Maze 1\nr={round(r_value1,2)}\nk={round(slope1,2)}\nb={round(intercept1,2)}\np={p_value1}')
-ax.plot(x, y(x, slope2, intercept2), color = colors[1], linewidth = 0.5,
-        label = f'Maze 2\nr={round(r_value2,2)}\nk={round(slope2,2)}\nb={round(intercept2,2)}\np={p_value2}')
-ax.legend(bbox_to_anchor = (1,1), loc = 'upper left', title='Maze Type', 
-          title_fontsize = 8, fontsize = 8, ncol = 2, facecolor = 'white',
-          edgecolor = 'white')
-
-ax.set_ylabel("Pair-wise Correlation")
-ax.set_xlabel("In-session stability (OEC)")
-ax.set_yticks(np.linspace(-0.2,1,7))
-ax.set_xticks(np.linspace(0,1,6))
-ax.axis([0, 1, -0.2,1])
-plt.tight_layout()
-plt.savefig(os.path.join(loc, 'Cross-day Correlation vs. In-session OEC (familiar).png'), dpi=2400)
-plt.savefig(os.path.join(loc, 'Cross-day Correlation vs. In-session OEC (familiar).svg'), dpi=2400)
-plt.close()
-print("Done Fig 2.")
-
-
-
-x = np.linspace(np.nanmin(data['In-session FSC']),np.nanmax(data['In-session FSC']),1000)
-slope1, intercept1, r_value1, p_value1, std_err1 = linregress(data['In-session FSC'][maze1_idx], data['pair-wise correlation'][maze1_idx])
-print(linregress(data['In-session FSC'][maze1_idx], data['pair-wise correlation'][maze1_idx]))
-slope2, intercept2, r_value2, p_value2, std_err2 = linregress(data['In-session FSC'][maze2_idx], data['pair-wise correlation'][maze2_idx])
-print(linregress(data['In-session FSC'][maze2_idx], data['pair-wise correlation'][maze2_idx]))
-
-fig = plt.figure(figsize=(5,2))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.set_aspect('equal')
-ax.axhline(0, ls=':', color = 'black', linewidth = 0.5)
-colors = sns.color_palette("rocket", 2)
-sns.scatterplot(x = 'In-session FSC', 
-                y = 'pair-wise correlation', 
-                hue = 'Maze Type',
-                data = data, 
-                size='In-session FSC', alpha = 0.5,
-                palette=colors,
-                sizes=(0.3,0.8)
-                )
-ax.plot(x, y(x, slope1, intercept1), color = colors[0], linewidth = 0.5,
-        label = f'Maze 1\nr={round(r_value1,2)}\nk={round(slope1,2)}\nb={round(intercept1,2)}\np={p_value1}')
-ax.plot(x, y(x, slope2, intercept2), color = colors[1], linewidth = 0.5,
-        label = f'Maze 2\nr={round(r_value2,2)}\nk={round(slope2,2)}\nb={round(intercept2,2)}\np={p_value2}')
-ax.legend(bbox_to_anchor = (1,1), loc = 'upper left', title='Maze Type', 
-          title_fontsize = 8, fontsize = 8, ncol = 2, facecolor = 'white',
-          edgecolor = 'white')
-ax.set_ylabel("Pair-wise Correlation")
-ax.set_xlabel("In-session stability (FSC)")
-ax.set_yticks(np.linspace(-0.2,1,7))
-ax.set_xticks(np.linspace(0,1,6))
-ax.axis([0, 1, -0.2,1])
-
-plt.tight_layout()
-plt.savefig(os.path.join(loc, 'Cross-day Correlation vs. In-session FSC (familiar).png'), dpi=2400)
-plt.savefig(os.path.join(loc, 'Cross-day Correlation vs. In-session FSC (familiar).svg'), dpi=2400)
-plt.close()
-print("Done Fig 3.")
+        file_indices = np.where((f1['MiceID'] == mouse) & (f1['Stage'] == stage) & (f1['session'] == session))[0]
+        if stage == 'Stage 1+2':
+            file_indices = np.where((f1['MiceID'] == mouse) & (f1['session'] == session) & ((f1['Stage'] == 'Stage 1') | (f1['Stage'] == 'Stage 2')))[0]
+        
+        if stage == 'Stage 1' and mouse in [10212] and session == 2:
+            file_indices = np.where((f1['MiceID'] == mouse) & (f1['session'] == session) & (f1['Stage'] == 'Stage 1') & (f1['date'] != 20230506))[0]
+        
+        session, corr = get_correlation(
+            index_map=index_map,
+            file_indices=file_indices
+        )
+        
+        days = len(session)
+        maze_type = 'Open Field' if f_CellReg_modi['maze_type'][i] == 0 else 'Maze '+str(f_CellReg_modi['maze_type'][i])
+        Data['Maze Type'] = np.concatenate([Data['Maze Type'], np.repeat(maze_type, days)])
+        Data['Aligned Methods'] = np.concatenate([Data['Aligned Methods'], np.repeat('CellReg', days)])
+        Data['Paradigm'] = np.concatenate([Data['Paradigm'], np.repeat('CrossMaze', days)])
+        Data['MiceID'] = np.concatenate([Data['MiceID'], np.repeat(f_CellReg_modi['MiceID'][i], days)])
+        Data['Session Number'] = np.concatenate([Data['Session Number'], session])
+        Data['Correlation'] = np.concatenate([Data['Correlation'], corr])
+        
+    with open(join(figdata, code_id+'.pkl'), 'wb') as f:
+        pickle.dump(Data, f)
+        
+    D = pd.DataFrame(Data)
+    D.to_excel(join(figdata, code_id+'.xlsx'), index=False)

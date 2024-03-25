@@ -108,7 +108,7 @@ data10 = Data['Lap-wise Average Velocity'][idx]
 print(np.mean(data10), np.std(data10))
 
 print(levene(data1, data10))
-print(ttest_ind(data1, data10, alternative='less', equal_var=False))
+print(ttest_ind(data1, data10, equal_var=False))
 
 
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Lap ID'] == 1)&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -155,7 +155,7 @@ plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2.png"), dpi=600)
 plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2.svg"), dpi=600)
 plt.close()
 print(levene(data_11, data_21))
-print("First lap: ",ttest_ind(data_11, data_21, alternative='less'), end='\n\n')
+print("First lap: ",ttest_ind(data_11, data_21), end='\n\n')
 
 
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -204,7 +204,7 @@ plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2 [S1].png"), dpi=600)
 plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2 [S1].svg"), dpi=600)
 plt.close()
 print(levene(data_11, data_21))
-print(ttest_ind(data_11, data_21, alternative='less', equal_var=False), end='\n\n')
+print(ttest_ind(data_11, data_21, equal_var=False), end='\n\n')
 
 
 print("Stage 1 Maze 1 -----------------------------------------------------------")
@@ -235,13 +235,15 @@ print_estimator(data8)
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 9'))[0]
 data9 = Data['Lap-wise Average Velocity'][idx]
 print_estimator(data9)
-idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == '>=Day 10'))[0]
+idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10'))[0]
 data10 = Data['Lap-wise Average Velocity'][idx]
 print_estimator(data10)
-print(ttest_ind(data1, data10, alternative='less'))
-print(ttest_ind(data2, data10, alternative='less'))
-print(ttest_ind(data3, data10, alternative='less'))
-print(ttest_ind(data4, data10, alternative='less'), end='\n\n')
+print("Maze 1 Stage 1 S1 vs Stage 2 S10")
+print(levene(data1, data10))
+print(ttest_ind(data1, data10, equal_var=False), end='\n\n')
+print(ttest_ind(data2, data10))
+print(ttest_ind(data3, data10))
+print(ttest_ind(data4, data10), end='\n\n')
 
 print("Stage 2 Maze 2: ------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 2'))[0]
@@ -274,6 +276,9 @@ print_estimator(data229)
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 2'))[0]
 data2210 = Data['Lap-wise Average Velocity'][idx]
 print_estimator(data2210, end='\n\n')
+print("Maze 2 Stage 2 S1 vs Stage 2 S10")
+print(levene(data221, data2210))
+print(ttest_ind(data221, data2210), end='\n\n')
 
 print("Stage 2 Maze 1: ------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -309,7 +314,7 @@ print_estimator(data2110, end='\n\n')
 
 print("Stage 1 Maze 1 vs Stage 2 Maze 2: Day 1")
 print(levene(data1, data221))
-print(ttest_ind(data1, data221, alternative='less', equal_var=False))
+print(ttest_ind(data1, data221, equal_var=False))
 
 print("Stage 2: Maze 1 vs Maze 2, Day 2")
 print(levene(data212, data222))
@@ -325,7 +330,7 @@ print(ttest_ind(data214, data224, alternative='greater', equal_var=False))
 
 print("Stage 2: Maze 1 vs Maze 2, Day 10")
 print(levene(data2210, data221))
-print(ttest_ind(data2210, data221, alternative='less', equal_var=False))
+print(ttest_ind(data2210, data221, equal_var=False))
 
 
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -413,26 +418,6 @@ ax.set_ylabel('Lap-wise average velocity (cm/s)')
 plt.tight_layout()
 plt.savefig(join(loc, "R-S phase [Stage 2].png"), dpi=600)
 plt.savefig(join(loc, "R-S phase [Stage 2].svg"), dpi=600)
-plt.close()
-
-
-RS1, RS2 = RSPhaseCalculator(Data, 'Lap-wise Average Velocity')
-fig = plt.figure(figsize=(4,3))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(np.arange(1, RS1.shape[0]+1), RS1[:, 0], label='Novel Maze 1, to start', linewidth=0.5)
-ax.plot(np.arange(1, RS1.shape[0]+1), RS1[:, 1], label='Novel Maze 1, to final', linewidth=0.5)
-ax.legend()
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 1].png"), dpi=600)
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 1].svg"), dpi=600)
-plt.close()
-
-fig = plt.figure(figsize=(4,3))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(np.arange(1, RS2.shape[0]+1), RS2[:, 0], label='Novel Maze 2, to start', linewidth=0.5)
-ax.plot(np.arange(1, RS2.shape[0]+1), RS2[:, 1], label='Novel Maze 2, to final', linewidth=0.5)
-ax.legend()
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 2].png"), dpi=600)
-plt.savefig(join(loc, "RS Phase Calculate ['Maze 2].svg"), dpi=600)
 plt.close()
 
 

@@ -56,19 +56,20 @@ print(f"Day 8:   Mean: {np.mean(data8)}, STD: {np.std(data8)}, min: {np.min(data
 idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == 'Day 9')&(Data['Maze Type'] == 'Maze 1'))[0]
 data9 = Data['Correct Rate'][idx]
 print(f"Day 9:   Mean: {np.mean(data9)}, STD: {np.std(data9)}, min: {np.min(data9)}, max: {np.max(data9)}, median: {np.median(data9)}")
-idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 1'))[0]
+idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 1'))[0]
 data10 = Data['Correct Rate'][idx]
 print(f"Day 10:  Mean: {np.mean(data10)}, STD: {np.std(data10)}, min: {np.min(data10)}, max: {np.max(data10)}, median: {np.median(data10)}", end='\n\n')
-print("Day 1 vs Day 10:  ", ttest_ind(data1, data10, alternative='less'))
-print("Day 2 vs Day 10:  ", ttest_ind(data2, data10, alternative='less'))
-print("Day 3 vs Day 10:  ", ttest_ind(data3, data10, alternative='less'))
-print("Day 4 vs Day 10:  ", ttest_ind(data4, data10, alternative='less'))
-print("Day 5 vs Day 10:  ", ttest_ind(data5, data10, alternative='less'))
-print("Day 6 vs Day 10:  ", ttest_ind(data6, data10, alternative='less'))
-print("Day 7 vs Day 10:  ", ttest_ind(data7, data10, alternative='less'))
-print("Day 8 vs Day 10:  ", ttest_ind(data8, data10, alternative='less'))
-print("Day 9 vs Day 10:  ", ttest_ind(data9, data10, alternative='less'))
-print("Day 1 vs Day 3:   ", ttest_ind(data1, data3, alternative='less'), end='\n\n\n')
+print("Day 1 vs Day 10:  ", levene(data1, data10))
+print("    ", ttest_ind(data1, data10, equal_var=False))
+print("Day 2 vs Day 10:  ", ttest_ind(data2, data10))
+print("Day 3 vs Day 10:  ", ttest_ind(data3, data10))
+print("Day 4 vs Day 10:  ", ttest_ind(data4, data10))
+print("Day 5 vs Day 10:  ", ttest_ind(data5, data10))
+print("Day 6 vs Day 10:  ", ttest_ind(data6, data10))
+print("Day 7 vs Day 10:  ", ttest_ind(data7, data10))
+print("Day 8 vs Day 10:  ", ttest_ind(data8, data10))
+print("Day 9 vs Day 10:  ", ttest_ind(data9, data10))
+print("Day 1 vs Day 3:   ", ttest_ind(data1, data3), end='\n\n\n')
 
 
 print("Stage 2 Maze 2 ---------------------------------------------------------------")
@@ -102,16 +103,17 @@ print(f"Day 9:   Mean: {np.mean(data9)}, STD: {np.std(data9)}, min: {np.min(data
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 2'))[0]
 data10 = Data['Correct Rate'][idx]
 print(f"Day 10:  Mean: {np.mean(data10)}, STD: {np.std(data10)}, min: {np.min(data10)}, max: {np.max(data10)}, median: {np.median(data10)}", end='\n\n')
-print("Day 1 vs Day 10:  ", ttest_ind(data1, data10, alternative='less'))
-print("Day 2 vs Day 10:  ", ttest_ind(data2, data10, alternative='less'))
-print("Day 3 vs Day 10:  ", ttest_ind(data3, data10, alternative='less'))
-print("Day 4 vs Day 10:  ", ttest_ind(data4, data10, alternative='less'))
-print("Day 5 vs Day 10:  ", ttest_ind(data5, data10, alternative='less'))
-print("Day 6 vs Day 10:  ", ttest_ind(data6, data10, alternative='less'))
-print("Day 7 vs Day 10:  ", ttest_ind(data7, data10, alternative='less'))
-print("Day 8 vs Day 10:  ", ttest_ind(data8, data10, alternative='less'))
-print("Day 9 vs Day 10:  ", ttest_ind(data9, data10, alternative='less'))
-print("Day 1 vs Day 3:   ", ttest_ind(data1, data3, alternative='less'), end='\n\n\n')
+print("Day 1 vs Day 10:  ", levene(data1, data10))
+print("    ", ttest_ind(data1, data10, equal_var=False))
+print("Day 2 vs Day 10:  ", ttest_ind(data2, data10))
+print("Day 3 vs Day 10:  ", ttest_ind(data3, data10))
+print("Day 4 vs Day 10:  ", ttest_ind(data4, data10))
+print("Day 5 vs Day 10:  ", ttest_ind(data5, data10))
+print("Day 6 vs Day 10:  ", ttest_ind(data6, data10))
+print("Day 7 vs Day 10:  ", ttest_ind(data7, data10))
+print("Day 8 vs Day 10:  ", ttest_ind(data8, data10))
+print("Day 9 vs Day 10:  ", ttest_ind(data9, data10))
+print("Day 1 vs Day 3:   ", ttest_ind(data1, data3), end='\n\n\n')
 
 print("Stage 2 Maze 1 ---------------------------------------------------------------")
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == 'Day 1')&(Data['Maze Type'] == 'Maze 1'))[0]
@@ -144,19 +146,19 @@ print(f"Day 9:   Mean: {np.mean(data19)}, STD: {np.std(data19)}, min: {np.min(da
 idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')&(Data['Maze Type'] == 'Maze 1'))[0]
 data110 = Data['Correct Rate'][idx]
 print(f"Day 10:  Mean: {np.mean(data110)}, STD: {np.std(data110)}, min: {np.min(data110)}, max: {np.max(data110)}, median: {np.median(data110)}", end='\n\n')
-print("Day 1 vs Day 10:  ", ttest_ind(data11, data110, alternative='less'))
-print("Day 2 vs Day 10:  ", ttest_ind(data12, data110, alternative='less'))
-print("Day 3 vs Day 10:  ", ttest_ind(data13, data110, alternative='less'))
-print("Day 4 vs Day 10:  ", ttest_ind(data14, data110, alternative='less'))
-print("Day 5 vs Day 10:  ", ttest_ind(data15, data110, alternative='less'))
-print("Day 6 vs Day 10:  ", ttest_ind(data16, data110, alternative='less'))
-print("Day 7 vs Day 10:  ", ttest_ind(data17, data110, alternative='less'))
-print("Day 8 vs Day 10:  ", ttest_ind(data18, data110, alternative='less'))
-print("Day 9 vs Day 10:  ", ttest_ind(data19, data110, alternative='less'))
-print("Day 1 vs Day 3:   ", ttest_ind(data11, data13, alternative='less'), end='\n\n\n')
+print("Day 1 vs Day 10:  ", ttest_ind(data11, data110))
+print("Day 2 vs Day 10:  ", ttest_ind(data12, data110))
+print("Day 3 vs Day 10:  ", ttest_ind(data13, data110))
+print("Day 4 vs Day 10:  ", ttest_ind(data14, data110))
+print("Day 5 vs Day 10:  ", ttest_ind(data15, data110))
+print("Day 6 vs Day 10:  ", ttest_ind(data16, data110))
+print("Day 7 vs Day 10:  ", ttest_ind(data17, data110))
+print("Day 8 vs Day 10:  ", ttest_ind(data18, data110))
+print("Day 9 vs Day 10:  ", ttest_ind(data19, data110))
+print("Day 1 vs Day 3:   ", ttest_ind(data11, data13), end='\n\n\n')
 
 print("Stage 1: t-test, maze 2 vs maze 1")
-print(ttest_ind(data1, data110, alternative='less'))
+print(ttest_ind(data1, data110))
 print(ttest_ind(data2, data12))
 print(ttest_ind(data3, data13))
 print(ttest_ind(data4, data14))
@@ -314,7 +316,7 @@ plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2 [S1] Correct Rate.png"), 
 plt.savefig(join(loc, "Comparison of Maze 1 and Maze 2 [S1] Correct Rate.svg"), dpi=600)
 plt.close()
 print("First Session:", levene(data_11, data_21))
-print(ttest_ind(data_11, data_21, alternative='less', equal_var=False), end='\n\n')
+print(ttest_ind(data_11, data_21, equal_var=False), end='\n\n')
 
 
 
