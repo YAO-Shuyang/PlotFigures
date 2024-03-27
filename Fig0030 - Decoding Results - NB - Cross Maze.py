@@ -107,56 +107,133 @@ markercolors = [sns.color_palette("crest", 4)[2], sns.color_palette("Blues", 9)[
 print("Start plot")
 
 
+print("Cross Env comparison Stage 1:")
+for day in uniq_day:
+    print(f" {day} -------------------------")
+    data_op, data_m1 = [], []
+    for m in [10209, 10212, 10224, 10227]:
+        data_op.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == day)&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0]]))
+        data_m1.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == day)&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0]]))
+    try:
+        print("     OP vs M1", ttest_rel(data_op, data_m1))
+    except:
+        print()
+print()
+
+print("Cross Env comparison Stage 2:")
+for day in uniq_day:
+    print(f" {day} -------------------------")
+    data_op, data_m1, data_m2 = [], [], []
+    for m in [10209, 10212, 10224, 10227]:
+        data_op.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == day)&
+                                                (SubData['Stage'] == 'Stage 2')&
+                                                (SubData['Data Type'] == 'Data'))[0]]))
+        data_m1.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == day)&
+                                                (SubData['Stage'] == 'Stage 2')&
+                                                (SubData['Data Type'] == 'Data'))[0]]))
+        data_m2.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == day)&
+                                                (SubData['Stage'] == 'Stage 2')&
+                                                (SubData['Data Type'] == 'Data'))[0]]))
+    
+    print("     OP vs M1", ttest_rel(data_op, data_m1)[1]*2)
+    print("     OP vs M2", ttest_rel(data_op, data_m2)[1]*2, end='\n\n')
+print()
+
 # Statistic Test
-data_op_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1')&(SubData['Data Type'] == 'Data'))[0]]
-data_m1_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 1')&(SubData['Data Type'] == 'Data'))[0]]
-data_m2_d1 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+data_op_d1, data_m1_d1, data_m2_d1 = [], [], []
+for m in [10209, 10212, 10224, 10227]:
+    data_op_d1.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == 'Day 1')&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0][:1]]))
+    data_m1_d1.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == 'Day 1')&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0][:1]]))
+    data_m2_d1.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == 'Day 1')&
+                                                (SubData['Stage'] == 'Stage 2')&
+                                                (SubData['Data Type'] == 'Data'))[0][:1]]))
 
-data_op_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
-data_m1_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
-data_m2_d10 = SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10')&(SubData['Stage'] == 'Stage 2')&(SubData['Data Type'] == 'Data'))[0]]
+data_op_d10, data_m1_d10, data_m2_d10 = [], [], []
+for m in [10209, 10212, 10224, 10227]:
+    data_op_d10.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Open Field')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == '>=Day 10')&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0][-5:]]))
+    data_m1_d10.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 1')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == '>=Day 10')&
+                                                (SubData['Stage'] == 'Stage 1')&
+                                                (SubData['Data Type'] == 'Data'))[0][-5:]]))
+    data_m2_d10.append(np.nanmean(SubData['Error'][np.where((SubData['Maze Type'] == 'Maze 2')&
+                                                (SubData['MiceID'] == m)&
+                                                (SubData['Training Day'] == '>=Day 10')&
+                                                (SubData['Stage'] == 'Stage 2')&
+                                                (SubData['Data Type'] == 'Data'))[0][-5:]]))
 
+
+print(data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10, sep='\n\n')
 print("Open Field: Day 1 vs Day 10")
 print_estimator(data_op_d1)
 print_estimator(data_op_d10)
-print(levene(data_op_d1, data_op_d10))
-print(ttest_ind(data_op_d1, data_op_d10, equal_var=False), cohen_d(data_op_d1, data_op_d10))
+print(ttest_rel(data_op_d1, data_op_d10), end='\n\n')
 print("Maze 1: Day 1 vs Day 10")
 print_estimator(data_m1_d1)
 print_estimator(data_m1_d10)
-print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False), cohen_d(data_m1_d1, data_m1_d10))
+print(ttest_rel(data_m1_d1, data_m1_d10), end='\n\n')
 print("Maze 2: Day 1 vs Day 10")
 print_estimator(data_m2_d1)
 print_estimator(data_m2_d10)
-print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10, equal_var=False), cohen_d(data_m2_d1, data_m2_d10))
+print(ttest_rel(data_m2_d1, data_m2_d10), end='\n\n')
+
 
 compdata = {
     "Error": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10, data_m1_d10, data_m2_d10]),
     "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10) + ['Maze 1']*len(data_m1_d10) + ['Maze 2']*len(data_m2_d10)),
     "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10)+len(data_m1_d10)+len(data_m2_d10))]), 
+    "MiceID": np.array([10209, 10212, 10224, 10227] * 6)
 }
-fig = plt.figure(figsize=(3,4))
+print(compdata)
+fig = plt.figure(figsize=(3,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
-    x='Session',
+    x='Maze Type',
     y='Error',
-    hue='Maze Type',
+    hue='Session',
     data=compdata,
-    palette=colors,
+    palette=['#003366', '#0099CC'],
     ax=ax,
     errcolor='black',
     errwidth=0.5,
     capsize=0.1,
     width=0.8
 )
+
 sns.stripplot(
-    x='Session',
+    x='Maze Type',
     y='Error',
-    hue='Maze Type',
+    hue='MiceID',
     data=compdata,
-    palette=markercolors,
+    palette=['#F2E8D4', '#8E9F85', '#C3AED6', '#A7D8DE'],
     edgecolor='black',
     size=4,
     linewidth=0.15,
@@ -180,10 +257,7 @@ sns.lineplot(
     y=Data['Error'][idx],
     hue=Data['Data Type'][idx],
     palette='Blues',
-    marker='o',
     ax=ax1,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -199,10 +273,7 @@ sns.lineplot(
     y=Data['Error'][idx],
     hue=Data['Data Type'][idx],
     palette='Blues',
-    marker='o',
     ax=ax2,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -218,10 +289,7 @@ sns.lineplot(
     y=Data['Error'][idx],
     hue=Data['Data Type'][idx],
     palette='Blues',
-    marker='o',
     ax=ax3,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -247,10 +315,7 @@ sns.lineplot(
     y=Data['Error'][idx],
     hue=Data['hue'][idx],
     palette=colors[:2],
-    marker='o',
     ax=ax2,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -266,10 +331,7 @@ sns.lineplot(
     y=Data['Error'][idx],
     hue=Data['hue'][idx],
     palette=colors,
-    marker='o',
     ax=ax3,
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},

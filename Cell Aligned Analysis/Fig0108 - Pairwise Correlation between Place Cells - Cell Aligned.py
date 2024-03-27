@@ -148,7 +148,7 @@ else:
         days = len(session)
         maze_type = 'Open Field' if f_CellReg_modi['maze_type'][i] == 0 else 'Maze '+str(f_CellReg_modi['maze_type'][i])
         Data['Maze Type'] = np.concatenate([Data['Maze Type'], np.repeat(maze_type, days)])
-        Data['Aligned Methods'] = np.concatenate([Data['Aligned Methods'], np.repeat('CellReg', days)])
+        Data['Aligned Methods'] = np.concatenate([Data['Aligned Methods'], np.repeat('NeuroMatch', days)])
         Data['Paradigm'] = np.concatenate([Data['Paradigm'], np.repeat('CrossMaze', days)])
         Data['MiceID'] = np.concatenate([Data['MiceID'], np.repeat(f_CellReg_modi['MiceID'][i], days)])
         Data['Session Number'] = np.concatenate([Data['Session Number'], session])
@@ -159,3 +159,138 @@ else:
         
     D = pd.DataFrame(Data)
     D.to_excel(join(figdata, code_id+'.xlsx'), index=False)
+
+Data['Aligned Methods'][337:] = 'NeuroMatch' 
+idx = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 1') &
+               (Data['MiceID'] != 10224) &
+               (Data['MiceID'] != 10227))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(3, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifyticks=True, ifxticks=True)
+sns.barplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#336699', '#C3AED6'],
+    capsize=0.2,
+    width=0.8,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5
+)
+sns.stripplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#C3DEF1', '#FED7D7'],
+    jitter=0.2,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True
+)
+ax.set_ylim(0, 1)
+ax.set_yticks(np.linspace(0, 1, 6))
+plt.savefig(join(loc, '[Maze A 09&12] Pair-wise Correlation [session interval = 1].png'), dpi=600)
+plt.savefig(join(loc, '[Maze A 09&12] Pair-wise Correlation [session interval = 1].svg'), dpi=600)
+plt.close()
+
+idx = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 1') &
+               (Data['MiceID'] != 10209) &
+               (Data['MiceID'] != 10212))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(5, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifyticks=True, ifxticks=True)
+sns.barplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#336699', '#C3AED6'],
+    capsize=0.2,
+    width=0.8,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5
+)
+sns.stripplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#C3DEF1', '#FED7D7'],
+    jitter=0.2,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True
+)
+ax.set_ylim(0, 1)
+ax.set_yticks(np.linspace(0, 1, 6))
+plt.savefig(join(loc, '[Maze A 24&27] Pair-wise Correlation [session interval = 1].png'), dpi=600)
+plt.savefig(join(loc, '[Maze A 24&27] Pair-wise Correlation [session interval = 1].svg'), dpi=600)
+plt.close()
+
+idx = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 2'))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(3, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifyticks=True, ifxticks=True)
+sns.barplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#336699', '#C3AED6'],
+    capsize=0.2,
+    width=0.8,
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5
+)
+sns.stripplot(
+    x='Session Number',
+    y='Correlation',
+    data=SubData,
+    hue='Aligned Methods',
+    palette=['#C3DEF1', '#FED7D7'],
+    jitter=0.2,
+    edgecolor='black',
+    size=3,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True
+)
+ax.set_ylim(0, 1)
+ax.set_yticks(np.linspace(0, 1, 6))
+plt.savefig(join(loc, '[Maze B] Pair-wise Correlation [session interval = 1].png'), dpi=600)
+plt.savefig(join(loc, '[Maze B] Pair-wise Correlation [session interval = 1].svg'), dpi=600)
+plt.close()
+
+print("Maze 1")
+idx = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 1'))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+x = np.unique(SubData['Session Number'])
+for i in x:
+    idx1 = np.where((SubData['Session Number'] == i) & (SubData['Aligned Methods'] == 'CellReg'))[0]
+    idx2 = np.where((SubData['Session Number'] == i) & (SubData['Aligned Methods'] == 'NeuroMatch'))[0]
+    print("  ", i, ttest_rel(SubData['Correlation'][idx1], SubData['Correlation'][idx2]))
+print(end='\n\n')
+
+print("Maze 2")
+idx = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 2'))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+x = np.unique(SubData['Session Number'])
+for i in x:
+    idx1 = np.where((SubData['Session Number'] == i) & (SubData['Aligned Methods'] == 'CellReg'))[0]
+    idx2 = np.where((SubData['Session Number'] == i) & (SubData['Aligned Methods'] == 'NeuroMatch'))[0]
+    print("  ", i, ttest_rel(SubData['Correlation'][idx1], SubData['Correlation'][idx2]))
+print(end='\n\n')

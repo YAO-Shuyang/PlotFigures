@@ -79,6 +79,7 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
+ax2.set_ylim([0,100])
 ax2.set_yticks(np.linspace(0, 100, 6))
 
 stage2_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == day))[0] for day in x_ticks])
@@ -164,6 +165,7 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
 )
+ax2.set_ylim([0,100])
 ax2.set_yticks(np.linspace(0, 100, 6))
 
 stage2_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == day))[0] for day in x_ticks])
@@ -216,31 +218,29 @@ print("Stage 1 Daily comparison ------------------------------------------------
 for d in days:
     dataop = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 1')&(Data['Maze Type'] == 'Open Field'))[0]]
     datam1 = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 1')&(Data['Maze Type'] == 'Maze 1'))[0]]
+    dataop = (dataop[np.arange(0, len(dataop), 2)] + dataop[np.arange(1, len(dataop), 2)])/2
     print_estimator(dataop)
     print_estimator(datam1)
-    print("Stage 1 "+d+" [Open Field vs Maze 1]:")
-    print(levene(dataop, datam1))
-    print(ttest_ind(dataop, datam1, alternative='less'), end="\n\n")
+    print("  "+d+" [Open Field vs Maze 1]:")
+    print("    ", levene(dataop, datam1))
+    try:
+        print("    ", ttest_rel(dataop, datam1), end="\n\n")
+    except:
+        pass
     
 print("Stage 2 Daily comparison --------------------------------------------------------------------------------------")
 for d in days:
+    print("  ", d)
     dataop = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Open Field'))[0]]
-    datam1 = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] != 'Open Field'))[0]]
-    print_estimator(dataop)
-    print_estimator(datam1)
-    print("Stage 1 "+d+" [Open Field vs Maze 1+2]:")
-    print(levene(dataop, datam1))
-    print(ttest_ind(dataop, datam1, alternative='less'), end="\n\n")
-    
-print("Stage 2 Daily comparison --------------------------------------------------------------------------------------")
-for d in days:
     datam1 = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 1'))[0]]
     datam2 = Data['percentage'][np.where((Data['Training Day'] == d)&(Data['Stage'] == 'Stage 2')&(Data['Maze Type'] == 'Maze 2'))[0]]
+    dataop = (dataop[np.arange(0, len(dataop), 2)] + dataop[np.arange(1, len(dataop), 2)])/2
     print_estimator(datam1)
     print_estimator(datam2)
-    print("Stage 1 "+d+" [Maze 1 vs Maze 2]:")
-    print(levene(datam1, datam2))
-    print(ttest_ind(datam1, datam2), end="\n\n")
+    
+    print("     op vs m1:", ttest_rel(dataop, datam1))
+    print("     op vs m2:", ttest_rel(dataop, datam2))
+    print("     m1 vs m2:", ttest_rel(datam1, datam2), end="\n\n")
     
 print("Percentage Stage 1 Maze 1:")
 print_estimator(Data['percentage'][np.where((Data['Stage'] == 'Stage 1')&(Data['Maze Type'] == 'Maze 1'))[0]])
