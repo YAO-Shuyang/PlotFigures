@@ -8,7 +8,7 @@ if os.path.exists(join(figdata, code_id+'.pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
-    Data = {"Env Pair": [], "Stage": [], "Training Day": [], "Placecell Fraction": []}
+    Data = {"Env Pair": [], "Stage": [], "Training Day": [], "Placecell Fraction": [], "denominator": []}
     
     for i in tqdm(range(len(f_CellReg_env))):
         if f_CellReg_env['include'][i] == 0:
@@ -42,6 +42,7 @@ else:
                                       (trace2['is_placecell'][index_map[k, cell_idx].astype(np.int64)-1] == 1))[0]
                     
                     Data['Placecell Fraction'].append(len(pc_idx) / len(cell_idx))
+                    Data['denominator'].append(len(cell_idx))
                     
         elif f_CellReg_env['Stage'][i] == 'Stage 2':
             mazes = [["OF-MA", "OF-MB", "OF-OF"], ["MA-MB", "OF-MA"], ["OF-MB"]]
@@ -71,6 +72,7 @@ else:
                                       (trace2['is_placecell'][index_map[k, cell_idx].astype(np.int64)-1] == 1))[0]
                     
                     Data['Placecell Fraction'].append(len(pc_idx) / len(cell_idx))
+                    Data['denominator'].append(len(cell_idx))
 
     for k in Data.keys():
         Data[k] = np.array(Data[k])    

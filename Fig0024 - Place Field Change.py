@@ -15,47 +15,7 @@ else:
 
 idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
 Data = SubDict(Data, Data.keys(), idx)
-
-idx = np.concatenate([np.where((Data['Maze Type']==m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
-
-
-print("Open Field Day 1 vs Day 10, All")
-data_op_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Open Field')&(Data['Training Day']=='Day 1')&(Data['Stage'] == 'Stage 1'))[0]]
-data_op_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Open Field')&(Data['Training Day']=='>=Day 10')&(Data['Stage'] == 'Stage 2'))[0]]
-print_estimator(data_op_d1)
-print_estimator(data_op_d10)
-print(levene(data_op_d1, data_op_d10))
-print(ttest_ind(data_op_d1, data_op_d10), cohen_d(data_op_d1, data_op_d10), end='\n\n')
-
-print("Maze 1 Day 1 vs Day 10, All")
-data_m1_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 1'))[0]]
-data_m1_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
-print_estimator(data_m1_d1)
-print_estimator(data_m1_d10)
-print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
-print("Maze 2 Day 1 vs Day 10, All")
-data_m2_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
-data_m2_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='AP')&(Data['Stage'] == 'Stage 2'))[0]]
-print_estimator(data_m2_d1)
-print_estimator(data_m2_d10)
-print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
-
-print("Maze 1 Day 1 vs Day 10, CP")
-data_m1_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 1'))[0]]
-data_m1_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 1')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
-print_estimator(data_m1_d1)
-print_estimator(data_m1_d10)
-print(levene(data_m1_d1, data_m1_d10))
-print(ttest_ind(data_m1_d1, data_m1_d10, equal_var=False), cohen_d(data_m1_d1, data_m1_d10), end='\n\n')
-print("Maze 2 Day 1 vs Day 10, CP")
-data_m2_d1 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='Day 1')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
-data_m2_d10 = Data['Field Number'][np.where((Data['Maze Type']=='Maze 2')&(Data['Training Day']=='>=Day 10')&(Data['Path Type']=='CP')&(Data['Stage'] == 'Stage 2'))[0]]
-print_estimator(data_m2_d1)
-print_estimator(data_m2_d10)
-print(levene(data_m2_d1, data_m2_d10))
-print(ttest_ind(data_m2_d1, data_m2_d10), cohen_d(data_m2_d1, data_m2_d10), end='\n\n')
+markercolors = sns.color_palette("Blues", 4)[1::]
 
 # Mean Rate
 uniq_day = ['Day 1', 'Day 2', 'Day 3', 'Day 4',
@@ -93,18 +53,15 @@ sns.lineplot(
 ax1.set_ylim([0, 15])
 ax1.set_yticks(np.linspace(0, 15, 6))
 
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] != 'CP')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1']])
+idx = idx = np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] != 'CP'))[0]
 SubData2 = SubDict(SubData, SubData.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='Field Number',
     data=SubData2,
-    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
+    hue_order=['Open Field', 'Maze 1'],
     hue='Maze Type',
     palette=colors,
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -114,7 +71,7 @@ sns.lineplot(
 ax2.set_ylim([0, 15])
 ax2.set_yticks(np.linspace(0, 15, 6))
 
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] != 'CP')&(SubData['Maze Type'] == m))[0] for m in ['Open Field', 'Maze 1', 'Maze 2']])
+idx = np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] != 'CP'))[0]
 SubData3 = SubDict(SubData, SubData.keys(), idx)
 sns.lineplot(
     x='Training Day',
@@ -123,9 +80,6 @@ sns.lineplot(
     hue='Maze Type',
     hue_order=['Open Field', 'Maze 1', 'Maze 2'],
     palette=colors,
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -140,38 +94,39 @@ plt.savefig(join(loc, 'Field Number Change.svg'), dpi=2400)
 plt.close()
 
 
-fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,3))
-ax2 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax3 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 1']])
-SubData2 = SubDict(SubData, SubData.keys(), idx)
+fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(12,3))
+ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax2 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax3 = Clear_Axes(axes[2], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+idx = np.concatenate([np.where((Data['Stage'] == 'PRE')&(Data['Training Day'] == s))[0] for s in uniq_s])
+SubData1 = SubDict(Data, Data.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='Field Number',
-    data=SubData2,
+    data=SubData1,
     hue='Maze Type',
-    palette=markercolors[1:],
+    palette=colors,
     marker='o',
+    ax=ax1,
     markeredgecolor=None,
     markersize=2,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5,
-    ax=ax2
 )
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 1']])
-SubData3 = SubDict(SubData, SubData.keys(), idx)
+ax1.set_ylim([0, 15])
+ax1.set_yticks(np.linspace(0, 15, 6))
+
+idx = idx = np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] != 'AP'))[0]
+SubData2 = SubDict(SubData, SubData.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='Field Number',
-    data=SubData3,
+    data=SubData2,
+    hue_order=['Open Field', 'Maze 1'],
     hue='Maze Type',
-    palette=markercolors[2:],
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
+    palette=colors,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -181,34 +136,15 @@ sns.lineplot(
 ax2.set_ylim([0, 15])
 ax2.set_yticks(np.linspace(0, 15, 6))
 
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 1']])
+idx = np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] != 'AP'))[0]
 SubData3 = SubDict(SubData, SubData.keys(), idx)
 sns.lineplot(
     x='Training Day',
     y='Field Number',
     data=SubData3,
     hue='Maze Type',
-    palette=markercolors[1:],
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
-    err_style='bars',
-    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
-    linewidth=0.5,
-    ax=ax3
-)
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 1']])
-SubData3 = SubDict(SubData, SubData.keys(), idx)
-sns.lineplot(
-    x='Training Day',
-    y='Field Number',
-    data=SubData3,
-    style='Maze Type',
-    palette=markercolors[2:],
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
+    hue_order=['Open Field', 'Maze 1', 'Maze 2'],
+    palette=colors,
     legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
@@ -218,162 +154,244 @@ sns.lineplot(
 ax3.set_ylim([0, 15])
 ax3.set_yticks(np.linspace(0, 15, 6))
 plt.tight_layout()
-plt.savefig(join(loc, 'Field Number Change [CP vs AP Maze 1].png'), dpi=600)
-plt.savefig(join(loc, 'Field Number Change [CP vs AP Maze 1].svg'), dpi=600)
+plt.savefig(join(loc, '[Correct Track] Field Number Change.png'), dpi=2400)
+plt.savefig(join(loc, '[Correct Track] Field Number Change.svg'), dpi=2400)
+plt.close()
+
+data_op_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Training Day']=='Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_op_d1 = (data_op_d1[np.arange(0, len(data_op_d1), 2)] + data_op_d1[np.arange(1, len(data_op_d1), 2)]) / 2
+data_op_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Training Day']=='>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_op_d10 = (data_op_d10[np.arange(0, len(data_op_d10), 2)] + data_op_d10[np.arange(1, len(data_op_d10), 2)]) / 2
+
+data_m1_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Training Day']=='Day 1')&(SubData['Path Type']=='AP')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Training Day']=='>=Day 10')&(SubData['Path Type']=='AP')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Training Day']=='Day 1')&(SubData['Path Type']=='AP')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Training Day']=='>=Day 10')&(SubData['Path Type']=='AP')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+print("All Paths --------------------------------------------------------------------------------------------------")
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_op_d1, data_op_d10[[6, 7, 14, 15]]), end='\n\n')
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_m1_d1, data_m1_d10[[6, 7, 14, 15]]), end='\n\n')
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_m2_d1, data_m2_d10[[6, 7, 14, 15]]), end='\n\n')
+
+compdata = {
+    "Field Number": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10[[6, 7, 14, 15]], data_m1_d10[[6, 7, 14, 15]], data_m2_d10[[6, 7, 14, 15]]]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10[[6, 7, 14, 15]]) + ['Maze 1']*len(data_m1_d10[[6, 7, 14, 15]]) + ['Maze 2']*len(data_m2_d10[[6, 7, 14, 15]])),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10[[6, 7, 14, 15]])+len(data_m1_d10[[6, 7, 14, 15]])+len(data_m2_d10[[6, 7, 14, 15]]))]), 
+    "MiceID": np.array([10209, 10212, 10224, 10227] * 6)
+}
+print(compdata)
+fig = plt.figure(figsize=(3,3))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x='Maze Type',
+    y='Field Number',
+    hue='Session',
+    data=compdata,
+    palette=['#003366', '#0099CC'],
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5,
+    capsize=0.1,
+    width=0.8
+)
+
+sns.stripplot(
+    x='Maze Type',
+    y='Field Number',
+    hue='MiceID',
+    data=compdata,
+    palette=['#F2E8D4', '#8E9F85', '#C3AED6', '#A7D8DE'],
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True,
+    jitter=0.15
+)
+ax.set_ylim([0, 15])
+ax.set_yticks(np.linspace(0, 15, 6))
+plt.savefig(join(loc, '[All Paths] Comparison of Sessions.png'), dpi=2400)
+plt.savefig(join(loc, '[All Paths] Comparison of Sessions.svg'), dpi=2400)
+plt.close()
+print(end='\n\n\n\n')
+
+data_op_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Training Day']=='Day 1')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_op_d1 = (data_op_d1[np.arange(0, len(data_op_d1), 2)] + data_op_d1[np.arange(1, len(data_op_d1), 2)]) / 2
+data_op_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Training Day']=='>=Day 10')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_op_d10 = (data_op_d10[np.arange(0, len(data_op_d10), 2)] + data_op_d10[np.arange(1, len(data_op_d10), 2)]) / 2
+
+data_m1_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Training Day']=='Day 1')&(SubData['Path Type']=='CP')&(SubData['Stage'] == 'Stage 1'))[0]]
+data_m1_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Training Day']=='>=Day 10')&(SubData['Path Type']=='CP')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Training Day']=='Day 1')&(SubData['Path Type']=='CP')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_m2_d10 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Training Day']=='>=Day 10')&(SubData['Path Type']=='CP')&(SubData['Stage'] == 'Stage 2'))[0]]
+
+print("Correct Paths --------------------------------------------------------------------------------------------------")
+print("Open Field: Day 1 vs Day 10")
+print_estimator(data_op_d1)
+print_estimator(data_op_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_op_d1, data_op_d10[[6, 7, 14, 15]]), end='\n\n')
+print("Maze 1: Day 1 vs Day 10")
+print_estimator(data_m1_d1)
+print_estimator(data_m1_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_m1_d1, data_m1_d10[[6, 7, 14, 15]]), end='\n\n')
+print("Maze 2: Day 1 vs Day 10")
+print_estimator(data_m2_d1)
+print_estimator(data_m2_d10[[6, 7, 14, 15]])
+print(ttest_rel(data_m2_d1, data_m2_d10[[6, 7, 14, 15]]), end='\n\n')
+
+compdata = {
+    "Field Number": np.concatenate([data_op_d1, data_m1_d1, data_m2_d1, data_op_d10[[6, 7, 14, 15]], data_m1_d10[[6, 7, 14, 15]], data_m2_d10[[6, 7, 14, 15]]]),
+    "Maze Type": np.array(['Open Field']*len(data_op_d1) + ['Maze 1']*len(data_m1_d1) + ['Maze 2']*len(data_m2_d1) + ['Open Field']*len(data_op_d10[[6, 7, 14, 15]]) + ['Maze 1']*len(data_m1_d10[[6, 7, 14, 15]]) + ['Maze 2']*len(data_m2_d10[[6, 7, 14, 15]])),
+    "Session": np.concatenate([np.repeat("First", len(data_op_d1)+len(data_m1_d1)+len(data_m2_d1)), np.repeat("Last", len(data_op_d10[[6, 7, 14, 15]])+len(data_m1_d10[[6, 7, 14, 15]])+len(data_m2_d10[[6, 7, 14, 15]]))]), 
+    "MiceID": np.array([10209, 10212, 10224, 10227] * 6)
+}
+print(compdata)
+fig = plt.figure(figsize=(3,3))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x='Maze Type',
+    y='Field Number',
+    hue='Session',
+    data=compdata,
+    palette=['#003366', '#0099CC'],
+    ax=ax,
+    errcolor='black',
+    errwidth=0.5,
+    capsize=0.1,
+    width=0.8
+)
+
+sns.stripplot(
+    x='Maze Type',
+    y='Field Number',
+    hue='MiceID',
+    data=compdata,
+    palette=['#F2E8D4', '#8E9F85', '#C3AED6', '#A7D8DE'],
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    dodge=True,
+    jitter=0.15
+)
+ax.set_ylim([0, 15])
+ax.set_yticks(np.linspace(0, 15, 6))
+plt.savefig(join(loc, '[Correct Paths] Comparison of Sessions.png'), dpi=2400)
+plt.savefig(join(loc, '[Correct Paths] Comparison of Sessions.svg'), dpi=2400)
 plt.close()
 
 
+print("\n\n\nCross Environments:")
+data_op = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&
+                                           ((SubData['Stage'] != 'Stage 1') | (SubData['Training Day'] != 'Day 6')))[0]]
+data_op = (data_op[np.arange(0, len(data_op), 2)] + data_op[np.arange(1, len(data_op), 2)]) / 2
 
+data_m1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Path Type']=='AP')&
+                                           ((SubData['Stage'] != 'Stage 1') | (SubData['Training Day'] != 'Day 6')))[0]]
 
-fig = plt.figure(figsize=(4,3))
-ax3 = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 2']])
-SubData3 = SubDict(SubData, SubData.keys(), idx)
-sns.lineplot(
-    x='Training Day',
-    y='Field Number',
-    data=SubData3,
-    hue='Maze Type',
-    palette=markercolors[1:],
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
-    err_style='bars',
-    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
-    linewidth=0.5,
-    ax=ax3
-)
-idx = np.concatenate([np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == m))[0] for m in ['Maze 2']])
-SubData3 = SubDict(SubData, SubData.keys(), idx)
-sns.lineplot(
-    x='Training Day',
-    y='Field Number',
-    data=SubData3,
-    style='Maze Type',
-    palette=markercolors[2:],
-    marker='o',
-    markeredgecolor=None,
-    markersize=2,
-    legend=False,
-    err_style='bars',
-    err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
-    linewidth=0.5,
-    ax=ax3
-)
-ax3.set_ylim([0, 10])
-ax3.set_yticks(np.linspace(0, 10, 6))
-plt.tight_layout()
-plt.savefig(join(loc, 'Field Number Change [CP vs AP Maze 2].png'), dpi=600)
-plt.savefig(join(loc, 'Field Number Change [CP vs AP Maze 2].svg'), dpi=600)
-plt.close()
+print_estimator(data_op)
+print_estimator(data_m1)
+print("OF vs M1: ", ttest_rel(data_op, data_m1), end='\n\n')
+data_op_m2 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_op_m2 = (data_op_m2[np.arange(0, len(data_op_m2), 2)] + data_op_m2[np.arange(1, len(data_op_m2), 2)]) / 2
+data_m2 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Path Type']=='AP')&(SubData['Stage'] == 'Stage 2'))[0]]
+print_estimator(data_op_m2)
+print_estimator(data_m2)
+print("OF vs M2: ", ttest_rel(data_op_m2, data_m2), end='\n\n')
 
-
-
-data_m1_cp_d1 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1'))[0]]
-data_m1_cp_d10 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10'))[0]]
-data_m1_ap_d1 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 1')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == 'Day 1'))[0]]
-data_m1_ap_d10 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == 'Maze 1')&(SubData['Training Day'] == '>=Day 10'))[0]]
-
-print(levene(data_m1_cp_d1, data_m1_cp_d10))
-print(ttest_ind(data_m1_cp_d1, data_m1_cp_d10))
-print(levene(data_m1_ap_d1, data_m1_ap_d10))
-print(ttest_ind(data_m1_ap_d1, data_m1_ap_d10))
-bardata = {
-    "Path Type": np.concatenate([np.repeat('CP', data_m1_cp_d1.shape[0] + data_m1_cp_d10.shape[0]), np.repeat('AP', data_m1_ap_d1.shape[0] + data_m1_ap_d10.shape[0])]),
-    "Training Day": np.concatenate([np.repeat('Day 1', data_m1_cp_d1.shape[0]), np.repeat('>=Day 10', data_m1_cp_d10.shape[0]), np.repeat('Day 1', data_m1_ap_d1.shape[0]), np.repeat('>=Day 10', data_m1_ap_d10.shape[0])]),
-    "Field Number": np.concatenate([data_m1_cp_d1, data_m1_cp_d10, data_m1_ap_d1, data_m1_ap_d10])
+compdata = {
+    "Field Number": np.concatenate([data_op, data_m1, data_m2]),
+    "Maze Type": np.array(['Open Field']*len(data_op) + ['Maze 1']*len(data_m1) + ['Maze 2']*len(data_m2)),
 }
 fig = plt.figure(figsize=(2,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
-    x='Training Day',
+    x='Maze Type',
     y='Field Number',
-    data=bardata,
-    hue='Path Type',
-    palette=markercolors[1:],
+    data=compdata,
+    palette=colors,
     ax=ax,
-    capsize=0.2,
+    errcolor='black',
     errwidth=0.5,
+    capsize=0.1,
     width=0.8
 )
-plt.savefig(join(loc, 'Field Number barplot.png'), dpi=600)
-plt.savefig(join(loc, 'Field Number barplot.svg'), dpi=600)
+sns.stripplot(
+    x='Maze Type',
+    y='Field Number',
+    data=compdata,
+    palette=markercolors,
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    jitter=0.2
+)
+ax.set_ylim([0, 15])
+ax.set_yticks(np.linspace(0, 15, 6))
+plt.savefig(join(loc, '[All Paths] Comparison of Environments.png'), dpi=2400)
+plt.savefig(join(loc, '[All Paths] Comparison of Environments.svg'), dpi=2400)
 plt.close()
 
 
-data_m1_cp_d1 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1'))[0]]
-data_m1_cp_d10 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'CP')&(SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10'))[0]]
-data_m1_ap_d1 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == 'Day 1'))[0]]
-data_m1_ap_d10 = SubData['Field Number'][np.where((SubData['Stage'] == 'Stage 2')&(SubData['Path Type'] == 'AP')&(SubData['Maze Type'] == 'Maze 2')&(SubData['Training Day'] == '>=Day 10'))[0]]
 
-print(levene(data_m1_cp_d1, data_m1_cp_d10))
-print(ttest_ind(data_m1_cp_d1, data_m1_cp_d10))
-print(levene(data_m1_ap_d1, data_m1_ap_d10))
-print(ttest_ind(data_m1_ap_d1, data_m1_ap_d10))
-bardata = {
-    "Path Type": np.concatenate([np.repeat('CP', data_m1_cp_d1.shape[0] + data_m1_cp_d10.shape[0]), np.repeat('AP', data_m1_ap_d1.shape[0] + data_m1_ap_d10.shape[0])]),
-    "Training Day": np.concatenate([np.repeat('Day 1', data_m1_cp_d1.shape[0]), np.repeat('>=Day 10', data_m1_cp_d10.shape[0]), np.repeat('Day 1', data_m1_ap_d1.shape[0]), np.repeat('>=Day 10', data_m1_ap_d10.shape[0])]),
-    "Field Number": np.concatenate([data_m1_cp_d1, data_m1_cp_d10, data_m1_ap_d1, data_m1_ap_d10])
+print("\n\n\nCross Environments:")
+data_op = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&
+                                           ((SubData['Stage'] != 'Stage 1') | (SubData['Training Day'] != 'Day 6')))[0]]
+data_op = (data_op[np.arange(0, len(data_op), 2)] + data_op[np.arange(1, len(data_op), 2)]) / 2
+
+data_m1 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 1')&(SubData['Path Type']=='CP')&
+                                           ((SubData['Stage'] != 'Stage 1') | (SubData['Training Day'] != 'Day 6')))[0]]
+
+print_estimator(data_op)
+print_estimator(data_m1)
+print("OF vs M1: ", ttest_rel(data_op, data_m1), end='\n\n')
+data_op_m2 = SubData['Field Number'][np.where((SubData['Maze Type']=='Open Field')&(SubData['Stage'] == 'Stage 2'))[0]]
+data_op_m2 = (data_op_m2[np.arange(0, len(data_op_m2), 2)] + data_op_m2[np.arange(1, len(data_op_m2), 2)]) / 2
+data_m2 = SubData['Field Number'][np.where((SubData['Maze Type']=='Maze 2')&(SubData['Path Type']=='CP')&(SubData['Stage'] == 'Stage 2'))[0]]
+print_estimator(data_op_m2)
+print_estimator(data_m2)
+print("OF vs M2: ", ttest_rel(data_op_m2, data_m2), end='\n\n')
+
+compdata = {
+    "Field Number": np.concatenate([data_op, data_m1, data_m2]),
+    "Maze Type": np.array(['Open Field']*len(data_op) + ['Maze 1']*len(data_m1) + ['Maze 2']*len(data_m2)),
 }
 fig = plt.figure(figsize=(2,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
-    x='Training Day',
+    x='Maze Type',
     y='Field Number',
-    data=bardata,
-    hue='Path Type',
-    palette=markercolors[1:],
+    data=compdata,
+    palette=colors,
     ax=ax,
-    capsize=0.2,
+    errcolor='black',
     errwidth=0.5,
+    capsize=0.1,
     width=0.8
 )
-plt.savefig(join(loc, 'Field Number barplot [Maze 2].png'), dpi=600)
-plt.savefig(join(loc, 'Field Number barplot [Maze 2].svg'), dpi=600)
+sns.stripplot(
+    x='Maze Type',
+    y='Field Number',
+    data=compdata,
+    palette=markercolors,
+    edgecolor='black',
+    size=4,
+    linewidth=0.15,
+    ax = ax,
+    jitter=0.2
+)
+ax.set_ylim([0, 15])
+ax.set_yticks(np.linspace(0, 15, 6))
+plt.savefig(join(loc, '[Correct Paths] Comparison of Environments.png'), dpi=2400)
+plt.savefig(join(loc, '[Correct Paths] Comparison of Environments.svg'), dpi=2400)
 plt.close()
-
-
-
-
-print("Cross Env comparison Stage 1:")
-for day in uniq_day:
-    print(f" OP vs M1 on Day {day} -------------------------")
-    data_op = Data['Field Number'][np.where((Data['Maze Type'] == 'Open Field')&
-                                                        (Data['Training Day'] == day)&
-                                                        (Data['Stage'] == 'Stage 1'))[0]]
-    data_m1 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 1')&
-                                                        (Data['Training Day'] == day)&
-                                                        (Data['Stage'] == 'Stage 1')&
-                                                        (Data['Path Type'] == 'AP'))[0]]
-    print_estimator(data_op)
-    print_estimator(data_m1)
-    print(levene(data_op, data_m1))
-    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1), end='\n\n')
-    
-print("Cross Env comparison Stage 2:")
-for day in uniq_day:
-    print(f" OP vs M1 on Day {day} -------------------------")
-    data_op = Data['Field Number'][np.where((Data['Maze Type'] == 'Open Field')&
-                                                        (Data['Training Day'] == day)&
-                                                        (Data['Stage'] == 'Stage 2'))[0]]
-    data_m1 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 1')&
-                                                        (Data['Training Day'] == day)&
-                                                        (Data['Stage'] == 'Stage 2')&
-                                                        (Data['Path Type'] == 'AP'))[0]]
-    data_m2 = Data['Field Number'][np.where((Data['Maze Type'] == 'Maze 2')&
-                                                        (Data['Training Day'] == day)&
-                                                        (Data['Stage'] == 'Stage 2')&
-                                                        (Data['Path Type'] == 'AP'))[0]]
-    
-    print("OP vs M1")
-    print_estimator(data_op)
-    print_estimator(data_m1)
-    print(levene(data_op, data_m1))
-    print(ttest_ind(data_op, data_m1), cohen_d(data_op, data_m1))
-
-    print("OP vs M2")
-    print_estimator(data_op)
-    print_estimator(data_m2)
-    print(levene(data_op, data_m2))
-    print(ttest_ind(data_op, data_m2), cohen_d(data_op, data_m2))

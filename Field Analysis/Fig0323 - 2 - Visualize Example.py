@@ -9,7 +9,7 @@ mkdir(loc)
 if __name__ == '__main__':
     from tqdm import tqdm
 
-dim = 3
+dim = 2
 saveloc = join(loc, "Dim=" + str(dim))
 mkdir(saveloc)
 
@@ -19,7 +19,6 @@ for i in range(len(f_CellReg_modi)):
         continue
     
     if f_CellReg_modi['paradigm'][i] == 'CrossMaze':
-        continue
     
         print(f_CellReg_modi['Trace File'][i])
         with open(f_CellReg_modi['Trace File'][i], 'rb') as handle:

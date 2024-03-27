@@ -295,6 +295,33 @@ ax.set_yticks(np.linspace(0, 200, 5))
 plt.savefig(join(loc, '[Maze B] Aligned Number.png'), dpi=600)
 plt.savefig(join(loc, '[Maze B] Aligned Number.svg'), dpi=600)
 plt.close()
+
+
+print("Maze A 09 & 12 increased number over 12 sessions")
+idx1 = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 1') &
+               (Data['MiceID'] != 10224) &
+               (Data['MiceID'] != 10227) &
+               (Data['Session Number'] == 12) &
+               (Data['Aligned Methods']=='CellReg'))[0]
+idx2 = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 1') &
+               (Data['MiceID'] != 10224) &
+               (Data['MiceID'] != 10227) &
+               (Data['Session Number'] == 12) &
+               (Data['Aligned Methods']=='NeuroMatch'))[0]
+print("  ", ttest_rel(Data['Cumulative Count'][idx1], Data['Cumulative Count'][idx2]), end='\n\n')
+
+print("Maze B increased number over 12 sessions")
+idx1 = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 2') &
+               (Data['Session Number'] == 12) &
+               (Data['Aligned Methods']=='CellReg'))[0]
+idx2 = np.where((Data['Paradigm']=='CrossMaze') &
+               (Data['Maze Type']=='Maze 2') &
+               (Data['Session Number'] == 12) &
+               (Data['Aligned Methods']=='NeuroMatch'))[0]
+print("  ", ttest_rel(Data['Cumulative Count'][idx1], Data['Cumulative Count'][idx2]))
 """
 colors = sns.color_palette("rocket", 3)
 plt.figure(figsize=(6,4))
