@@ -68,7 +68,7 @@ def plotfigures(
 
     fig = plt.figure(figsize = (4,3))
     ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-    freq = ax.hist(SubData['Field Size'], bins=bin_num, range=(-0.5, bin_num+0.5), color = 'black')[0]
+    freq = ax.hist(SubData['Field Size'], bins=bin_num, range=(-0.5, bin_num+0.5), color = 'gray')[0]
     ymax = np.max(freq)
     pdf = freq/np.sum(freq)
     shape, locc, scale = lognorm.fit(SubData['Field Size'], floc=0)
@@ -82,20 +82,12 @@ def plotfigures(
     statistic_p, lognorm_p = lognorm_kstest(SubData['Field Size'], resample_size=1629)
     print(f"    Lognormal Statistic, {statistic_p}, Lognormal P-value: {lognorm_p}", end="\n\n")
 
-    r, p = NegativeBinomialFit(np.arange(bin_num), pdf)
-    y = NegativeBinomial(np.arange(bin_num), r=r, p=p)
-    y = y/np.sum(y)*np.sum(freq)
-    ax.plot(np.arange(bin_num), y, linewidth = 0.5, label='Negative Binomial')
-    print(f"    Negative Binomial: r {r}, p {p}")
-    statistic_p, negbinom_p = nbinom_kstest(SubData['Field Size'], monte_carlo_times=1000, resample_size=1629)
-    print(f"    Negative Binomial Statistic, {statistic_p}, Negative Binomial P-value: {negbinom_p}", end="\n\n")
-
     alpha, c, beta = gamma.fit(SubData['Field Size'], floc=0)
     y = gamma.pdf(np.arange(bin_num), alpha, scale=beta)
     y = y/np.nansum(y)*np.nansum(freq)
     ax.plot(np.arange(bin_num), y, linewidth = 0.5, label='Gamma')
     print(f"    Gamma: alpha {alpha}, beta {beta}", end='\n\n')
-    statistic_p, gamma_p = gamma_kstest(SubData['Field Size'], resample_size=1629)
+    statistic_p, gamma_p = gamma_kstest(SubData['Field Size'], resample_size=1629, is_floc=True)
     print(f"    Gamma Statistic, {statistic_p}, Gamma P-value: {gamma_p}", end="\n\n")
     
     ax.legend()

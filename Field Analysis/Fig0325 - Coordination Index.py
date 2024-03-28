@@ -5,7 +5,6 @@ code_id = "0325 - Coordination Index"
 loc = join(figpath, code_id)
 mkdir(loc)
 
-
 idx = np.where(f_CellReg_modi['Type'] == 'Real')[0]
 if os.path.exists(join(figdata, code_id+'.pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
