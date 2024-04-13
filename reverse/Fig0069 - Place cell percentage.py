@@ -42,9 +42,10 @@ HPData['Percentage'] = HPData['Percentage']*100
 
 print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'cis')[0]])
 print_estimator(Data['Percentage'][np.where(Data['Direction'] == 'trs')[0]])
+print(ttest_rel(Data['Percentage'][np.where(Data['Direction'] == 'cis')[0]], Data['Percentage'][np.where(Data['Direction'] == 'trs')[0]]))
 print_estimator(HPData['Percentage'][np.where(HPData['Direction'] == 'cis')[0]])
 print_estimator(HPData['Percentage'][np.where(HPData['Direction'] == 'trs')[0]])
-
+print(ttest_rel(HPData['Percentage'][np.where(HPData['Direction'] == 'cis')[0]], HPData['Percentage'][np.where(HPData['Direction'] == 'trs')[0]]))
 
 print_estimator(Overlap['Percentage'])
 print_estimator(HPOverlap['Percentage'])

@@ -5,7 +5,7 @@ loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['Percentage', 'Path Type'], f = f1, 
+    Data = DataFrameEstablish(variable_names = ['Percentage', 'Criteria'], f = f1, 
                               function = PercentageOfPCsf_Interface, 
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
 else:
@@ -50,7 +50,7 @@ markercolors = sns.color_palette("Blues", 4)[1::]
 ax2 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax3 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 
-stage1_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == day)&(Data['Path Type'] != 'CP'))[0] for day in x_ticks])
+stage1_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == day))[0] for day in x_ticks])
 SubData = SubDict(Data, Data.keys(), idx=stage1_indices)
 stage1_indices = np.concatenate([np.where(SubData['Maze Type'] == maze)[0] for maze in ['Open Field', 'Maze 1']])
 SubData = SubDict(SubData, SubData.keys(), idx=stage1_indices)
@@ -79,10 +79,10 @@ sns.stripplot(
     dodge=True,
     jitter=0.1
 )
-ax2.set_ylim(0,30)
-ax2.set_yticks(np.linspace(0, 30, 7))
+ax2.set_ylim(0, 15)
+ax2.set_yticks(np.linspace(0, 15, 6))
 
-stage2_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == day)&(Data['Path Type'] != 'CP'))[0] for day in x_ticks])
+stage2_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == day))[0] for day in x_ticks])
 SubData = SubDict(Data, Data.keys(), idx=stage2_indices)
 stage2_indices = np.concatenate([np.where(SubData['Maze Type'] == maze)[0] for maze in ['Open Field', 'Maze 1', 'Maze 2']])
 SubData = SubDict(SubData, SubData.keys(), idx=stage2_indices)
@@ -113,8 +113,8 @@ sns.stripplot(
     dodge=True,
     jitter=0.1
 )
-ax3.set_ylim(0,30)
-ax3.set_yticks(np.linspace(0, 30, 7))
+ax3.set_ylim(0, 15)
+ax3.set_yticks(np.linspace(0, 15, 6))
 
 plt.tight_layout()
 plt.savefig(join(loc, "Percentage of PCsf.png"), dpi=600)
@@ -146,8 +146,8 @@ sns.stripplot(
     ax = ax,
     jitter=0.2
 )
-ax.set_ylim([0, 30])
-ax.set_yticks(np.linspace(0, 30, 7))
+ax.set_ylim(0, 15)
+ax.set_yticks(np.linspace(0, 15, 6))
 plt.savefig(join(loc, 'Comparison of Environments.png'), dpi=2400)
 plt.savefig(join(loc, 'Comparison of Environments.svg'), dpi=2400)
 plt.close()

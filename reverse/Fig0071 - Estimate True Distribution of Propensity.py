@@ -1,5 +1,5 @@
 from mylib.statistic_test import *
-from mylib.stats.kstest import gamma_kstest
+from mylib.stats.ks import gamma_kstest
 
 code_id = '0071 - Estimate True Distribution of Propensity'
 loc = join(figpath, code_id)
@@ -26,10 +26,10 @@ def EstimatePropensity(f: pd.DataFrame, i:int):
     
         field_num = np.zeros((index_map.shape[1], 4), np.float64)
         for j in range(index_map.shape[1]):
-            field_num[j, 0] = trace_h['cis']['place_field_num'][index_map[0, j]-1]/10.3
-            field_num[j, 1] = trace_h['trs']['place_field_num'][index_map[0, j]-1]/10.3
-            field_num[j, 2] = trace_r['cis']['place_field_num'][index_map[1, j]-1]/6.3
-            field_num[j, 3] = trace_r['trs']['place_field_num'][index_map[1, j]-1]/6.3
+            field_num[j, 0] = trace_h['cis']['place_field_num_multiday'][index_map[0, j]-1]/10.3
+            field_num[j, 1] = trace_h['trs']['place_field_num_multiday'][index_map[0, j]-1]/10.3
+            field_num[j, 2] = trace_r['cis']['place_field_num_multiday'][index_map[1, j]-1]/6.3
+            field_num[j, 3] = trace_r['trs']['place_field_num_multiday'][index_map[1, j]-1]/6.3
         
         field_num[np.where(field_num == 0)] = np.nan
         is_num = np.where(np.isnan(field_num), 0, 1)
@@ -81,23 +81,23 @@ for m in [10209, 10212, 10224, 10227]: #np.unique(f_CellReg_reverse['MiceID'])
     mean = np.nanmean(field_nums, axis=1)
     sigma = np.nanstd(field_nums, axis=1)
     
-    
     print(m, field_nums.shape)
-    
     fig = plt.figure(figsize=(4,3))
     ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-    d = ax.hist(mean, range=(0, 2), bins=20, rwidth=0.8, color='gray')[0]
-    a, locc, scale = gamma.fit(mean, loc=0, scale=0.4)
-    y = gamma.pdf(np.linspace(0, 2, 2001), a, loc=locc, scale=scale)
-    y = y/np.max(y)*np.max(d)
+    d = ax.hist(mean, range=(0, 2.5), bins=25, color='lightgray', density=True)[0]
+
+    a, locc, scale = gamma.fit(mean, 40)
+
+    y = gamma.pdf(np.linspace(0, 2.5, 2501), a, loc=locc, scale=scale)
     print(kstest(mean, 'gamma', args=(a, locc, scale)))
-    #print(gamma_kstest(mean, monte_carlo_times=10000))
-    print(a, locc, scale)
-    ax.plot(np.linspace(0, 2, 2001), y, color='red', linewidth=0.5)
+    #print(gamma_kstest(mean, monte_carlo_times=1000))
+    print("    Params", a, locc, 1/scale)
+    print("    CV: ", 1 / np.sqrt(a), end='\n\n')
+    ax.plot(np.linspace(0, 2.5, 2501), y, color='red', linewidth=1)
         
     ax.set_title(str(field_nums.shape[0])+" cell pairs")
     ax.set_xlim(0, 2)
-    ax.set_xticks(np.linspace(0, 2, 11))
+    ax.set_xticks(np.linspace(0, 2.5, 6))
     plt.savefig(join(loc, str(f_CellReg_reverse['MiceID'][i])+" [mean].png"), dpi=600)
     plt.savefig(join(loc, str(f_CellReg_reverse['MiceID'][i])+" [mean].svg"), dpi=600)
     plt.close()
@@ -135,4 +135,3 @@ for m in [10209, 10212, 10224, 10227]: #np.unique(f_CellReg_reverse['MiceID'])
     plt.savefig(join(loc, str(f_CellReg_reverse['MiceID'][i])+" [mean-sigma].svg"), dpi=600)
     plt.close()
     """
-    

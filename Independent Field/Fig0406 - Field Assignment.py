@@ -77,14 +77,14 @@ if os.path.exists(os.path.join(figdata, code_id + ' [statistic test].pkl')) == F
         "OEC Ttest P-Value": np.zeros(len(f1), dtype=np.float64),
         "OEC KS Statistics": np.zeros(len(f1), dtype=np.float64),
         "OEC KS P-Value": np.zeros(len(f1), dtype=np.float64),
-        "Length Ttest Statistics": np.zeros(len(f1), dtype=np.float64),
-        "Length Ttest P-Value": np.zeros(len(f1), dtype=np.float64),
-        "Length KS Statistics": np.zeros(len(f1), dtype=np.float64),
-        "Length KS P-Value": np.zeros(len(f1), dtype=np.float64),
+        "Size Ttest Statistics": np.zeros(len(f1), dtype=np.float64),
+        "Size Ttest P-Value": np.zeros(len(f1), dtype=np.float64),
+        "Size KS Statistics": np.zeros(len(f1), dtype=np.float64),
+        "Size KS P-Value": np.zeros(len(f1), dtype=np.float64),
         "Rate Ttest Statistics": np.zeros(len(f1), dtype=np.float64),
         "Rate Ttest P-Value": np.zeros(len(f1), dtype=np.float64),
         "Rate KS Statistics": np.zeros(len(f1), dtype=np.float64),
-        "Rate KS P-Value": np.zeros(len(f1), dtype=np.float64),
+        "Rate KS P-Value": np.zeros(len(f1), dtype=np.float64)
     }
     
     for i in range(len(f1)):
@@ -94,23 +94,26 @@ if os.path.exists(os.path.join(figdata, code_id + ' [statistic test].pkl')) == F
                 StatisticData[k][i] = np.nan
             continue
         
+        if f1['MiceID'][i] in [11095, 11092]:
+            continue
+        
         maze_type = 'Maze 1' if f1['maze_type'][i] == 1 else 'Maze 2'
         idx = np.where((CellData['Maze Type'] == maze_type)&(CellData['date'] == f1['date'][i])&(CellData['MiceID'] == f1['MiceID'][i])&(CellData['Stage'] == f1['Stage'][i]))[0]
         
         print(i, f1['MiceID'][i], f1['date'][i], f1['Stage'][i], "Maze", f1['maze_type'][i])
         StatisticData['FSC Ttest Statistics'][i], StatisticData['FSC Ttest P-Value'][i] = ttest_rel(CellData['Std. FSC'][idx], ShuffleData['Std. FSC'][idx], alternative='less')
         StatisticData['OEC Ttest Statistics'][i], StatisticData['OEC Ttest P-Value'][i] = ttest_rel(CellData['Std. OEC'][idx], ShuffleData['Std. OEC'][idx], alternative='less')
-        StatisticData['Length Ttest Statistics'][i], StatisticData['Length Ttest P-Value'][i] = ttest_rel(CellData['Std. Length'][idx], ShuffleData['Std. Length'][idx], alternative='less')
+        StatisticData['Size Ttest Statistics'][i], StatisticData['Size Ttest P-Value'][i] = ttest_rel(CellData['Std. Size'][idx], ShuffleData['Std. Size'][idx], alternative='less')
         StatisticData['Rate Ttest Statistics'][i], StatisticData['Rate Ttest P-Value'][i] = ttest_rel(CellData['Std. Rate'][idx], ShuffleData['Std. Rate'][idx], alternative='less')
 
         StatisticData['FSC KS Statistics'][i], StatisticData['FSC KS P-Value'][i] = ks_2samp(CellData['Std. FSC'][idx], ShuffleData['Std. FSC'][idx])
         StatisticData['OEC KS Statistics'][i], StatisticData['OEC KS P-Value'][i] = ks_2samp(CellData['Std. OEC'][idx], ShuffleData['Std. OEC'][idx])
-        StatisticData['Length KS Statistics'][i], StatisticData['Length KS P-Value'][i] = ks_2samp(CellData['Std. Length'][idx], ShuffleData['Std. Length'][idx])
+        StatisticData['Size KS Statistics'][i], StatisticData['Size KS P-Value'][i] = ks_2samp(CellData['Std. Size'][idx], ShuffleData['Std. Size'][idx])
         StatisticData['Rate KS Statistics'][i], StatisticData['Rate KS P-Value'][i] = ks_2samp(CellData['Std. Rate'][idx], ShuffleData['Std. Rate'][idx])
         
         print("FSC     ", StatisticData['FSC Ttest P-Value'][i], StatisticData['FSC Ttest Statistics'][i], StatisticData['FSC KS P-Value'][i], StatisticData['FSC KS Statistics'][i])
         print("OEC     ", StatisticData['OEC Ttest P-Value'][i], StatisticData['OEC Ttest Statistics'][i], StatisticData['OEC KS P-Value'][i], StatisticData['OEC KS Statistics'][i])
-        print("Length  ", StatisticData['Length Ttest P-Value'][i], StatisticData['Length Ttest Statistics'][i], StatisticData['Length KS P-Value'][i], StatisticData['Length KS Statistics'][i])
+        print("Size  ", StatisticData['Size Ttest P-Value'][i], StatisticData['Size Ttest Statistics'][i], StatisticData['Size KS P-Value'][i], StatisticData['Size KS Statistics'][i])
         print("Rate    ", StatisticData['Rate Ttest P-Value'][i], StatisticData['Rate Ttest Statistics'][i], StatisticData['Rate KS P-Value'][i], StatisticData['Rate KS Statistics'][i], end='\n\n')
         
     with open(os.path.join(figdata, code_id + ' [statistic test].pkl'), 'wb') as handle:
@@ -124,41 +127,66 @@ else:
         
 
 m1_num = np.where((np.isnan(StatisticData['FSC Ttest P-Value']) == False)&(f1['maze_type'] == 1))[0].shape[0]
-m2_num = np.where((np.isnan(StatisticData['Length Ttest P-Value']) == False)&(f1['maze_type'] == 2))[0].shape[0]
+m2_num = np.where((np.isnan(StatisticData['Size Ttest P-Value']) == False)&(f1['maze_type'] == 2))[0].shape[0]
 
 m1_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
 m2_nodiff_fsc = np.where((StatisticData['FSC Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
 
-m1_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
-m2_nodiff_size = np.where((StatisticData['Length Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
+m1_nodiff_size = np.where((StatisticData['Size Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_size = np.where((StatisticData['Size Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
+
+m1_nodiff_rate = np.where((StatisticData['Rate Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_rate = np.where((StatisticData['Rate Ttest P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
 
 
 print(m1_num, m2_num)
 print(m1_nodiff_fsc, m2_nodiff_fsc)
 print(m1_nodiff_size, m2_nodiff_size)
+print(m1_nodiff_rate, m2_nodiff_rate, end='\n\n')
 
+m1_nodiff_fsc = np.where((StatisticData['FSC KS P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_fsc = np.where((StatisticData['FSC KS P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
+
+m1_nodiff_size = np.where((StatisticData['Size KS P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_size = np.where((StatisticData['Size KS P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
+
+m1_nodiff_rate = np.where((StatisticData['Rate KS P-Value'] >= 0.05)&(f1['maze_type'] == 1))[0].shape[0]
+m2_nodiff_rate = np.where((StatisticData['Rate KS P-Value'] >= 0.05)&(f1['maze_type'] == 2))[0].shape[0]
+
+print(m1_nodiff_fsc, m2_nodiff_fsc)
+print(m1_nodiff_size, m2_nodiff_size)
+print(m1_nodiff_rate, m2_nodiff_rate, end='\n\n')
 
 idx = np.where((CellData['Maze Type'] == 'Maze 1')&(CellData['date'] == 20230930)&(CellData['MiceID'] == 10227)&(CellData['Stage'] == 'Stage 2'))[0]
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.hist(CellData['Std. FSC'][idx], bins=20, range=(0,1), alpha=0.5)
 ax.hist(ShuffleData['Std. FSC'][idx], bins=20, range=(0,1), alpha=0.5)
+print("Maze 1 FSC: ", 
+      ttest_rel(CellData['Std. FSC'][idx], ShuffleData['Std. FSC'][idx]), 
+      ks_2samp(CellData['Std. FSC'][idx], ShuffleData['Std. FSC'][idx]))
 plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-FSC Distribution.png'), dpi = 600)
 plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-FSC Distribution.svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.hist(CellData['Std. Length'][idx], bins=20, range=(0,60), alpha=0.5)
-ax.hist(ShuffleData['Std. Length'][idx], bins=20, range=(0,60), alpha=0.5)
-plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Length Distribution.png'), dpi = 600)
-plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Length Distribution.svg'), dpi = 600)
+ax.hist(CellData['Std. Size'][idx], bins=20, range=(0, 100), alpha=0.5)
+ax.hist(ShuffleData['Std. Size'][idx], bins=20, range=(0, 100), alpha=0.5)
+print("Maze 1 Field Size: ", 
+      ttest_rel(CellData['Std. Size'][idx], ShuffleData['Std. Size'][idx]), 
+      ks_2samp(CellData['Std. Size'][idx], ShuffleData['Std. Size'][idx]))
+plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Size Distribution.png'), dpi = 600)
+plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Size Distribution.svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.hist(CellData['Std. Rate'][idx], bins=20, range=(0,4), alpha=0.5)
 ax.hist(ShuffleData['Std. Rate'][idx], bins=20, range=(0,4), alpha=0.5)
+print("Maze 1 Field Rate: ", 
+      ttest_rel(CellData['Std. Rate'][idx], ShuffleData['Std. Rate'][idx]), 
+      ks_2samp(CellData['Std. Rate'][idx], ShuffleData['Std. Rate'][idx]))
 plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Rate Distribution.png'), dpi = 600)
 plt.savefig(os.path.join(loc, '10227-20230930-Maze 1-Field Rate Distribution.svg'), dpi = 600)
 plt.close()
@@ -174,76 +202,89 @@ plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.hist(CellData['Std. Length'][idx], bins=20, range=(0,60), alpha=0.5)
-ax.hist(ShuffleData['Std. Length'][idx], bins=20, range=(0,60), alpha=0.5)
-plt.savefig(os.path.join(loc, '10227-20230930-Maze 2-Field Length Distribution.png'), dpi = 600)
-plt.savefig(os.path.join(loc, '10227-20230930-Maze 2-Field Length Distribution.svg'), dpi = 600)
+ax.hist(CellData['Std. Size'][idx], bins=20, range=(0, 100), alpha=0.5)
+ax.hist(ShuffleData['Std. Size'][idx], bins=20, range=(0, 100), alpha=0.5)
+plt.savefig(os.path.join(loc, '10227-20230930-Maze 2-Field Size Distribution.png'), dpi = 600)
+plt.savefig(os.path.join(loc, '10227-20230930-Maze 2-Field Size Distribution.svg'), dpi = 600)
+plt.close()
+
+colors = sns.color_palette("rocket", 3)
+fig = plt.figure(figsize=(3, 3))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.plot(StatisticData['Size Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 
+        StatisticData['FSC Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1', color = colors[1])
+ax.plot(StatisticData['Size Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]],
+        StatisticData['FSC Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2', color = colors[2])
+ax.axis([0.0001, 1.10, 0.0001, 1.10])
+ax.semilogx()
+ax.semilogy()
+ax.legend()
+ax.set_aspect('equal')
+ax.axvline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axvline(0.01, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.01, color='black', ls=':', linewidth=0.5)
+plt.tight_layout()
+plt.savefig(os.path.join(loc, 'Ttest P-Value [Size Stability].png'), dpi = 600)
+plt.savefig(os.path.join(loc, 'Ttest P-Value [Size Stability].svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(StatisticData['Length Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 
-        StatisticData['FSC Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1')
-ax.plot(StatisticData['Length Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]],
-        StatisticData['FSC Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2')
-ax.axis([0.0001, 1.05, 0.0001, 1.05])
+ax.plot(StatisticData['Size KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 
+        StatisticData['FSC KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1', color = colors[1])
+ax.plot(StatisticData['Size KS P-Value'][np.where(f1['maze_type'] == 2)[0]],
+        StatisticData['FSC KS P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2', color = colors[2])
+ax.axis([0.0001, 1.10, 0.0001, 1.10])
 ax.semilogx()
 ax.semilogy()
+ax.set_aspect('equal')
 ax.legend()
-ax.axvline(0.05/191, color='red', ls=':', linewidth=0.5)
-ax.axhline(0.05/191, color='red', ls=':', linewidth=0.5)
+ax.axvline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axvline(0.01, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.01, color='black', ls=':', linewidth=0.5)
 plt.tight_layout()
-plt.savefig(os.path.join(loc, 'Ttest P-Value [Length Stability].png'), dpi = 600)
-plt.savefig(os.path.join(loc, 'Ttest P-Value [Length Stability].svg'), dpi = 600)
+plt.savefig(os.path.join(loc, 'KS P-Value [Size Stability].png'), dpi = 600)
+plt.savefig(os.path.join(loc, 'KS P-Value [Size Stability].svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(StatisticData['Length KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 
-        StatisticData['FSC KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1')
-ax.plot(StatisticData['Length KS P-Value'][np.where(f1['maze_type'] == 2)[0]],
-        StatisticData['FSC KS P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2')
-ax.axis([0.0001, 1.05, 0.0001, 1.05])
+ax.plot(StatisticData['Size Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 
+        StatisticData['Rate Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1', color = colors[1])
+ax.plot(StatisticData['Size Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]],
+        StatisticData['Rate Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2', color = colors[2])
+ax.axis([0.0001, 1.10, 0.0001, 1.10])
 ax.semilogx()
+ax.set_aspect('equal')
 ax.semilogy()
 ax.legend()
-ax.axvline(0.05/191, color='red', ls=':', linewidth=0.5)
-ax.axhline(0.05/191, color='red', ls=':', linewidth=0.5)
+ax.axvline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axvline(0.01, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.01, color='black', ls=':', linewidth=0.5)
 plt.tight_layout()
-plt.savefig(os.path.join(loc, 'KS P-Value [Length Stability].png'), dpi = 600)
-plt.savefig(os.path.join(loc, 'KS P-Value [Length Stability].svg'), dpi = 600)
+plt.savefig(os.path.join(loc, 'Ttest P-Value [Size Rate].png'), dpi = 600)
+plt.savefig(os.path.join(loc, 'Ttest P-Value [Size Rate].svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(3, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(StatisticData['Rate Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 
-        StatisticData['Length Ttest P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1')
-ax.plot(StatisticData['Rate Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]],
-        StatisticData['Length Ttest P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2')
-ax.axis([0.0001, 1.05, 0.0001, 1.05])
+ax.plot(StatisticData['Size KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 
+        StatisticData['Rate KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1', color = colors[1])
+ax.plot(StatisticData['Size KS P-Value'][np.where(f1['maze_type'] == 2)[0]],
+        StatisticData['Rate KS P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2', color = colors[2])
+ax.axis([0.0001, 1.10, 0.0001, 1.10])
 ax.semilogx()
+ax.set_aspect('equal')
 ax.semilogy()
-ax.legend()
-ax.axvline(0.05/191, color='red', ls=':', linewidth=0.5)
-ax.axhline(0.05/191, color='red', ls=':', linewidth=0.5)
-plt.tight_layout()
-plt.savefig(os.path.join(loc, 'Ttest P-Value [Length Rate].png'), dpi = 600)
-plt.savefig(os.path.join(loc, 'Ttest P-Value [Length Rate].svg'), dpi = 600)
-plt.close()
-
-fig = plt.figure(figsize=(3, 3))
-ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-ax.plot(StatisticData['Rate KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 
-        StatisticData['Length KS P-Value'][np.where(f1['maze_type'] == 1)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 1')
-ax.plot(StatisticData['Rate KS P-Value'][np.where(f1['maze_type'] == 2)[0]],
-        StatisticData['Length KS P-Value'][np.where(f1['maze_type'] == 2)[0]], 'o', markeredgewidth=0, markersize=3, label='Maze 2')
-ax.axis([0.0001, 1.05, 0.0001, 1.05])
-ax.semilogx()
-ax.semilogy()
-ax.axvline(0.05/191, color='red', ls=':', linewidth=0.5)
-ax.axhline(0.05/191, color='red', ls=':', linewidth=0.5)
+ax.axvline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.05, color='black', ls=':', linewidth=0.5)
+ax.axvline(0.01, color='black', ls=':', linewidth=0.5)
+ax.axhline(0.01, color='black', ls=':', linewidth=0.5)
 ax.legend()
 plt.tight_layout()
-plt.savefig(os.path.join(loc, 'KS P-Value [Length Rate].png'), dpi = 600)
-plt.savefig(os.path.join(loc, 'KS P-Value [Length Rate].svg'), dpi = 600)
+plt.savefig(os.path.join(loc, 'KS P-Value [Size Rate].png'), dpi = 600)
+plt.savefig(os.path.join(loc, 'KS P-Value [Size Rate].svg'), dpi = 600)
 plt.close()

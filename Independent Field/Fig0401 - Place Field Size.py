@@ -1,7 +1,7 @@
 from mylib.statistic_test import *
 import scipy.stats
 from scipy.stats import poisson, norm, weibull_min, lognorm, gamma
-from mylib.stats.kstest import nbinom_kstest, lognorm_kstest, gamma_kstest
+from mylib.stats.ks import nbinom_kstest, lognorm_kstest, gamma_size_kstest, weibull_kstest
 
 code_id = "0401 - Place Field Size"
 loc = os.path.join(figpath, "Independent Field", code_id)
@@ -34,6 +34,23 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
     with open(os.path.join(figdata, code_id+'.pkl'), 'wb') as handle:
         pickle.dump(Data, handle)
 
+print("KS statistics for all 24 spatial maps in Extended Fig. 9:")
+gamma_ksd = np.array([0.016, 0.012, 0.0092, 0.012, 
+                      0.016, 0.013, 0.0088, 0.010, 
+                      0.0088, 0.0054, 0.014, 0.0059, 
+                      0.0086, 0.0060, 0.010, 0.0061, 
+                      0.0076, 0.011, 0.030, 0.042, 
+                      0.012, 0.015, 0.0047, 0.0087])
+lognorm_ksd = np.array([0.052, 0.048, 0.044, 0.048, 
+                        0.050, 0.049, 0.051, 0.048, 
+                        0.039, 0.038, 0.045, 0.036,
+                        0.041, 0.030, 0.044, 0.039, 
+                        0.027, 0.033, 0.066, 0.081, 
+                        0.034, 0.039, 0.034, 0.031])
+print_estimator(gamma_ksd)
+print_estimator(lognorm_ksd)
+print(ttest_rel(gamma_ksd, lognorm_ksd))
+
 Data['Field Size'] = Data['Field Size']
 
 idx = np.where((Data['MiceID'] != 11092)&(Data['MiceID'] != 11095))[0]
@@ -63,31 +80,35 @@ def plotfigures(
         indices = np.concatenate([np.where((Data['Training Day'] == day)&
                                            (Data['MiceID'] == mouse)&
                                            (Data['Maze Type'] == 'Maze 2'))[0] for day in dates])
-        
+    
+    log_norm_kd = np.array([0.017, 0.014, 0.020, 0.023, 0.021, 0.012, 0.029, 0.026])
+    gamma_kd = np.array([0.036, 0.033, 0.029, 0.018, 0.027, 0.036, 0.027, 0.019])
+    print_estimator(log_norm_kd)
+    print_estimator(gamma_kd)
+    print(ttest_rel(log_norm_kd, gamma_kd))
+    
     SubData = SubDict(Data, Data.keys(), idx=indices)
 
     fig = plt.figure(figsize = (4,3))
     ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-    freq = ax.hist(SubData['Field Size'], bins=bin_num, range=(-0.5, bin_num+0.5), color = 'gray')[0]
-    ymax = np.max(freq)
-    pdf = freq/np.sum(freq)
-    shape, locc, scale = lognorm.fit(SubData['Field Size'], floc=0)
-    y = lognorm.pdf(np.arange(bin_num), shape, loc=locc, scale=scale)
-    y = y/np.sum(y)*np.sum(freq)
+    freq = ax.hist(SubData['Field Size'], bins=bin_num, range=(0.5, bin_num+0.5), color = 'lightgray', density=True)[0]
+    x = np.arange(1, bin_num+1)
+    shape, locc, scale = lognorm.fit(SubData['Field Size'], floc = 0)
+    y = lognorm.pdf(x, shape, loc=locc, scale=scale)
     #print(shape, locc, scale, np.sum(y))
-    ax.plot(np.arange(bin_num), y, linewidth = 0.5, label='Lognormal')
-    dist = lognorm.rvs(shape, loc=locc, scale=scale, size=int(np.sum(freq)))
+    ax.plot(x, y, linewidth = 1, label='Lognormal', alpha = 0.8)
     print(f"Maze {maze}, Mouse {mouse}, Shape Num {len(SubData['Field Size'])}:")
     print(f"    Lognormal: shape {shape}, loc {locc}, scale {scale}")
-    statistic_p, lognorm_p = lognorm_kstest(SubData['Field Size'], resample_size=1629)
+    statistic_p, lognorm_p = lognorm_kstest(SubData['Field Size'], resample_size=1681, monte_carlo_times=10000)
     print(f"    Lognormal Statistic, {statistic_p}, Lognormal P-value: {lognorm_p}", end="\n\n")
-
-    alpha, c, beta = gamma.fit(SubData['Field Size'], floc=0)
-    y = gamma.pdf(np.arange(bin_num), alpha, scale=beta)
-    y = y/np.nansum(y)*np.nansum(freq)
-    ax.plot(np.arange(bin_num), y, linewidth = 0.5, label='Gamma')
+    
+    ax.plot(x, y, ':', linewidth = 1, label='Lognormal', alpha = 0.8)
+    
+    alpha, c, beta = gamma.fit(SubData['Field Size'], floc = 0)
+    y = gamma.pdf(x, alpha, scale=beta, loc=c)
+    ax.plot(x, y, linewidth = 1, label='Gamma', alpha = 0.8)
     print(f"    Gamma: alpha {alpha}, beta {beta}", end='\n\n')
-    statistic_p, gamma_p = gamma_kstest(SubData['Field Size'], resample_size=1629, is_floc=True)
+    statistic_p, gamma_p = gamma_size_kstest(SubData['Field Size'], resample_size=1681, is_floc=True, monte_carlo_times=10000)
     print(f"    Gamma Statistic, {statistic_p}, Gamma P-value: {gamma_p}", end="\n\n")
     
     ax.legend()
@@ -100,11 +121,11 @@ def plotfigures(
     plt.savefig(os.path.join(loc, f'Maze {maze} Mouse {mouse} - Field Size Distribution.png'), dpi = 600)
     plt.savefig(os.path.join(loc, f'Maze {maze} Mouse {mouse} - Field Size Distribution.svg'), dpi = 600)
     plt.close()
-
+    """
     # Distribution of Place Field Size
     fig = plt.figure(figsize = (3,2))
     ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
-    ax.hist(SubData['Field Size'], bins=bin_num, range=(0.5, bin_num+0.5), color = 'black')
+    ax.hist(SubData['Field Size'], bins=bin_num, range=(0.5, bin_num+0.5), color = 'gray', stacked=True)
     ax.set_xlim([0, bin_num+1])
     ax.set_xticks(np.linspace(0, bin_num, 5))
     ax.set_ylim(1, yloglim)
@@ -113,7 +134,7 @@ def plotfigures(
     plt.savefig(os.path.join(loc, f'Maze {maze} Mouse {mouse} - Field Size Distribution [semilogy].png'), dpi = 600)
     plt.savefig(os.path.join(loc, f'Maze {maze} Mouse {mouse} - Field Size Distribution [semilogy].svg'), dpi = 600)
     plt.close()
-    
+    """
 
 # draw
 plotfigures(maze=1, mouse=10209)
@@ -127,8 +148,7 @@ plotfigures(maze=2, mouse=10224, yloglim=1000)
 
 plotfigures(maze=1, mouse=10227)
 plotfigures(maze=2, mouse=10227, yloglim=1000)
-
-
+"""
 maze = 'Open Field'
 indices = np.concatenate([np.where((Data['Training Day'] == day)&(Data['Maze Type'] == maze))[0] for day in dates])
 SubData = SubDict(Data, Data.keys(), idx=indices)
@@ -149,6 +169,7 @@ plt.tight_layout()
 plt.savefig(os.path.join(loc, maze+' Field Size Distribution.png'), dpi = 600)
 plt.savefig(os.path.join(loc, maze+' Field Size Distribution.svg'), dpi = 600)
 plt.close()
+
 
 # Distribution of Place Field Size
 fig = plt.figure(figsize = (3,2))
@@ -365,3 +386,4 @@ plt.tight_layout()
 plt.savefig(join(loc, 'Field Length Change.png'), dpi=2400)
 plt.savefig(join(loc, 'Field Length Change.svg'), dpi=2400)
 plt.close()
+"""

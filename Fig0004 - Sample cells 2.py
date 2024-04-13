@@ -25,7 +25,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
     ms_time = cp.deepcopy(trace['ms_time_behav'])
     spike_nodes = spike_nodes_transform(trace['spike_nodes'], nx=12)
     spikes = cp.deepcopy(trace['Spikes'][i, :])
-    place_fields = GetPlaceField(trace, i, thre_type=2, parameter=0.3)
+    place_fields = cp.deepcopy(trace['place_field_all_multiday'][i])
     
     _, im, cbar = RateMapAxes(
         ax=ax1,

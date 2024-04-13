@@ -18,6 +18,9 @@ for i in range(len(f_CellReg_modi)):
     if f_CellReg_modi['Type'][i] != 'Real':
         continue
     
+    if f_CellReg_modi['maze_type'][i] == 0:
+        continue
+    
     if f_CellReg_modi['paradigm'][i] == 'CrossMaze':
     
         print(f_CellReg_modi['Trace File'][i])
