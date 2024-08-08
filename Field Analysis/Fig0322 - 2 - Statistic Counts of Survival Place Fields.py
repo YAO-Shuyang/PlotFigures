@@ -75,7 +75,6 @@ def poly_func_b(t0, a, b, c, dt):
         y[i] = np.prod(poly_func(np.arange(int(t0[i]), int(t0[i]+dt)), a, b, c))
     return y
 
-"""
 # Plot an example
 idx = np.where((RData['Maze Type'] == 'Maze 1')&
                (RData['Type'] == 'Real')&
@@ -113,8 +112,6 @@ params_rec1 = curve_fit(lambda t0, k, b: reci_func_b(t0, k, b, dt=1), SubData1['
                            bounds=[[0, -np.inf], [np.inf, np.inf]], p0=[0.4, 1.2])[0]
 params_log1 = curve_fit(lambda t0, k, b: log_func_b(t0, k, b, dt=1), SubData1['Start Session'], SubData1['Survival Frac.'],
                            bounds=[[-np.inf, -np.inf], [np.inf, np.inf]])[0]
-params_poly1 = curve_fit(lambda t0, a, b, c: poly_func_b(t0, a, b, c, dt=1), SubData1['Start Session'], SubData1['Survival Frac.'],
-                            bounds=[[0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]])[0]
 
 params_cst4 = curve_fit(lambda t0, c: const_b(t0, c, dt=4), SubData4['Start Session'], SubData4['Survival Frac.'],
                            bounds=[[0], [1]], p0=[0.8])[0]
@@ -124,8 +121,6 @@ params_rec4 = curve_fit(lambda t0, k, b: reci_func_b(t0, k, b, dt=4), SubData4['
                            bounds=[[0, -np.inf], [np.inf, np.inf]], p0=[0.4, 1.2])[0]
 params_log4 = curve_fit(lambda t0, k, b: log_func_b(t0, k, b, dt=4), SubData4['Start Session'], SubData4['Survival Frac.'],
                            bounds=[[-np.inf, -np.inf], [np.inf, np.inf]])[0]
-params_poly4 = curve_fit(lambda t0, a, b, c: poly_func_b(t0, a, b, c, dt=4), SubData4['Start Session'], SubData4['Survival Frac.'],
-                            bounds=[[0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]])[0]
 
 params_cst8 = curve_fit(lambda t0, c: const_b(t0, c, dt=8), SubData8['Start Session'], SubData8['Survival Frac.'],
                            bounds=[[0], [1]], p0=[0.8])[0]
@@ -135,19 +130,16 @@ params_rec8 = curve_fit(lambda t0, k, b: reci_func_b(t0, k, b, dt=8), SubData8['
                            bounds=[[0, -np.inf], [np.inf, np.inf]], p0=[0.4, 1.2])[0]
 params_log8 = curve_fit(lambda t0, k, b: log_func_b(t0, k, b, dt=8), SubData8['Start Session'], SubData8['Survival Frac.'],
                            bounds=[[-np.inf, -np.inf], [np.inf, np.inf]])[0]
-params_poly8 = curve_fit(lambda t0, a, b, c: poly_func_b(t0, a, b, c, dt=8), SubData8['Start Session'], SubData8['Survival Frac.'],
-                            bounds=[[0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]])[0]
 
-fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(2,3))
+fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(1.7,3))
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax2 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax3 = Clear_Axes(axes[2], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 
-ax1.plot(x1-1, const_b(x1, *params_cst1, dt=1), color='#003366', linewidth=0.15)
-ax1.plot(x1-1, exp_func_b(x1, *params_exp1, dt=1), color='#0099CC', linewidth=0.15)
-ax1.plot(x1-1, reci_func_b(x1, *params_rec1, dt=1), color='#66CCCC', linewidth=0.15)
-ax1.plot(x1-1, log_func_b(x1, *params_log1, dt=1), color='#99CCFF', linewidth=0.15)
-ax1.plot(x1-1, poly_func_b(x1, *params_poly1, dt=1), color='#FFC300', linewidth=0.15)
+ax1.plot(x1-1, const_b(x1, *params_cst1, dt=1), color='#003366', linewidth=0.5)
+ax1.plot(x1-1, exp_func_b(x1, *params_exp1, dt=1), color='#0099CC', linewidth=0.5, ls=':')
+ax1.plot(x1-1, reci_func_b(x1, *params_rec1, dt=1), color='#66CCCC', linewidth=0.5)
+ax1.plot(x1-1, log_func_b(x1, *params_log1, dt=1), color='#99CCFF', linewidth=0.5)
 sns.stripplot(
     x = 'Start Session',
     y = 'Survival Frac.',
@@ -169,7 +161,6 @@ ax2.plot(x4-1, const_b(x4, *params_cst4, dt=4), color='#003366', linewidth=0.15)
 ax2.plot(x4-1, exp_func_b(x4, *params_exp4, dt=4), color='#0099CC', linewidth=0.15)
 ax2.plot(x4-1, reci_func_b(x4, *params_rec4, dt=4), color='#66CCCC', linewidth=0.15)
 ax2.plot(x4-1, log_func_b(x4, *params_log4, dt=4), color='#99CCFF', linewidth=0.15)
-ax2.plot(x4-1, poly_func_b(x4, *params_poly4, dt=4), color='#FFC300', linewidth=0.15)
 sns.stripplot(
     x = 'Start Session',
     y = 'Survival Frac.',
@@ -191,7 +182,6 @@ ax3.plot(x8-1, const_b(x8, *params_cst8, dt=8), color='#003366', linewidth=0.15)
 ax3.plot(x8-1, exp_func_b(x8, *params_exp8, dt=8), color='#0099CC', linewidth=0.15)
 ax3.plot(x8-1, reci_func_b(x8, *params_rec8, dt=8), color='#66CCCC', linewidth=0.15)
 ax3.plot(x8-1, log_func_b(x8, *params_log8, dt=8), color='#99CCFF', linewidth=0.15)
-ax3.plot(x8-1, poly_func_b(x8, *params_poly8, dt=8), color='#FFC300', linewidth=0.15)
 sns.stripplot(
     x = 'Start Session',
     y = 'Survival Frac.',
@@ -212,7 +202,6 @@ ax3.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(join(loc, "[Maze 1] Cumulative Effect Example.png"), dpi=600)
 plt.savefig(join(loc, "[Maze 1] Cumulative Effect Example.svg"), dpi=600)
 plt.close()
-"""
 
 
 if os.path.exists(join(figdata, code_id+' [cumulative effect].pkl')):
@@ -220,67 +209,79 @@ if os.path.exists(join(figdata, code_id+' [cumulative effect].pkl')):
         BData = pickle.load(handle)
 else:
     # Firstly, fit the breakpoints of super stable fields.
-    BData = {'R2': [], 'MSE': [], 'Method': [], 'hue': [], 'dt': []}
+    BData = {'R2': [], 'MSE': [], 'Method': [], 'hue': [], 'dt': [], 'MiceID': []}
 
     RData['hue'] = np.array([RData['Maze Type'][i] + ' | '+RData['Paradigm'][i] for i in range(RData['Maze Type'].shape[0])])
-
+    
     uniq_hue = np.unique(RData['hue'])
+    print(uniq_hue)
     maximums = np.array([14, 8, 8, 14, 14, 8, 8])
     
-    for i in range(len(uniq_hue)):
-        for dt in range(1, maximums[i] - 4):
-            if uniq_hue[i] in ['Maze 1 | CrossMaze', 'Maze 2 | CrossMaze']:
-                idx = np.where((RData['hue'] == uniq_hue[i])&
+    for mouse in [10209, 10212, 10224, 10227]:
+        for i in range(len(uniq_hue)):
+            for dt in range(1, maximums[i] - 4):
+                if uniq_hue[i] in ['Maze 1 | CrossMaze', 'Maze 2 | CrossMaze']:
+                    idx = np.where((RData['hue'] == uniq_hue[i])&
                                (np.isnan(RData['Survival Frac.']) == False)&
                                (RData['Type'] == 'Real')&
+                               (RData['Stage'] != 'Stage 1')&
+                               (RData['MiceID'] == mouse)&
                                (RData['Session Interval'] + RData['Start Session'] <= maximums[i])&
                                (RData['Session Interval'] == dt+1))[0]
-            else:
-                idx = np.where((RData['hue'] == uniq_hue[i])&
+                else:
+                    idx = np.where((RData['hue'] == uniq_hue[i])&
                                (np.isnan(RData['Survival Frac.']) == False)&
+                               (RData['Paradigm'] != 'CrossMaze')&
                                (RData['Type'] == 'Real')&
+                               (RData['MiceID'] == mouse)&
                                (RData['Session Interval'] + RData['Start Session'] <= maximums[i])&
                                (RData['Session Interval'] == dt+1))[0]
                 
-            SubData = SubDict(RData, RData.keys(), idx)
+                if len(idx) == 0:
+                    continue
+                
+                SubData = SubDict(RData, RData.keys(), idx)
         
-            x, y_real = SubData['Start Session'], SubData['Survival Frac.']
-        
-            params_cst = curve_fit(lambda t0, c: const_b(t0, c, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
+                x, y_real = SubData['Start Session'], SubData['Survival Frac.']
+                print(x, y_real)
+                params_cst = curve_fit(lambda t0, c: const_b(t0, c, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
                                     bounds=[[0], [1]])[0]
-            params_exp = curve_fit(lambda t0, k, b: exp_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
+                try:
+                    params_exp = curve_fit(lambda t0, k, b: exp_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
                                     bounds=[[0, -np.inf], [np.inf, 0]])[0]
-            params_rec = curve_fit(lambda t0, k, b: reci_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
+                    params_rec = curve_fit(lambda t0, k, b: reci_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
                                     bounds=[[0, -np.inf], [np.inf, np.inf]])[0]
-            params_log = curve_fit(lambda t0, k, b: log_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
+                    params_log = curve_fit(lambda t0, k, b: log_func_b(t0, k, b, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
                                     bounds=[[-np.inf, -np.inf], [np.inf, np.inf]])[0]
-            params_poly = curve_fit(lambda t0, a, b, c: poly_func_b(t0, a, b, c, dt=dt), SubData['Start Session'], SubData['Survival Frac.'],
-                                        bounds=[[0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]])[0]
-        
-            print(params_cst)
-            print(params_exp)
-            print(params_rec)
-            print(params_log)
-            print(params_poly, end='\n\n\n')
+                except:
+                    params_exp = [np.nan, np.nan]
+                    params_rec = [np.nan, np.nan]
+                    params_log = [np.nan, np.nan]
+                    print(mouse, SubData['Start Session'], SubData['Survival Frac.'])
+                    plt.plot(SubData['Start Session'], SubData['Survival Frac.'])
+                    plt.show() 
+                       
+                print(params_cst)
+                print(params_exp)
+                print(params_rec)
+                print(params_log, end='\n\n\n')
                     
-            r2_cst = r2(y_real, const_b(x, *params_cst, dt=dt))
-            r2_exp = r2(y_real, exp_func_b(x, *params_exp, dt=dt))
-            r2_rec = r2(y_real, reci_func_b(x, *params_rec, dt=dt))
-            r2_log = r2(y_real, log_func_b(x, *params_log, dt=dt))
-            r2_poly = r2(y_real, poly_func_b(x, *params_poly, dt=dt))
-        
+                r2_cst = r2(y_real, const_b(x, *params_cst, dt=dt))
+                r2_exp = r2(y_real, exp_func_b(x, *params_exp, dt=dt))
+                r2_rec = r2(y_real, reci_func_b(x, *params_rec, dt=dt))
+                r2_log = r2(y_real, log_func_b(x, *params_log, dt=dt))
                     
-            mse_cst = MSE(y_real, const_b(x, *params_cst, dt=dt))
-            mse_exp = MSE(y_real, exp_func_b(x, *params_exp, dt=dt))
-            mse_rec = MSE(y_real, reci_func_b(x, *params_rec, dt=dt))
-            mse_log = MSE(y_real, log_func_b(x, *params_log, dt=dt))
-            mse_poly = MSE(y_real, poly_func_b(x, *params_poly, dt=dt))
+                mse_cst = MSE(y_real, const_b(x, *params_cst, dt=dt))
+                mse_exp = MSE(y_real, exp_func_b(x, *params_exp, dt=dt))
+                mse_rec = MSE(y_real, reci_func_b(x, *params_rec, dt=dt))
+                mse_log = MSE(y_real, log_func_b(x, *params_log, dt=dt))
         
-            BData['hue'] = BData['hue'] + [uniq_hue[i]]*5
-            BData['R2'] = BData['R2'] + [r2_cst, r2_exp, r2_rec, r2_log, r2_poly]
-            BData['Method'] = BData['Method'] + ['const', 'exp', 'reci', 'log', 'poly']
-            BData['MSE'] = BData['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log, mse_poly]
-            BData['dt'] = BData['dt'] + [dt]*5
+                BData['hue'] = BData['hue'] + [uniq_hue[i]]*4
+                BData['R2'] = BData['R2'] + [r2_cst, r2_exp, r2_rec, r2_log]
+                BData['Method'] = BData['Method'] + ['const', 'exp', 'reci', 'log']
+                BData['MSE'] = BData['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log]
+                BData['dt'] = BData['dt'] + [dt]*4
+                BData['MiceID'] = BData['MiceID'] + [mouse]*4
         
     for k in BData.keys():
         BData[k] = np.array(BData[k])
@@ -297,7 +298,7 @@ sns.barplot(
     x = 'Method',
     y = 'R2',
     data=BData,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -309,9 +310,8 @@ sns.stripplot(
     y = 'R2',
     data=BData,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
-    hue_order=['Open Field | CrossMaze',
-               'Maze 1 | CrossMaze',
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    hue_order=['Maze 1 | CrossMaze',
                'Maze 2 | CrossMaze',
                'Open Field | HairpinMaze cis',
                'Open Field | HairpinMaze trs',
@@ -333,34 +333,63 @@ print("R2 Statistic Test ------------------------")
 print("1. Reci. vs Const")
 idx1 = np.where(BData['Method'] == 'const')[0]
 idx2 = np.where(BData['Method'] == 'reci')[0]
+idx = np.where((np.isnan(BData['R2'][idx1]) == False)&
+               (np.isnan(BData['R2'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['R2'][idx1])
 print_estimator(BData['R2'][idx2])
 print(levene(BData['R2'][idx1], BData['R2'][idx2]))
 print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]))
 print("2. Reci. vs Exp.")
 idx1 = np.where(BData['Method'] == 'exp')[0]
+idx2 = np.where(BData['Method'] == 'reci')[0]
+idx = np.where((np.isnan(BData['R2'][idx1]) == False)&
+               (np.isnan(BData['R2'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['R2'][idx1])
 print(levene(BData['R2'][idx1], BData['R2'][idx2]))
 print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]))
 print("3. Reci. vs log")
 idx1 = np.where(BData['Method'] == 'log')[0]
+idx2 = np.where(BData['Method'] == 'reci')[0]
+idx = np.where((np.isnan(BData['R2'][idx1]) == False)&
+               (np.isnan(BData['R2'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['R2'][idx1])
 print(levene(BData['R2'][idx1], BData['R2'][idx2]))
 print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(BData['Method'] == 'poly')[0]
+print("4. log vs const")
+idx1 = np.where(BData['Method'] == 'const')[0]
+idx2 = np.where(BData['Method'] == 'log')[0]
+idx = np.where((np.isnan(BData['R2'][idx1]) == False)&
+               (np.isnan(BData['R2'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
+print_estimator(BData['R2'][idx1])
+print(levene(BData['R2'][idx1], BData['R2'][idx2]))
+print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]))
+print("5. exp vs const")
+idx1 = np.where(BData['Method'] == 'const')[0]
+idx2 = np.where(BData['Method'] == 'exp')[0]
+idx = np.where((np.isnan(BData['R2'][idx1]) == False)&
+               (np.isnan(BData['R2'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['R2'][idx1])
 print(levene(BData['R2'][idx1], BData['R2'][idx2]))
 print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]), end='\n\n\n')
 
 
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x = 'Method',
     y = 'MSE',
     data=BData,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -372,9 +401,8 @@ sns.stripplot(
     y = 'MSE',
     data=BData,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
-    hue_order=['Open Field | CrossMaze',
-               'Maze 1 | CrossMaze',
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    hue_order=['Maze 1 | CrossMaze',
                'Maze 2 | CrossMaze',
                'Open Field | HairpinMaze cis',
                'Open Field | HairpinMaze trs',
@@ -384,35 +412,63 @@ sns.stripplot(
     size=3,
     linewidth=0.15,
     ax = ax,
-    dodge=True,
     jitter=0.2
 )
-ax.set_ylim([0, 0.02])
-ax.set_yticks(np.linspace(0, 0.02, 6))
+ax.set_ylim([0, 0.012])
+ax.set_yticks(np.linspace(0, 0.012, 7))
 plt.savefig(join(loc, '[Cumulative Effect] fitted MSE.png'), dpi = 600)
 plt.savefig(join(loc, '[Cumulative Effect] fitted MSE.svg'), dpi = 600)
 plt.close()
 
 print("MSE Statistic Test ------------------------")
 print("1. Reci. vs Const")
-idx1 = np.where(BData['Method'] == 'const')[0]
-idx2 = np.where(BData['Method'] == 'reci')[0]
+idx1 = np.where((BData['Method'] == 'const'))[0]
+idx2 = np.where((BData['Method'] == 'reci'))[0]
+idx = np.where((np.isnan(BData['MSE'][idx1]) == False)&
+               (np.isnan(BData['MSE'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['MSE'][idx1])
 print_estimator(BData['MSE'][idx2])
 print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
 print("2. Reci. vs Exp.")
-idx1 = np.where(BData['Method'] == 'exp')[0]
+idx1 = np.where((BData['Method'] == 'exp'))[0]
+idx2 = np.where((BData['Method'] == 'reci'))[0]
+idx = np.where((np.isnan(BData['MSE'][idx1]) == False)&
+               (np.isnan(BData['MSE'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['MSE'][idx1])
 print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
 print("3. Reci. vs log")
-idx1 = np.where(BData['Method'] == 'log')[0]
+idx1 = np.where((BData['Method'] == 'log'))[0]
+idx2 = np.where((BData['Method'] == 'reci'))[0]
+idx = np.where((np.isnan(BData['MSE'][idx1]) == False)&
+               (np.isnan(BData['MSE'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['MSE'][idx1])
 print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(BData['Method'] == 'poly')[0]
+print("4. log vs const")
+idx1 = np.where(BData['Method'] == 'const')[0]
+idx2 = np.where(BData['Method'] == 'log')[0]
+idx = np.where((np.isnan(BData['MSE'][idx1]) == False)&
+               (np.isnan(BData['MSE'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
+print_estimator(BData['MSE'][idx1])
+print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
+print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
+print("5. exp vs const")
+idx1 = np.where(BData['Method'] == 'const')[0]
+idx2 = np.where(BData['Method'] == 'exp')[0]
+idx = np.where((np.isnan(BData['MSE'][idx1]) == False)&
+               (np.isnan(BData['MSE'][idx2]) == False))[0]
+idx1 = idx1[idx]
+idx2 = idx2[idx]
 print_estimator(BData['MSE'][idx1])
 print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]), end='\n\n\n')

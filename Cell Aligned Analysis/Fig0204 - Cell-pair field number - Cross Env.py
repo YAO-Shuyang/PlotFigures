@@ -18,7 +18,8 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
         "date": np.array([]),
         "Training Day": np.array([]),
         "Stage": np.array([]),
-        "Corr": np.array([], np.float64)
+        "Corr": np.array([], np.float64),
+        "P-value": np.array([], np.float64)
     }
     
     for i in tqdm(range(len(f_CellReg_env))):
@@ -58,9 +59,10 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
             Corr['MiceID'] = np.concatenate([Corr['MiceID'], np.repeat(f_CellReg_env['MiceID'][i], 1)])
             Corr['date'] = np.concatenate([Corr['date'], np.repeat(f_CellReg_env['date'][i], 1)])
             Corr['Training Day'] = np.concatenate([Corr['Training Day'], np.repeat(f_CellReg_env['Training Day'][i], 1)])
-            pear_corr, _ = pearsonr(trace1['place_field_num_multiday'][index_map[1, :]-1], trace2['place_field_num_multiday'][index_map[2, :]-1])
+            pear_corr, p = pearsonr(trace1['place_field_num_multiday'][index_map[1, :]-1], trace2['place_field_num_multiday'][index_map[2, :]-1])
             
             Corr['Corr'] = np.append(Corr['Corr'], pear_corr)
+            Corr['P-value'] = np.append(Corr['P-value'], p)
             
     with open(os.path.join(figdata, code_id+'.pkl'), 'wb') as handle:
         pickle.dump(Data, handle)

@@ -24,7 +24,7 @@ if os.path.exists(join(figdata, code_id+' Correlation.pkl')):
     with open(join(figdata, code_id+' Correlation.pkl'), 'rb') as handle:
         CorrData = pickle.load(handle)
 else:
-    CorrData = DataFrameEstablish(variable_names = ['Corr', 'Shuffle'], 
+    CorrData = DataFrameEstablish(variable_names = ['Corr', 'Shuffle', 'P-values'], 
                               f = f3, function = PlaceFieldNumberPerDirectionCorr_Reverse_Interface, 
                               file_name = code_id + ' Correlation', behavior_paradigm = 'ReverseMaze')
 
@@ -33,7 +33,7 @@ if os.path.exists(join(figdata, code_id+' Correlation [HP].pkl')):
     with open(join(figdata, code_id+' Correlation [HP].pkl'), 'rb') as handle:
         CorrHPData = pickle.load(handle)
 else:
-    CorrHPData = DataFrameEstablish(variable_names = ['Corr', 'Shuffle'], 
+    CorrHPData = DataFrameEstablish(variable_names = ['Corr', 'Shuffle', 'P-values'], 
                               f = f4, function = PlaceFieldNumberPerDirectionCorr_Reverse_Interface, 
                               file_name = code_id + ' Correlation [HP]', behavior_paradigm = 'HairpinMaze')
 

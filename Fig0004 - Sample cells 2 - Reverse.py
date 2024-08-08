@@ -27,7 +27,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
     ms_time = cp.deepcopy(trace['tot']['ms_time_behav'])
     spike_nodes = spike_nodes_transform(trace['tot']['spike_nodes'], nx=12)
     spikes = cp.deepcopy(trace['tot']['Spikes'][i, :])
-    place_fields_cis, place_fields_trs = trace['cis']['place_field_all'][i], trace['trs']['place_field_all'][i]
+    place_fields_cis, place_fields_trs = trace['cis']['place_field_all_multiday'][i], trace['trs']['place_field_all_multiday'][i]
     
     _, im, cbar = RateMapAxes(
         ax=ax1,
@@ -161,7 +161,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         spike_time=ms_time,
         maze_type=maze_type,
         behav_nodes=behav_nodes,#[indices],
-        line_kwargs={'markeredgewidth': 0, 'markersize': 0.6, 'color': 'black'},
+        line_kwargs={'linewidth': 0.1, 'color': 'gray'},
         bar_kwargs={'markeredgewidth': 0.2, 'markersize':3}
     )
     ax6.set_xlim([0, len(CP)+0.5])
@@ -182,26 +182,20 @@ def plot_cells(f: pd.DataFrame, i: int, cells: list, save_loc: str):
         plot_sample_cell(trace=trace, i=cell-1, save_loc=save_loc, file_name=file_name+str(cell))
 
 
-"""
-i = np.where((f3['MiceID'] == 10212)&(f3['date'] == 20230619)&(f3['session'] == 1))[0][0]
-plot_cells(f=f3, i=i, cells=[15, 18, 19, 23, 24, 37], save_loc=loc)
-
-i = np.where((f3['MiceID'] == 10227)&(f3['date'] == 20231023)&(f3['session'] == 1))[0][0]
-plot_cells(f=f3, i=i, cells=[44, 1, 2, 4, 5, 7, 11, 20], save_loc=loc)
-
-i = np.where((f3['MiceID'] == 10224)&(f3['date'] == 20231023)&(f3['session'] == 1))[0][0]
-plot_cells(f=f3, i=i, cells=[23, 21, 15, 8, 3, 2, 1], save_loc=loc)
-"""
-
-
 hairpin_loc = join(figpath, code_id, 'hairpin')
 mkdir(hairpin_loc)
 
+i = np.where((f4['MiceID'] == 10209)&(f4['date'] == 20230617)&(f4['session'] == 1))[0][0]
+plot_cells(f=f4, i=i, cells=[75, 80, 81, 32, 15, 20], save_loc=hairpin_loc)
+
+i = np.where((f4['MiceID'] == 10209)&(f4['date'] == 20230618)&(f4['session'] == 1))[0][0]
+plot_cells(f=f4, i=i, cells=[57, 50], save_loc=hairpin_loc)
+
 i = np.where((f4['MiceID'] == 10227)&(f4['date'] == 20231022)&(f4['session'] == 1))[0][0]
-plot_cells(f=f4, i=i, cells=[33, 34, 35, 40, 43], save_loc=hairpin_loc)
+plot_cells(f=f4, i=i, cells=[33, 34, 35, 39, 40, 43], save_loc=hairpin_loc)
 
 i = np.where((f4['MiceID'] == 10209)&(f4['date'] == 20230619)&(f4['session'] == 1))[0][0]
-plot_cells(f=f4, i=i, cells=[85, 39, 11, 17], save_loc=hairpin_loc)
+plot_cells(f=f4, i=i, cells=[6, 8, 9, 11, 85, 39, 11, 17], save_loc=hairpin_loc)
 
 i = np.where((f4['MiceID'] == 10227)&(f4['date'] == 20231023)&(f4['session'] == 1))[0][0]
 plot_cells(f=f4, i=i, cells=[1, 25, 28, 35, 37, 43, 54], save_loc=hairpin_loc)
@@ -209,7 +203,21 @@ plot_cells(f=f4, i=i, cells=[1, 25, 28, 35, 37, 43, 54], save_loc=hairpin_loc)
 i = np.where((f4['MiceID'] == 10224)&(f4['date'] == 20231023)&(f4['session'] == 1))[0][0]
 plot_cells(f=f4, i=i, cells=[7, 15, 23], save_loc=hairpin_loc)
 
-
-
 i = np.where((f4['MiceID'] == 10212)&(f4['date'] == 20230619)&(f4['session'] == 1))[0][0]
 plot_cells(f=f4, i=i, cells=[13], save_loc=hairpin_loc)
+
+
+i = np.where((f3['MiceID'] == 10209)&(f3['date'] == 20230619)&(f3['session'] == 1))[0][0]
+plot_cells(f=f3, i=i, cells=[16, 24, 34], save_loc=loc)
+
+i = np.where((f3['MiceID'] == 10212)&(f3['date'] == 20230619)&(f3['session'] == 1))[0][0]
+plot_cells(f=f3, i=i, cells=[41, 53, 15, 18, 19, 23, 24, 37], save_loc=loc)
+
+i = np.where((f3['MiceID'] == 10227)&(f3['date'] == 20231023)&(f3['session'] == 1))[0][0]
+plot_cells(f=f3, i=i, cells=[44, 1, 2, 4, 5, 7, 11, 20], save_loc=loc)
+
+i = np.where((f3['MiceID'] == 10224)&(f3['date'] == 20231023)&(f3['session'] == 1))[0][0]
+plot_cells(f=f3, i=i, cells=[23, 21, 15, 8, 3, 2, 1], save_loc=loc)
+
+
+

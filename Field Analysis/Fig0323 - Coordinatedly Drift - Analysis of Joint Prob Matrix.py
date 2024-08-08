@@ -18,7 +18,7 @@ else:
         variable_names = ['Training Session', 'delta-P', 'Dimension', 'Axis', 'Pair Type',
                           'Paradigm', 'X'],
         f = f_CellReg_modi, f_member=['Type'],
-        function = CoordinatedDrift_Interface, 
+        function = CoordinatedDrift_Interface, func_kwgs={"dis_thre": 0.5},
         file_name = code_id, file_idx=idx,
         behavior_paradigm = 'CrossMaze'
     )
@@ -73,6 +73,7 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze') &
                (np.isnan(Data['delta-P']) == False)&
                (Data['Maze Type'] != 'Open Field')&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 15)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
 fig = plt.figure(figsize=(15, 2))
@@ -105,6 +106,8 @@ sns.stripplot(
     ax = ax,
     zorder = 1
 )
+ax.set_ylim(-0.003, 0.003)
+ax.set_yticks(np.linspace(-0.003, 0.003, 7))
 plt.savefig(join(loc, f"[Maze A & B] Dim = 5, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] Dim = 5, deltaP - CP Axis.svg"), dpi = 600)
 plt.show()
@@ -196,8 +199,8 @@ sns.stripplot(
     ax = ax,
     zorder = 1
 )
-ax.set_ylim(-0.04, 0.04)
-ax.set_yticks(np.linspace(-0.04, 0.04, 9))
+ax.set_ylim(-0.03, 0.03)
+ax.set_yticks(np.linspace(-0.03, 0.03, 7))
 plt.savefig(join(loc, f"[Maze A & B] Dim = 4, deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] Dim = 4, deltaP - IP Axis.svg"), dpi = 600)
 plt.show()
@@ -207,6 +210,7 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze') &
                (np.isnan(Data['delta-P']) == False)&
                (Data['Maze Type'] != 'Open Field')&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 8)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
 fig = plt.figure(figsize=(7, 2))
@@ -239,8 +243,8 @@ sns.stripplot(
     ax = ax,
     zorder = 1
 )
-ax.set_ylim(-0.01, 0.01)
-ax.set_yticks(np.linspace(-0.01, 0.01, 5))
+ax.set_ylim(-0.004, 0.004)
+ax.set_yticks(np.linspace(-0.004, 0.004, 9))
 plt.savefig(join(loc, f"[Maze A & B] Dim = 4, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] Dim = 4, deltaP - CP Axis.svg"), dpi = 600)
 plt.show()
@@ -331,8 +335,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.06, 0.06)
+ax.set_yticks(np.linspace(-0.06, 0.06, 7))
 plt.savefig(join(loc, f"[Maze A & B] Dim = 3, deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] Dim = 3, deltaP - IP Axis.svg"), dpi = 600)
 plt.close()
@@ -342,6 +346,7 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze') &
                (np.isnan(Data['delta-P']) == False)&
                (Data['Maze Type'] != 'Open Field')&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 3)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
 fig = plt.figure(figsize=(5, 2))
@@ -372,8 +377,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.02, 0.02)
-ax.set_yticks(np.linspace(-0.02, 0.02, 9))
+ax.set_ylim(-0.01, 0.01)
+ax.set_yticks(np.linspace(-0.01, 0.01, 11))
 plt.savefig(join(loc, f"[Maze A & B] Dim = 3, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] Dim = 3, deltaP - CP Axis.svg"), dpi = 600)
 plt.close()
@@ -463,8 +468,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.2, 0.2)
-ax.set_yticks(np.linspace(-0.2, 0.2, 9))
+ax.set_ylim(-0.1, 0.1)
+ax.set_yticks(np.linspace(-0.1, 0.1, 11))
 plt.savefig(join(loc, f"[Maze A & B] deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] deltaP - IP Axis.svg"), dpi = 600)
 plt.close()
@@ -500,9 +505,10 @@ idx = np.where((Data['Paradigm'] == 'CrossMaze') &
                (np.isnan(Data['delta-P']) == False)&
                (Data['Maze Type'] != 'Open Field')&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 1) &
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(2, 2))
+fig = plt.figure(figsize=(1.2, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -530,8 +536,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.04, 0.04)
+ax.set_yticks(np.linspace(-0.04, 0.04, 9))
 plt.savefig(join(loc, f"[Maze A & B] deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Maze A & B] deltaP - CP Axis.svg"), dpi = 600)
 plt.close()

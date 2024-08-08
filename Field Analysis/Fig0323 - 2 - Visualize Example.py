@@ -9,7 +9,7 @@ mkdir(loc)
 if __name__ == '__main__':
     from tqdm import tqdm
 
-dim = 2
+dim = 5
 saveloc = join(loc, "Dim=" + str(dim))
 mkdir(saveloc)
 
@@ -31,7 +31,8 @@ for i in range(len(f_CellReg_modi)):
             trace['field_reg'],
             trace['field_ids'],
             dim=dim,
-            return_item='sib'
+            return_item='sib',
+            field_centers=trace['field_centers']
         )
         
         n_sessions = len(session)
@@ -63,7 +64,8 @@ for i in range(len(f_CellReg_modi)):
             trace['cis']['field_reg'],
             trace['cis']['field_ids'],
             dim=dim,
-            return_item='sib'
+            return_item='sib',
+            field_centers=trace['cis']['field_centers']
         )
         
         n_sessions = len(session)
@@ -90,7 +92,8 @@ for i in range(len(f_CellReg_modi)):
             trace['trs']['field_reg'],
             trace['trs']['field_ids'],
             dim=dim,
-            return_item='sib'
+            return_item='sib',
+            field_centers=trace['trs']['field_centers']
         )
         
         n_sessions = len(session)

@@ -14,7 +14,7 @@ else:
     Data = DataFrameEstablish(
         variable_names = ['Training Session', 'Chi-Square Statistic', 'MI', 'Dimension', 'Pair Type', 'Pair Num',
                           'Paradigm'],
-        f = f_CellReg_modi, f_member=['Type'], func_kwgs={"if_consider_distance": True, "dis_thre": 1},
+        f = f_CellReg_modi, f_member=['Type'], func_kwgs={"if_consider_distance": True, "dis_thre": 0.5},
         function = IndependentEvolution_Interface, 
         file_name = code_id, file_idx = idx,
         behavior_paradigm = 'CrossMaze'
@@ -53,8 +53,8 @@ sns.stripplot(
     dodge=True,
     ax=ax
 )
-ax.set_yticks(np.linspace(0, 16000, 5))
-ax.set_ylim(0, 16000)
+ax.set_yticks(np.linspace(0, 4000, 5))
+ax.set_ylim(0, 4000)
 plt.savefig(join(loc, 'Chi-Square Statistic.png'), dpi = 600)
 plt.savefig(join(loc, 'Chi-Square Statistic.svg'), dpi = 600)
 plt.close()
@@ -120,8 +120,8 @@ sns.stripplot(
     jitter=0.2,
     ax=ax
 )
-ax.set_ylim(0, 0.3)
-ax.set_yticks(np.linspace(0, 0.3, 7))
+ax.set_ylim(0, 0.1)
+ax.set_yticks(np.linspace(0, 0.1, 6))
 plt.savefig(join(loc, 'MI.png'), dpi = 600)
 plt.savefig(join(loc, 'MI.svg'), dpi = 600)
 plt.close()
@@ -194,8 +194,8 @@ sns.stripplot(
     dodge=True,
     ax=ax
 )
-ax.set_yticks(np.linspace(0, 15000, 7))
-ax.set_ylim(0, 15000)
+ax.set_yticks(np.linspace(0, 4000, 5))
+ax.set_ylim(0, 4000)
 plt.savefig(join(loc, '[Hairpin&Reverse] Chi-Square Statistic.png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] Chi-Square Statistic.svg'), dpi = 600)
 plt.close()
@@ -296,8 +296,8 @@ sns.stripplot(
     dodge=True,
     ax=ax
 )
-ax.set_ylim(0, 0.5)
-ax.set_yticks(np.linspace(0, 0.5, 6))
+ax.set_ylim(0, 0.3)
+ax.set_yticks(np.linspace(0, 0.3, 7))
 plt.savefig(join(loc, '[Hairpin&Reverse] MI.png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] MI.svg'), dpi = 600)
 plt.close()

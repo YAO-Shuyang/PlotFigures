@@ -127,120 +127,87 @@ if os.path.exists(join(figdata, code_id+' [fit].pkl')):
     with open(join(figdata, code_id+' [fit].pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
-    Data = {"Maze Type": [], "Paradigm": [], "R2": [], "Method": [], "hue":[], 'C': [], 'MSE': []}
-    
-    for mouse in ['1']:
-        for paradigm in ['CrossMaze', 'HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs']:
-            if paradigm == 'CrossMaze':
-                for maze in ['Open Field', 'Maze 1', 'Maze 2']:
-                    idx = np.where((RData['Paradigm'] == 'CrossMaze') & 
-                                  
-                                   (np.isnan(RData['Conditional Prob.']) == False) & 
-                                   (RData['Maze Type'] == maze) &
-                                   (RData['Type'] == 'Real'))[0]
-                    SubData = SubDict(RData, RData.keys(), idx)
-                    x, y_real = SubData['Duration'], SubData['Conditional Prob.']/100
-                    
-                    params_cst, _ = curve_fit(const, x, y_real, bounds=[[0], [1]],
-                                              p0=[0.5])
-                    params_exp, _ = curve_fit(exp_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, 0, 1]],
-                                              p0=[0.15, -2, 0.8])
-                    params_rec, _ = curve_fit(reci_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
-                                              p0=[0.4, 1.2, 0.8])
-                    params_log, _ = curve_fit(log_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
-                                              p0 = [4, 0.5, 0.8])
-                    params_poly, _ = curve_fit(poly_func, x, y_real, bounds=[[0, -np.inf, -np.inf, 0], [np.inf, np.inf, np.inf, 1]],
-                                              p0 = [0.08, -0.05, 1, 0.8])
-                    
-                    print(params_cst)
-                    print(params_exp)
-                    print(params_rec)
-                    print(params_log)
-                    print(params_poly, end='\n\n\n')
-                    
-                    r2_cst = r2(y_real, const(x, *params_cst))
-                    r2_exp = r2(y_real, exp_func(x, *params_exp))
-                    r2_rec = r2(y_real, reci_func(x, *params_rec))
-                    r2_log = r2(y_real, log_func(x, *params_log))
-                    r2_poly = r2(y_real, poly_func(x, *params_poly))
-                    
-                    mse_cst = MSE(y_real, const(x, *params_cst))
-                    mse_exp = MSE(y_real, exp_func(x, *params_exp))
-                    mse_rec = MSE(y_real, reci_func(x, *params_rec))
-                    mse_log = MSE(y_real, log_func(x, *params_log))
-                    mse_poly = MSE(y_real, poly_func(x, *params_poly))
-                    
+    BData = {'R2': [], 'MSE': [], 'Method': [], 'hue': [], 'C': [], 'MiceID': []}
 
-                    Data['Maze Type'] = Data['Maze Type'] + [maze]*5
-                    Data['Paradigm'] = Data['Paradigm'] + [paradigm]*5
-                    Data['hue'] = Data['hue'] + [maze+' | CrossMaze']*5
-                    Data['R2'] = Data['R2'] + [r2_cst, r2_exp, r2_rec, r2_log, r2_poly]
-                    Data['Method'] = Data['Method'] + ['const', 'exp', 'reci', 'log', 'poly']
-                    Data['C'] = Data['C'] + [params_cst[-1], params_exp[-1], params_rec[-1], params_log[-1], params_poly[-1]]
-                    Data['MSE'] = Data['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log, mse_poly]
-                    
+    RData['hue'] = np.array([RData['Maze Type'][i] + ' | '+RData['Paradigm'][i] for i in range(RData['Maze Type'].shape[0])])
+
+    uniq_hue = np.unique(RData['hue'])
+    print(uniq_hue)
+
+    for mouse in [10209, 10212, 10224, 10227]:    
+        for i in range(len(uniq_hue)):
+            if uniq_hue[i] in ['Maze 1 | CrossMaze', 'Maze 2 | CrossMaze']:
+                idx = np.where((RData['hue'] == uniq_hue[i])&
+                       (np.isnan(RData['Conditional Prob.']) == False)&
+                       (RData['Type'] == 'Real')&
+                       (RData['MiceID'] == mouse))[0]
             else:
-                idx = np.where((RData['Paradigm'] == paradigm) & 
-                                (np.isnan(RData['Conditional Prob.']) == False)&
-                                   (RData['Type'] == 'Real'))[0]
-                
-                SubData = SubDict(RData, RData.keys(), idx)
-                x, y_real = SubData['Duration'], SubData['Conditional Prob.']/100
+                idx = np.where((RData['hue'] == uniq_hue[i])&(RData['Paradigm'] != 'CrossMaze')&
+                       (np.isnan(RData['Conditional Prob.']) == False)&
+                       (RData['Type'] == 'Real')&
+                       (RData['MiceID'] == mouse))[0]
+            
+            if len(idx) == 0:
+                print(mouse, uniq_hue[i], 'no data')
+                continue
+        
+            SubData = SubDict(RData, RData.keys(), idx)                    
                     
-                params_cst, _ = curve_fit(const, x, y_real, bounds=[[0], [1]],
-                                          p0=[0.5])
-                params_exp, _ = curve_fit(exp_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, 0, 1]],
-                                          p0=[0.15, -2, 0.8])
-                params_rec, _ = curve_fit(reci_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
-                                          p0=[0.4, 1.2, 0.8])
-                params_log, _ = curve_fit(log_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
-                                          p0 = [4, 0.5, 0.8])
-                params_poly, _ = curve_fit(poly_func, x, y_real, bounds=[[0, -np.inf, -np.inf, 0], [np.inf, np.inf, np.inf, 1]],
-                                          p0 = [0.08, -0.05, 1, 0.8])
+            x, y_real = SubData['Duration'], SubData['Conditional Prob.']/100
                     
-                r2_cst = r2(y_real, const(x, *params_cst))
-                r2_exp = r2(y_real, exp_func(x, *params_exp))
-                r2_rec = r2(y_real, reci_func(x, *params_rec))
-                r2_log = r2(y_real, log_func(x, *params_log))
-                r2_poly = r2(y_real, poly_func(x, *params_poly))
+            params_cst, _ = curve_fit(const, x, y_real, bounds=[[0], [1]],
+                                              p0=[0.5])
+            params_exp, _ = curve_fit(exp_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, 0, 1]],
+                                              p0=[0.15, -2, 0.8])
+            params_rec, _ = curve_fit(reci_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
+                                              p0=[0.4, 1.2, 0.8])
+            params_log, _ = curve_fit(log_func, x, y_real, bounds=[[0, -np.inf, 0], [np.inf, np.inf, 1]],
+                                              p0 = [4, 0.5, 0.8])
+            
+            print(params_cst)
+            print(params_exp)
+            print(params_rec)
+            print(params_log, end='\n\n\n')
+                    
+            r2_cst = r2(y_real, const(x, *params_cst))
+            r2_exp = r2(y_real, exp_func(x, *params_exp))
+            r2_rec = r2(y_real, reci_func(x, *params_rec))
+            r2_log = r2(y_real, log_func(x, *params_log))
+                    
+            mse_cst = MSE(y_real, const(x, *params_cst))
+            mse_exp = MSE(y_real, exp_func(x, *params_exp))
+            mse_rec = MSE(y_real, reci_func(x, *params_rec))
+            mse_log = MSE(y_real, log_func(x, *params_log))
+            
+            BData['hue'] = BData['hue'] + [uniq_hue[i]+' | CrossMaze']*4
+            BData['R2'] = BData['R2'] + [r2_cst, r2_exp, r2_rec, r2_log]
+            BData['Method'] = BData['Method'] + ['const', 'exp', 'reci', 'log']
+            BData['C'] = BData['C'] + [params_cst[-1], params_exp[-1], params_rec[-1], params_log[-1]]
+            BData['MSE'] = BData['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log]
+            BData['MiceID'] = BData['MiceID'] + [mouse]*4
                 
-                mse_cst = MSE(y_real, const(x, *params_cst))
-                mse_exp = MSE(y_real, exp_func(x, *params_exp))
-                mse_rec = MSE(y_real, reci_func(x, *params_rec))
-                mse_log = MSE(y_real, log_func(x, *params_log))
-                mse_poly = MSE(y_real, poly_func(x, *params_poly))
-
-                print(params_cst)
-                print(params_exp)
-                print(params_rec)
-                print(params_log)
-                print(params_poly, end='\n\n\n')
-
-                Data['Maze Type'] = Data['Maze Type'] + ['R or H']*5
-                Data['Paradigm'] = Data['Paradigm'] + [paradigm]*5
-                Data['hue'] = Data['hue'] + ['R or H | '+paradigm]*5
-                Data['R2'] = Data['R2'] + [r2_cst, r2_exp, r2_rec, r2_log, r2_poly]
-                Data['Method'] = Data['Method'] + ['const', 'exp', 'reci', 'log', 'poly']
-                Data['C'] = Data['C'] + [params_cst[-1], params_exp[-1], params_rec[-1], params_log[-1], params_poly[-1]]
-                Data['MSE'] = Data['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log, mse_poly]
-                
-    for k in Data.keys():
-        Data[k] = np.array(Data[k])
+    for k in BData.keys():
+        BData[k] = np.array(BData[k])
         
     with open(join(figdata, code_id+' [fit].pkl'), 'wb') as handle:
-        pickle.dump(Data, handle)
+        pickle.dump(BData, handle)
         
-    D = pd.DataFrame(Data)
+    D = pd.DataFrame(BData)
     D.to_excel(join(figdata, code_id+' [fit].xlsx'), index=False)
+    Data = BData
 
+print("R2 statistics")
+idx = np.where(Data['Method'] == 'reci')[0]
+print_estimator(Data['R2'][idx])
+print_estimator(Data['C'][idx])
 
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)  
 sns.barplot(
     x = 'Method',
     y = 'C',
     data=Data,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -252,25 +219,26 @@ sns.stripplot(
     y = 'C',
     data=Data,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
     edgecolor='black',
     size=3,
     linewidth=0.15,
     ax = ax,
-    dodge=True,
     jitter=0.2
 )
+ax.set_ylim(0, 1.03)
+ax.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(join(loc, 'C.png'), dpi = 600)
 plt.savefig(join(loc, 'C.svg'), dpi = 600)
 plt.close() 
         
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x = 'Method',
     y = 'R2',
     data=Data,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -282,15 +250,14 @@ sns.stripplot(
     y = 'R2',
     data=Data,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
     edgecolor='black',
     size=3,
     linewidth=0.15,
     ax = ax,
-    dodge=True,
     jitter=0.2
 )
-ax.set_ylim([0, 1])
+ax.set_ylim([0, 1.03])
 ax.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(join(loc, 'R2.png'), dpi = 600)
 plt.savefig(join(loc, 'R2.svg'), dpi = 600)
@@ -314,20 +281,15 @@ idx1 = np.where(Data['Method'] == 'log')[0]
 print_estimator(Data['R2'][idx1])
 print(levene(Data['R2'][idx1], Data['R2'][idx2]))
 print(ttest_rel(Data['R2'][idx1], Data['R2'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(Data['Method'] == 'poly')[0]
-print_estimator(Data['R2'][idx1])
-print(levene(Data['R2'][idx1], Data['R2'][idx2]))
-print(ttest_rel(Data['R2'][idx1], Data['R2'][idx2]), end='\n\n\n')
 
 
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x = 'Method',
     y = 'MSE',
     data=Data,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -339,12 +301,11 @@ sns.stripplot(
     y = 'MSE',
     data=Data,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
     edgecolor='black',
     size=3,
     linewidth=0.15,
     ax = ax,
-    dodge=True,
     jitter=0.2
 )
 ax.set_ylim([0, 0.025])
@@ -368,11 +329,6 @@ print(levene(Data['MSE'][idx1], Data['MSE'][idx2]))
 print(ttest_rel(Data['MSE'][idx1], Data['MSE'][idx2]))
 print("3. Reci. vs log")
 idx1 = np.where(Data['Method'] == 'log')[0]
-print_estimator(Data['MSE'][idx1])
-print(levene(Data['MSE'][idx1], Data['MSE'][idx2]))
-print(ttest_rel(Data['MSE'][idx1], Data['MSE'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(Data['Method'] == 'poly')[0]
 print_estimator(Data['MSE'][idx1])
 print(levene(Data['MSE'][idx1], Data['MSE'][idx2]))
 print(ttest_rel(Data['MSE'][idx1], Data['MSE'][idx2]), end='\n\n\n')
