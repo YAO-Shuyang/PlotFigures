@@ -14,9 +14,9 @@ def add_color_path(
     is_plot_line: bool = True,
     is_plot_decision_points: bool = False,
     color: str = 'black',
-    band_width: float=0.1,
+    band_width: float=0.2,
     band_color: str = 'black',
-    band_kw: dict = {},
+    band_kw: dict = {'edgecolor': None},
     **kwargs
 ):  
     xp, yp = None, None
@@ -66,8 +66,8 @@ ax2.set_aspect('equal')
 plt.savefig(join(loc, "Shortest Path.png"), dpi=600)
 plt.savefig(join(loc, "Shortest Path.svg"), dpi=600)
 plt.close()
-"""
-"""
+
+
 fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,4))
 ax1, ax2 = Clear_Axes(axes[0]), Clear_Axes(axes[1])
 DrawMazeProfile(maze_type=1, axes=ax1, nx=12, color='black', linewidth=.6)
@@ -81,8 +81,8 @@ IP2 = incorrect_paths[2]
 DP1 = DPs[1]
 DP2 = DPs[2]
 
-add_color_path(ax1, CP1, edgecolor=None, line_band=True, band_color = sns.color_palette('crest', len(CP1)-1))
-add_color_path(ax2, CP2, edgecolor=None, line_band=True, band_color = sns.color_palette('flare', len(CP1)-1))
+add_color_path(ax1, CP1, edgecolor=None, line_band=True, band_color = [sns.color_palette("rocket", 3)[1]]*len(CP1)) #sns.color_palette('crest', len(CP1)-1))
+add_color_path(ax2, CP2, edgecolor=None, line_band=True, band_color = [sns.color_palette("rocket", 3)[2]]*len(CP2)) #sns.color_palette('flare', len(CP1)-1))
 
 add_color_path(ax1, DP1, d=.1, edgecolor=None, is_plot_decision_points=True)
 add_color_path(ax2, DP2, d=.1, edgecolor=None, is_plot_decision_points=True)
@@ -124,7 +124,8 @@ ax2.set_xlim([0, len(CP2)])
 plt.savefig(join(loc, "maze illustrator2.png"), dpi=600)
 plt.savefig(join(loc, "maze illustrator2.svg"), dpi=600)
 plt.close()
-
+"""
+"""
 a = sns.color_palette("rocket", 4)
 l = []
 for item in a:
@@ -181,10 +182,13 @@ ax2.set_aspect('equal')
 plt.savefig(join(loc, "reverse maze paradigm.png"), dpi=600)
 plt.savefig(join(loc, "reverse maze paradigm.svg"), dpi=600)
 plt.close()
+"""
 
+# DSPCorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[1], sns.color_palette("crest", 9)[0], sns.color_palette("flare", 9)[0]]
+# DSPIncorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[3], sns.color_palette("crest", 9)[2], sns.color_palette("flare", 9)[2]]
 
-DSPCorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[1], sns.color_palette("crest", 9)[0], sns.color_palette("flare", 9)[0]]
-DSPIncorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[3], sns.color_palette("crest", 9)[2], sns.color_palette("flare", 9)[2]]
+DSPCorrectTrackPalette = ['#A9CCE3', '#A8DADC', '#9C8FBC', '#D9A6A9']
+DSPIncorrectTrackPalette = ['#A9CCE3', '#F2E2C5', '#647D91', '#C06C84']
 
 fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8,8))
 ax1, ax2, ax3, ax4 = Clear_Axes(axes[0, 0]), Clear_Axes(axes[0, 1]), Clear_Axes(axes[1, 0]), Clear_Axes(axes[1, 1])
@@ -307,3 +311,4 @@ ax1.set_aspect('equal')
 plt.savefig(join(loc, "Fig 3f Zoom out 1.png"), dpi=600)
 plt.savefig(join(loc, "Fig 3f Zoom out 1.svg"), dpi=600)
 plt.close()
+"""

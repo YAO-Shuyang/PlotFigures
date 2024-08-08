@@ -80,71 +80,72 @@ if os.path.exists(join(figdata, code_id+' [breakpoint].pkl')):
         BData = pickle.load(handle)
 else:
     # Firstly, fit the breakpoints of super stable fields.
-    BData = {'R2': [], 'MSE': [], 'Method': [], 'hue': [], 'C': []}
+    BData = {'R2': [], 'MSE': [], 'Method': [], 'hue': [], 'C': [], 'MiceID': []}
 
     RData['hue'] = np.array([RData['Maze Type'][i] + ' | '+RData['Paradigm'][i] for i in range(RData['Maze Type'].shape[0])])
 
     uniq_hue = np.unique(RData['hue'])
     print(uniq_hue)
-    
-    for i in range(len(uniq_hue)):
-        if uniq_hue[i] in ['Maze 1 | CrossMaze', 'Maze 2 | CrossMaze']:
-            idx = np.where((RData['hue'] == uniq_hue[i])&
+        
+    for mouse in [10209, 10212, 10224, 10227]:    
+        for i in range(len(uniq_hue)):
+            if uniq_hue[i] in ['Maze 1 | CrossMaze', 'Maze 2 | CrossMaze']:
+                idx = np.where((RData['hue'] == uniq_hue[i])&
                        (np.isnan(RData['Superstable Frac.']) == False)&
                        (RData['Type'] == 'Real')&
+                       (RData['MiceID'] == mouse)&
                        (RData['Duration'] - RData['Threshold'] == 0)&
+                       (RData['Stage'] != 'Stage 1')&
                        (RData['Threshold'] <= 13)&
                        (RData['Duration'] <= 13))[0]
-        else:
-            idx = np.where((RData['hue'] == uniq_hue[i])&
+            else:
+                idx = np.where((RData['hue'] == uniq_hue[i])&(RData['Paradigm'] != 'CrossMaze')&
                        (np.isnan(RData['Superstable Frac.']) == False)&
                        (RData['Type'] == 'Real')&
+                       (RData['MiceID'] == mouse)&
                        (RData['Duration'] - RData['Threshold'] == 0))[0]
-        SubData = SubDict(RData, RData.keys(), idx)
+            
+            if len(idx) == 0:
+                print(mouse, uniq_hue[i], 'no data')
+                continue
         
-        x, y_real = SubData['Duration'], SubData['Superstable Frac.']
+            SubData = SubDict(RData, RData.keys(), idx)
         
-        params_cst, _ = curve_fit(const_b, x, y_real, bounds=[[0], [1]],
+            x, y_real = SubData['Duration'], SubData['Superstable Frac.']
+        
+            params_cst, _ = curve_fit(const_b, x, y_real, bounds=[[0], [1]],
                                               p0=[0.5])
-        params_exp, _ = curve_fit(exp_func_b, x, y_real, bounds=[[0, -np.inf], [np.inf, 0]],
+            params_exp, _ = curve_fit(exp_func_b, x, y_real, bounds=[[0, -np.inf], [np.inf, 0]],
                                               p0=[0.15, -2])
-        params_rec, _ = curve_fit(reci_func_b, x, y_real, bounds=[[0, -np.inf], [np.inf, np.inf]],
+            params_rec, _ = curve_fit(reci_func_b, x, y_real, bounds=[[0, -np.inf], [np.inf, np.inf]],
                                               p0=[0.4, 1.2])
-        try:
-            params_log, _ = curve_fit(log_func_b, x, y_real, bounds=[[-np.inf, -np.inf], [np.inf, np.inf]],
+            try:
+                params_log, _ = curve_fit(log_func_b, x, y_real, bounds=[[-np.inf, -np.inf], [np.inf, np.inf]],
                                               p0 = [4, 0.5])
-        except:
-            params_log = [np.nan, np.nan]
-        
-        try:
-            params_poly, _ = curve_fit(poly_func_b, x, y_real, bounds=[[0, -np.inf, -np.inf], [np.inf, np.inf, np.inf]], p0 = [0.08, -0.05, 1])
-        except:
-            params_poly = [np.nan, np.nan, np.nan]
-        
-        print(params_cst)
-        print(params_exp)
-        print(params_rec)
-        print(params_log)
-        print(params_poly, end='\n\n\n')
+            except:
+                params_log = [np.nan, np.nan]
+                
+            print(params_cst)
+            print(params_exp)
+            print(params_rec)
+            print(params_log, end='\n\n\n')
                     
-        r2_cst = r2(y_real, const_b(x, *params_cst))
-        r2_exp = r2(y_real, exp_func_b(x, *params_exp))
-        r2_rec = r2(y_real, reci_func_b(x, *params_rec))
-        r2_log = r2(y_real, log_func_b(x, *params_log))
-        r2_poly = r2(y_real, poly_func_b(x, *params_poly))
-        
+            r2_cst = r2(y_real, const_b(x, *params_cst))
+            r2_exp = r2(y_real, exp_func_b(x, *params_exp))
+            r2_rec = r2(y_real, reci_func_b(x, *params_rec))
+            r2_log = r2(y_real, log_func_b(x, *params_log))
                     
-        mse_cst = MSE(y_real, const_b(x, *params_cst))
-        mse_exp = MSE(y_real, exp_func_b(x, *params_exp))
-        mse_rec = MSE(y_real, reci_func_b(x, *params_rec))
-        mse_log = MSE(y_real, log_func_b(x, *params_log))
-        mse_poly = MSE(y_real, poly_func_b(x, *params_poly))
+            mse_cst = MSE(y_real, const_b(x, *params_cst))
+            mse_exp = MSE(y_real, exp_func_b(x, *params_exp))
+            mse_rec = MSE(y_real, reci_func_b(x, *params_rec))
+            mse_log = MSE(y_real, log_func_b(x, *params_log))
         
-        BData['hue'] = BData['hue'] + [uniq_hue[i]]*5
-        BData['R2'] = BData['R2'] + [r2_cst, r2_exp, r2_rec, r2_log, r2_poly]
-        BData['Method'] = BData['Method'] + ['const', 'exp', 'reci', 'log', 'poly']
-        BData['C'] = BData['C'] + [params_cst[-1], params_exp[-1], params_rec[-1], params_log[-1], params_poly[-1]]
-        BData['MSE'] = BData['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log, mse_poly]
+            BData['hue'] = BData['hue'] + [uniq_hue[i]]*4
+            BData['R2'] = BData['R2'] + [r2_cst, r2_exp, r2_rec, r2_log]
+            BData['Method'] = BData['Method'] + ['const', 'exp', 'reci', 'log']
+            BData['C'] = BData['C'] + [params_cst[-1], params_exp[-1], params_rec[-1], params_log[-1]]
+            BData['MSE'] = BData['MSE'] + [mse_cst, mse_exp, mse_rec, mse_log]
+            BData['MiceID'] = BData['MiceID'] + [mouse]*4
         
     for k in BData.keys():
         BData[k] = np.array(BData[k])
@@ -162,7 +163,7 @@ sns.barplot(
     x = 'Method',
     y = 'C',
     data=BData,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -174,9 +175,8 @@ sns.stripplot(
     y = 'C',
     data=BData,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
-    hue_order=['Open Field | CrossMaze',
-               'Maze 1 | CrossMaze',
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    hue_order=['Maze 1 | CrossMaze',
                'Maze 2 | CrossMaze',
                'Open Field | HairpinMaze cis',
                'Open Field | HairpinMaze trs',
@@ -193,13 +193,13 @@ plt.savefig(join(loc, '[Breakpoints] fitted C.png'), dpi = 600)
 plt.savefig(join(loc, '[Breakpoints] fitted C.svg'), dpi = 600)
 plt.close() 
         
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x = 'Method',
     y = 'R2',
     data=BData,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -211,9 +211,8 @@ sns.stripplot(
     y = 'R2',
     data=BData,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
-    hue_order=['Open Field | CrossMaze',
-               'Maze 1 | CrossMaze',
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    hue_order=['Maze 1 | CrossMaze',
                'Maze 2 | CrossMaze',
                'Open Field | HairpinMaze cis',
                'Open Field | HairpinMaze trs',
@@ -226,7 +225,7 @@ sns.stripplot(
     dodge=True,
     jitter=0.2
 )
-ax.set_ylim([0, 1])
+ax.set_ylim([0, 1.03])
 ax.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(join(loc, '[Breakpoints] fitted R2.png'), dpi = 600)
 plt.savefig(join(loc, '[Breakpoints] fitted R2.svg'), dpi = 600)
@@ -249,21 +248,16 @@ print("3. Reci. vs log")
 idx1 = np.where(BData['Method'] == 'log')[0]
 print_estimator(BData['R2'][idx1])
 print(levene(BData['R2'][idx1], BData['R2'][idx2]))
-print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(BData['Method'] == 'poly')[0]
-print_estimator(BData['R2'][idx1])
-print(levene(BData['R2'][idx1], BData['R2'][idx2]))
 print(ttest_rel(BData['R2'][idx1], BData['R2'][idx2]), end='\n\n\n')
 
 
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(1.6,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x = 'Method',
     y = 'MSE',
     data=BData,
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#FFC300'],
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'],
     width=0.8,
     capsize=0.2,
     errcolor='black',
@@ -275,9 +269,8 @@ sns.stripplot(
     y = 'MSE',
     data=BData,
     hue='hue',
-    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
-    hue_order=['Open Field | CrossMaze',
-               'Maze 1 | CrossMaze',
+    palette=['#D4C9A8', '#8E9F85', '#527C5A', '#C3AED6', '#66C7B4', '#A7D8DE'],
+    hue_order=['Maze 1 | CrossMaze',
                'Maze 2 | CrossMaze',
                'Open Field | HairpinMaze cis',
                'Open Field | HairpinMaze trs',
@@ -290,8 +283,8 @@ sns.stripplot(
     dodge=True,
     jitter=0.2
 )
-ax.set_ylim([0, 0.01])
-ax.set_yticks(np.linspace(0, 0.01, 6))
+ax.set_ylim([0, 0.012])
+ax.set_yticks(np.linspace(0, 0.012, 7))
 plt.savefig(join(loc, '[Breakpoints] fitted MSE.png'), dpi = 600)
 plt.savefig(join(loc, '[Breakpoints] fitted MSE.svg'), dpi = 600)
 plt.close()
@@ -311,11 +304,6 @@ print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
 print("3. Reci. vs log")
 idx1 = np.where(BData['Method'] == 'log')[0]
-print_estimator(BData['MSE'][idx1])
-print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
-print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]))
-print("4. Reci. vs Poly")
-idx1 = np.where(BData['Method'] == 'poly')[0]
 print_estimator(BData['MSE'][idx1])
 print(levene(BData['MSE'][idx1], BData['MSE'][idx2]))
 print(ttest_rel(BData['MSE'][idx1], BData['MSE'][idx2]), end='\n\n\n')

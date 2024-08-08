@@ -5,16 +5,18 @@ code_id = "0408 - Conditional Indipendent Test"
 loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
+idx = np.where((f1['maze_type'] != 0))[0]
 if os.path.exists(join(figdata, code_id+'.pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
     Data = DataFrameEstablish(variable_names = ['Chi2 Statistic', 'Mutual Information', 'Field Pair Type', 'Variable', 'Pair Num'], f = f1,
-                              function = FieldPropertyIndependence_Chi2_MI_DoubleCheck_Interface, 
+                              function = FieldPropertyIndependence_Chi2_MI_DoubleCheck_Interface, file_idx=idx,
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
     
     with open(join(figdata, code_id+'.pkl'), 'wb') as f:
         pickle.dump(Data, f)
+
 
 bar_colors = [sns.color_palette("rocket", 3)[0], sns.color_palette("Blues", 3)[0], 
               sns.color_palette("rocket", 3)[1], sns.color_palette("Blues", 3)[1], 
@@ -29,16 +31,16 @@ dot_colors = [
     "#CE93D8",  # Light Purple
     "#80CBC4",  # Light Teal
 ]
-idx = np.where((Data['MiceID'] != 11095)&(Data['MiceID'] != 11092))[0]
-Data = SubDict(Data, Data.keys(), idx)
 
+idx = np.where((Data['MiceID'] != 11095) & (Data['MiceID'] != 11092))
+Data = SubDict(Data, Data.keys(), idx)
 Data['hue'] = np.array([Data['Maze Type'][i] + Data['Field Pair Type'][i] for i in range(Data['Maze Type'].shape[0])])
     
 # Plot an example to showcase the P(x, y) - P(x)P(y) table
 stab_sib, stab_non = [], []
 size_sib, size_non = [], []
 rate_sib, rate_non = [], []
-
+"""
 with open(r"E:\Data\Cross_maze\10227\20230930\session 2\trace.pkl", "rb") as handle:
     trace = pickle.load(handle)
 field_reg = trace['field_reg']
@@ -104,34 +106,38 @@ def indept_field_properties(
     )
     
     joint_p = np.outer(P, P)
-    expected_joint_freq_X = joint_p*len(X_pairs) + 1
-    expected_joint_freq_Y = joint_p*len(Y_pairs) + 1
+    expected_joint_freq_X = joint_p*len(X_pairs) + 0.001
+    expected_joint_freq_Y = joint_p*len(Y_pairs) + 0.001
     
-    observed_joint_freq_X = observed_joint_freq_X + 1
-    observed_joint_freq_Y = observed_joint_freq_Y + 1
+    observed_joint_freq_X = observed_joint_freq_X + 0.001
+    observed_joint_freq_Y = observed_joint_freq_Y + 0.001
     
-    return observed_joint_freq_X-expected_joint_freq_X, observed_joint_freq_Y-expected_joint_freq_Y
+    return observed_joint_freq_X, observed_joint_freq_Y, expected_joint_freq_Y
 
-res_X, res_Y = indept_field_properties(real_distribution=field_reg[:, 3], X_pairs=size_sib, Y_pairs=size_non, n_bin=40)
+
+X, Y, E = indept_field_properties(real_distribution=field_reg[:, 3], X_pairs=size_sib, Y_pairs=size_non, n_bin=20)
+res_X = X / np.sum(X) - E / np.sum(E)
+res_Y = Y / np.sum(Y) - E / np.sum(E)
 fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,6), gridspec_kw={'height_ratios': [1, 3], 'width_ratios': [2, 2]})
 ax1 = Clear_Axes(axes[0, 0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax2, ax3, ax4 = Clear_Axes(axes[0, 1]), Clear_Axes(axes[1, 0]), Clear_Axes(axes[1, 1])
-ax1.hist(field_reg[:, 3], bins=40, density=True, color='lightgrey', range=(np.nanmin(field_reg[:, 3]), np.nanmax(field_reg[:, 3])))
+ax1.hist(field_reg[:, 3], bins=20, density=True, color='lightgrey', range=(np.nanmin(field_reg[:, 3]), np.nanmax(field_reg[:, 3])+0.0001))
+ax1.set_xticks(np.linspace(np.nanmin(field_reg[:, 3]), np.nanmax(field_reg[:, 3])+0.0001, 21))
 _vmin, _vmax = min(np.min(res_X), np.min(res_Y)), max(np.max(res_X), np.max(res_Y))
-ax3.imshow(res_X, cmap='coolwarm', vmin=_vmin, vmax=_vmax)
-im = ax4.imshow(res_Y, cmap='coolwarm', vmin=_vmin, vmax=_vmax)
-plt.colorbar(im, ax=ax4)
+_bound = np.max(np.abs([_vmin, _vmax]))
+sns.heatmap(res_X, cmap=sns.diverging_palette(145, 300, s=60, as_cmap=True), vmin=-_bound, vmax=_bound, ax = ax3)
+sns.heatmap(res_Y, cmap=sns.diverging_palette(145, 300, s=60, as_cmap=True), vmin=-_bound, vmax=_bound, ax = ax4)
 ax3.set_aspect('equal')
 ax4.set_aspect('equal')
 plt.savefig(join(loc, "Example for Chi square test.png"), dpi=600)
 plt.savefig(join(loc, "Example for Chi square test.svg"), dpi=600)
 plt.close()
-
+"""
 
 # Statistic comparison of sibling field pairs with non-sibling field pairs
 # Chi-square test for P(X, Y) with P(X)P(Y)
 # 1. Nubmer of sibling field pairs used for analysis
-fig = plt.figure(figsize=(2,3))
+fig = plt.figure(figsize=(4,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 idx = np.where((Data['Variable'] == 'Stability')&(Data['Field Pair Type'] == 'Sibling'))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
@@ -161,36 +167,36 @@ sns.stripplot(
     jitter=0.1,
     dodge=True
 )"""
-ax.set_ylim(0, 16000)
-ax.set_yticks(np.linspace(0, 16000, 9))
+ax.set_ylim(0, 50000)
+ax.set_yticks(np.linspace(0, 50000, 6))
 plt.savefig(join(loc, "Number of Field Pairs used for statistic test.png"), dpi=600)
 plt.savefig(join(loc, "Number of Field Pairs used for statistic test.svg"), dpi=600)
 plt.close()
 
 # Chi-square test for P(X, Y) with P(X)P(Y)
 # 2. Compare of Chi-square statistics.
-fig = plt.figure(figsize=(3,2))
+fig = plt.figure(figsize=(4,2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x='Variable',
     y='Chi2 Statistic',
     data = Data,
     hue = 'hue',
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#D4C9A8', '#8E9F85'],
-    hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
+    palette=['#003366', '#0099CC','#66CCCC', '#99CCFF'], #  , '#D4C9A8', '#8E9F85'
+    hue_order=['Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'], # 'Open FieldSibling', 'Open FieldNon-sibling', 
     ax = ax,
     errwidth=0.5,
     capsize=0.08,
     errcolor='black',
     width = 0.8
 )
-"""
+
 sns.stripplot(
     x='Variable',
     y='Chi2 Statistic',
     data = Data,
     hue = 'hue',
-    hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
+    hue_order=['Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'], # 'Open FieldSibling', 'Open FieldNon-sibling',
     ax = ax,
     palette='Blues',
     edgecolor='black',
@@ -199,7 +205,6 @@ sns.stripplot(
     jitter=0.1,
     dodge=True
 )
-"""
 ax.set_ylim(0, 3000)
 ax.set_yticks(np.linspace(0, 3000, 7))
 plt.savefig(join(loc, "Chi2 Statistic.png"), dpi=600)
@@ -241,28 +246,27 @@ print("  [Rate] T Test for Chi2 Statistics: ", ttest_ind(Data['Chi2 Statistic'][
 
 # Mutual Information
 # 3. Compare the Mutual information between each pair of field
-fig = plt.figure(figsize=(3,2))
+fig = plt.figure(figsize=(4,2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.barplot(
     x='Variable',
     y='Mutual Information',
     data = Data,
     hue = 'hue',
-    hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
-    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', '#D4C9A8', '#8E9F85'],
+    hue_order=['Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'], #'Open FieldSibling', 'Open FieldNon-sibling', 
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF'], # , '#D4C9A8', '#8E9F85'
     ax = ax,
     errwidth=0.5,
     capsize=0.08,
     errcolor='black',
     width = 0.8
 )
-"""
 sns.stripplot(
     x='Variable',
     y='Mutual Information',
     data = Data,
     hue = 'hue',
-    hue_order=['Open FieldSibling', 'Open FieldNon-sibling', 'Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'],
+    hue_order=['Maze 1Sibling', 'Maze 1Non-sibling', 'Maze 2Sibling', 'Maze 2Non-sibling'], #'Open FieldSibling', 'Open FieldNon-sibling', 
     ax = ax,
     palette='Blues',
     edgecolor='black',
@@ -271,9 +275,8 @@ sns.stripplot(
     jitter=0.1,
     dodge=True
 )
-"""
-ax.set_ylim(0, 0.4)
-ax.set_yticks(np.linspace(0, 0.4, 5))
+ax.set_ylim(0, 0.05)
+ax.set_yticks(np.linspace(0, 0.05, 6))
 plt.savefig(join(loc, "Mutual Information.png"), dpi=600)
 plt.savefig(join(loc, "Mutual Information.svg"), dpi=600)
 plt.close()

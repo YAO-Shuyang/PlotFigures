@@ -173,7 +173,7 @@ sns.barplot(
     y='Correlation',
     data=SubData,
     hue='Aligned Methods',
-    palette=['#336699', '#C3AED6'],
+    palette=['#003366', '#66CCCC'],
     capsize=0.2,
     width=0.8,
     ax=ax,

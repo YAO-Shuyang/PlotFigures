@@ -27,10 +27,10 @@ Data['hue'] = np.array([Data['Paradigm'][i] + Data['Maze Type'][i] + Data['Pair 
 idx = np.where((Data['Paradigm'] != 'CrossMaze') & 
                (Data['Dimension'] == 5) & 
                (np.isnan(Data['delta-P']) == False)&
-               (Data['Axis'] == 'IP axis')&
+               (Data['Axis'] == 'IP axis')&(Data['X'] <= 15)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(3, 2))
+fig = plt.figure(figsize=(15, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -58,13 +58,60 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.2, 0.2)
-ax.set_yticks(np.linspace(-0.2, 0.2, 9))
-plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis.png"), dpi = 600)
-plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis.svg"), dpi = 600)
+ax.set_ylim(-0.012, 0.012)
+ax.set_yticks(np.linspace(-0.012, 0.012, 7))
+
+plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis [1-15].png"), dpi = 600)
+plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis [1-15].svg"), dpi = 600)
 plt.close()
+
+# Dim = 5 =======================================================================
+idx = np.where((Data['Paradigm'] != 'CrossMaze') & 
+               (Data['Dimension'] == 5) & 
+               (np.isnan(Data['delta-P']) == False)&
+               (Data['Axis'] == 'IP axis')&(Data['X'] > 15)&
+               (Data['Training Session'] + Data['Dimension'] <= 14))[0]
+SubData = SubDict(Data, Data.keys(), idx=idx)
+fig = plt.figure(figsize=(15, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
+sns.barplot(
+    x = 'X',
+    y = 'delta-P',
+    hue = 'hue',
+    data = SubData,
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF', 
+             '#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A'],
+    ax = ax, 
+    capsize = 0.05,
+    errcolor='black',
+    errwidth=0.5,
+    linewidth=0.5
+)
+sns.stripplot(
+    x = 'X',
+    y = 'delta-P',
+    hue = 'hue',
+    data = SubData,
+    edgecolor='black',
+    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', 
+             '#C3AED6', '#66C7B4', '#A7D8DE', '#F67280'],
+    size=2,
+    linewidth=0.10,
+    jitter=0.2,
+    dodge=True,
+    ax = ax,
+    zorder = 1
+)
+ax.set_ylim(-0.02, 0.02)
+ax.set_yticks(np.linspace(-0.02, 0.02, 9))
+plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis [16-31].png"), dpi = 600)
+plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - IP Axis [16-31].svg"), dpi = 600)
+plt.close()
+
 
 print("Hairpin & Reverse: Dim = 5")
 for x in range(1, 32):
@@ -94,9 +141,10 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Dimension'] == 5) & 
                (np.isnan(Data['delta-P']) == False)&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 15)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(2, 2))
+fig = plt.figure(figsize=(15, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -124,13 +172,14 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.004, 0.004)
+ax.set_yticks(np.linspace(-0.004, 0.004, 9))
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 5, deltaP - CP Axis.svg"), dpi = 600)
-plt.close()
+plt.show()
 
 
 print("Hairpin & Reverse Maze: Dim = 5")
@@ -164,7 +213,7 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(3, 2))
+fig = plt.figure(figsize=(12, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -192,13 +241,14 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.2, 0.2)
-ax.set_yticks(np.linspace(-0.2, 0.2, 9))
+ax.set_ylim(-0.05, 0.05)
+ax.set_yticks(np.linspace(-0.05, 0.05, 11))
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 4, deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 4, deltaP - IP Axis.svg"), dpi = 600)
-plt.close()
+plt.show()
 
 print("Hairpin & Reverse: Dim = 4")
 for x in range(1, 16):
@@ -228,9 +278,10 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Dimension'] == 4) & 
                (np.isnan(Data['delta-P']) == False)&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 7)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(2, 2))
+fig = plt.figure(figsize=(6, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -258,10 +309,11 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.006, 0.006)
+ax.set_yticks(np.linspace(-0.006, 0.006, 7))
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 4, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 4, deltaP - CP Axis.svg"), dpi = 600)
 plt.close()
@@ -298,7 +350,7 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Axis'] == 'IP axis')&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(3, 2))
+fig = plt.figure(figsize=(6, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -326,10 +378,11 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.2, 0.2)
-ax.set_yticks(np.linspace(-0.2, 0.2, 9))
+ax.set_ylim(-0.08, 0.08)
+ax.set_yticks(np.linspace(-0.08, 0.08, 9))
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 3, deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 3, deltaP - IP Axis.svg"), dpi = 600)
 plt.close()
@@ -362,9 +415,10 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Dimension'] == 3) & 
                (np.isnan(Data['delta-P']) == False)&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 3)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(2, 2))
+fig = plt.figure(figsize=(3, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -392,10 +446,11 @@ sns.stripplot(
     linewidth=0.10,
     jitter=0.2,
     dodge=True,
-    ax = ax
+    ax = ax,
+    zorder = 1
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.01, 0.01)
+ax.set_yticks(np.linspace(-0.01, 0.01, 11))
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 3, deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] Dim = 3, deltaP - CP Axis.svg"), dpi = 600)
 plt.close()
@@ -462,8 +517,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.2, 0.2)
-ax.set_yticks(np.linspace(-0.2, 0.2, 9))
+ax.set_ylim(-0.1, 0.1)
+ax.set_yticks(np.linspace(-0.1, 0.1, 11))
 plt.savefig(join(loc, f"[Hairpin & Reverse] deltaP - IP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] deltaP - IP Axis.svg"), dpi = 600)
 plt.close()
@@ -496,9 +551,10 @@ idx = np.where((Data['Paradigm'] != 'CrossMaze') &
                (Data['Dimension'] == 2) & 
                (np.isnan(Data['delta-P']) == False)&
                (Data['Axis'] == 'CP axis')&
+               (Data['X'] <= 1)&
                (Data['Training Session'] + Data['Dimension'] <= 14))[0]
 SubData = SubDict(Data, Data.keys(), idx=idx)
-fig = plt.figure(figsize=(2, 2))
+fig = plt.figure(figsize=(1.2, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
 sns.barplot(
@@ -528,8 +584,8 @@ sns.stripplot(
     dodge=True,
     ax = ax
 )
-ax.set_ylim(-0.1, 0.1)
-ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+ax.set_ylim(-0.04, 0.04)
+ax.set_yticks(np.linspace(-0.04, 0.04, 9))
 plt.savefig(join(loc, f"[Hairpin & Reverse] deltaP - CP Axis.png"), dpi = 600)
 plt.savefig(join(loc, f"[Hairpin & Reverse] deltaP - CP Axis.svg"), dpi = 600)
 plt.close()

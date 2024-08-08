@@ -18,79 +18,243 @@ else:
                              f = f_CellReg_modi, function = ConditionalProb_Interface, 
                              file_name = code_id, behavior_paradigm = 'CrossMaze'
            )
-"""
-# Get Chance Level
-if os.path.exists(join(figdata, code_id+' [Chance Level].pkl')):
-    with open(join(figdata, code_id+' [Chance Level].pkl'), 'rb') as handle:
-        Data = pickle.load(handle)
-else:
-    # Only Cross Maze Paradigm
-    Data = {"MiceID": [], "Maze Type": [], "Conditional Prob.": [], 
-            "Conditional Recover Prob.": [], "Global Recover Prob.": [], 
-            "Cumulative Prob.": [], "Paradigm": [], "On-Next Num": [], 
-            "Off-Next Num": []}
-    
-    for i in range(len(f_CellReg_modi)):
-        if f['paradigm'][i] == 'CrossMaze':
-            if f['maze_type'][i] == 0:
-                index_map = GetMultidayIndexmap(
-                    mouse=f['MiceID'][i],
-                    stage=f['Stage'][i],
-                    session=f['session'][i],
-                    occu_num=2
-                )
-            else:
-                with open(f['cellreg_folder'][i], 'rb') as handle:
-                    index_map = pickle.load(handle)
-        else:
-            index_map = ReadCellReg(f['cellreg_folder'][i])
-            
-        index_map[np.where((index_map < 0)|np.isnan(index_map))] = 0
-        mat = np.where(index_map>0, 1, 0)
-        num = np.sum(mat, axis = 0)
-        index_map = index_map[:, np.where(num >= 2)[0]]  
-        print(index_map.shape)
-        
-        mouse = f_CellReg_modi['MiceID'][i]
-        maze_type = f_CellReg_modi['maze_type'][i]
-        paradigm = f_CellReg_modi['paradigm'][i]
-        session = f_CellReg_modi['session'][i]
-        stage = f_CellReg_modi['Stage'][i]
-        
-        # Initial basic elements
-        n_neurons = index_map.shape[1]
-        n_sessions = index_map.shape[0]    
 
-        # Get information from daily trace.pkl
-        core = MultiDayCore(
-            keys = ['is_placecell', 'place_field_all_multiday'],
-            paradigm=paradigm,
-            direction=None
-        )
-        file_indices = np.where((f1['MiceID'] == mouse) & 
-                                (f1['Stage'] == stage) & 
-                                (f1['session'] == session))[0]
-        
-        if stage == 'Stage 1+2':
-            file_indices = np.where((f1['MiceID'] == mouse) & 
-                                    (f1['session'] == session) & 
-                                    ((f1['Stage'] == 'Stage 1') | 
-                                     (f1['Stage'] == 'Stage 2')))[0]
-        
-        if stage == 'Stage 1' and mouse in [10212] and session == 2:
-            file_indices = np.where((f1['MiceID'] == mouse) & 
-                                    (f1['session'] == session) & 
-                                    (f1['Stage'] == 'Stage 1') & 
-                                    (f1['date'] != 20230506))[0]
-            
-        res = core.get_trace_set(
-            f=f1, 
-            file_indices=file_indices, 
-            keys=['is_placecell', 'place_field_all_multiday']
-        )
-"""
+print("Global Recover Prob.: ---------------------------------------------------------")
+print("Maze A")
+idx1m1 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                  (Data['Maze Type'] == 'Maze 1')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx1m1_shuf = np.where((Data['Paradigm'] == 'CrossMaze')&
+                  (Data['Maze Type'] == 'Maze 1')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx1m1] - Data['Global Recover Prob.'][idx1m1_shuf]
+glob = np.reshape(glob, [6, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
+print("Maze B")
+idx1m2 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                  (Data['Maze Type'] == 'Maze 2')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx1m2_shuf = np.where((Data['Paradigm'] == 'CrossMaze')&
+                  (Data['Maze Type'] == 'Maze 2')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx1m2] - Data['Global Recover Prob.'][idx1m2_shuf]
+glob = np.reshape(glob, [4, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
 
-    
+print("MA forward:")
+idx_rmp_cis = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx_rmp_cis_shuf = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx_rmp_cis] - Data['Global Recover Prob.'][idx_rmp_cis_shuf]
+glob = np.reshape(glob, [4, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
+
+print("MA backward:")
+idx_rmp_trs = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx_rmp_trs_shuf = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx_rmp_trs] - Data['Global Recover Prob.'][idx_rmp_trs_shuf]
+glob = np.reshape(glob, [4, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
+
+print("HP forward:")
+idx_hmp_cis = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx_hmp_cis_shuf = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx_hmp_cis] - Data['Global Recover Prob.'][idx_hmp_cis_shuf]
+glob = np.reshape(glob, [4, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
+
+print("HP backward:")
+idx_hmp_trs = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Real'))[0]
+idx_hmp_trs_shuf = np.where((Data['Paradigm'] == 'HairpinMaze trs')&    
+                  (Data['Duration'] <= 5)&(Data['Duration'] >= 1)&
+                  (Data['Type'] == 'Shuffle'))[0]
+glob = Data['Global Recover Prob.'][idx_hmp_trs] - Data['Global Recover Prob.'][idx_hmp_trs_shuf]
+glob = np.reshape(glob, [4, 5])
+micewise = np.sum(glob, axis=1)
+print_estimator(micewise)
+print()
+                       
+
+
+print("Conditional probability ---------------------------------------------------")
+idx_m1_d1 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      (Data['Duration'] == 1)&
+                      ((Data['Stage'] != 'Stage 1') | (Data['MiceID'] != 10212))&
+                      (Data['Type'] == 'Real'))[0]
+idx_m1_d11 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      ((Data['Stage'] != 'Stage 1') | (Data['MiceID'] != 10212))&
+                      (Data['Duration'] == 12)&
+                      (Data['Type'] == 'Real'))[0]
+
+idx_m2_d1 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 2')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_m2_d12 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 2')&
+                      (Data['Duration'] == 12)&
+                      (Data['Type'] == 'Real'))[0]
+print("Maze 1")
+print_estimator(Data['Conditional Prob.'][idx_m1_d1])
+print_estimator(Data['Conditional Prob.'][idx_m1_d11])
+print(ttest_rel(Data['Conditional Prob.'][idx_m1_d1], Data['Conditional Prob.'][idx_m1_d11]), end='\n\n')
+
+print("Maze 2")
+print_estimator(Data['Conditional Prob.'][idx_m2_d1])
+print_estimator(Data['Conditional Prob.'][idx_m2_d12])
+print(ttest_rel(Data['Conditional Prob.'][idx_m2_d1], Data['Conditional Prob.'][idx_m2_d12]), end='\n\n')
+
+idx_rmp_cis1 = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_rmp_cis6 = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      (Data['Duration'] == 6)&
+                      (Data['Type'] == 'Real'))[0]
+print("Reverse Maze cis")
+print_estimator(Data['Conditional Prob.'][idx_rmp_cis1])
+print_estimator(Data['Conditional Prob.'][idx_rmp_cis6])
+print(ttest_rel(Data['Conditional Prob.'][idx_rmp_cis1], Data['Conditional Prob.'][idx_rmp_cis6]), end='\n\n')
+
+idx_rmp_trs1 = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_rmp_trs6 = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                      (Data['Duration'] == 6)&
+                      (Data['Type'] == 'Real'))[0]
+print("Reverse Maze trans")
+print_estimator(Data['Conditional Prob.'][idx_rmp_trs1])
+print_estimator(Data['Conditional Prob.'][idx_rmp_trs6])
+print(ttest_rel(Data['Conditional Prob.'][idx_rmp_trs1], Data['Conditional Prob.'][idx_rmp_trs6]), end='\n\n')
+
+
+# Hairpin maze
+idx_hmp_cis1 = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_hmp_cis6 = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                      (Data['Duration'] == 6)&
+                      (Data['Type'] == 'Real'))[0]
+print("Hairpin Maze cis")
+print_estimator(Data['Conditional Prob.'][idx_hmp_cis1])
+print_estimator(Data['Conditional Prob.'][idx_hmp_cis6])
+print(ttest_rel(Data['Conditional Prob.'][idx_hmp_cis1], Data['Conditional Prob.'][idx_hmp_cis6]), end='\n\n')
+
+idx_hmp_trs1 = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_hmp_trs6 = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
+                      (Data['Duration'] == 6)&
+                      (Data['Type'] == 'Real'))[0]
+print("Hairpin Maze trans")
+print_estimator(Data['Conditional Prob.'][idx_hmp_trs1])
+print_estimator(Data['Conditional Prob.'][idx_hmp_trs6])
+print(ttest_rel(Data['Conditional Prob.'][idx_hmp_trs1], Data['Conditional Prob.'][idx_hmp_trs6]), end='\n\n')
+
+print("Conditional recovery probability ---------------------------------------------------")
+idx_m1_d1 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_m1_d11 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      (Data['Duration'] == 8)&
+                      (Data['Type'] == 'Real'))[0]
+
+idx_m2_d1 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 2')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_m2_d12 = np.where((Data['Paradigm'] == 'CrossMaze')&
+                      (Data['Maze Type'] == 'Maze 2')&
+                      (Data['Duration'] == 8)&
+                      (Data['Type'] == 'Real'))[0]
+print("Maze 1")
+print_estimator(Data['Conditional Recover Prob.'][idx_m1_d1])
+print_estimator(Data['Conditional Recover Prob.'][idx_m1_d11])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_m1_d1], Data['Conditional Recover Prob.'][idx_m1_d11]), end='\n\n')
+
+print("Maze 2")
+print_estimator(Data['Conditional Recover Prob.'][idx_m2_d1])
+print_estimator(Data['Conditional Recover Prob.'][idx_m2_d12])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_m2_d1], Data['Conditional Recover Prob.'][idx_m2_d12]), end='\n\n')
+
+idx_rmp_cis1 = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_rmp_cis6 = np.where((Data['Paradigm'] == 'ReverseMaze cis')&
+                      (Data['Maze Type'] == 'Maze 1')&
+                      (Data['Duration'] == 5)&
+                      (Data['Type'] == 'Real'))[0]
+print("Reverse Maze cis")
+print_estimator(Data['Conditional Recover Prob.'][idx_rmp_cis1])
+print_estimator(Data['Conditional Recover Prob.'][idx_rmp_cis6])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_rmp_cis1], Data['Conditional Recover Prob.'][idx_rmp_cis6]), end='\n\n')
+
+idx_rmp_trs1 = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_rmp_trs6 = np.where((Data['Paradigm'] == 'ReverseMaze trs')&
+                      (Data['Duration'] == 5)&
+                      (Data['Type'] == 'Real'))[0]
+print("Reverse Maze trans")
+print_estimator(Data['Conditional Recover Prob.'][idx_rmp_trs1])
+print_estimator(Data['Conditional Recover Prob.'][idx_rmp_trs6])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_rmp_trs1], Data['Conditional Recover Prob.'][idx_rmp_trs6]), end='\n\n')
+
+
+# Hairpin maze
+idx_hmp_cis1 = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_hmp_cis6 = np.where((Data['Paradigm'] == 'HairpinMaze cis')&
+                      (Data['Duration'] == 5)&
+                      (Data['Type'] == 'Real'))[0]
+print("Hairpin Maze cis")
+print_estimator(Data['Conditional Recover Prob.'][idx_hmp_cis1])
+print_estimator(Data['Conditional Recover Prob.'][idx_hmp_cis6])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_hmp_cis1], Data['Conditional Recover Prob.'][idx_hmp_cis6]), end='\n\n')
+
+idx_hmp_trs1 = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
+                      (Data['Duration'] == 1)&
+                      (Data['Type'] == 'Real'))[0]
+idx_hmp_trs6 = np.where((Data['Paradigm'] == 'HairpinMaze trs')&
+                      (Data['Duration'] == 5)&
+                      (Data['Type'] == 'Real'))[0]
+print("Hairpin Maze trans")
+print_estimator(Data['Conditional Recover Prob.'][idx_hmp_trs1])
+print_estimator(Data['Conditional Recover Prob.'][idx_hmp_trs6])
+print(ttest_rel(Data['Conditional Recover Prob.'][idx_hmp_trs1], Data['Conditional Recover Prob.'][idx_hmp_trs6]), end='\n\n')
+
 from scipy.optimize import curve_fit
 def exp_func(x, k, b):
     return 1 - np.exp(-k * (x-b))
@@ -313,7 +477,7 @@ sns.lineplot(
     ax = ax
 )
 ax.set_ylim(-1, 40)
-ax.set_yticks(np.linspace(0, 40, 5))
+ax.set_yticks(np.linspace(0, 40, 9))
 
 plt.savefig(join(loc, 'Conditional recover prob.png'), dpi = 600)
 plt.savefig(join(loc, 'Conditional recover prob.svg'), dpi = 600)
@@ -322,7 +486,7 @@ plt.close()
 print("Maze A&B Conditional Recovery Prob. -----------------------------------------")
 for i in range(1, 25):
     print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
+    print(ttest_rel(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
                     ShufData['Conditional Recover Prob.'][ShufData['Duration'] == i]))
 print()
 
@@ -359,7 +523,7 @@ plt.savefig(join(loc, 'off-next num.png'), dpi = 600)
 plt.savefig(join(loc, 'off-next num.svg'), dpi = 600)
 plt.close()
 
-
+"""
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (np.isnan(Data['Conditional Prob.']) == False)&
                (Data['Maze Type'] == 'Open Field')&
@@ -486,7 +650,7 @@ plt.close()
 print("Open Field Recovery Statistic Test")
 for i in range(1, 12):
     print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
+    print(ttest_rel(SubData['Conditional Recover Prob.'][SubData['Duration'] == i], 
                     ShufData['Conditional Recover Prob.'][ShufData['Duration'] == i]))
 print()
 
@@ -523,7 +687,7 @@ ax.semilogy()
 plt.savefig(join(loc, '[Open Field] off-next num.png'), dpi = 600)
 plt.savefig(join(loc, '[Open Field] off-next num.svg'), dpi = 600)
 plt.close()
-
+"""
 # Hairpin & Reverse Maze
 
 idx = np.where((Data['Paradigm'] != 'CrossMaze')&
@@ -600,51 +764,42 @@ fig = plt.figure(figsize=(4, 2))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 
 # Fit parameters
-bounds = [[0, 0, 0], [np.inf, np.inf, 1]]
-initial_guesses = [1, 1, 0.5]
+bounds = [[0, 0, 0], [np.inf, np.inf, np.inf]]
+initial_guesses = [2, 0.1, 0.35]
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze cis')[0]
-params1, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Conditional Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params1, _ = curve_fit(lambda x, b, c: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, p0=[0.1, 0.35])
 x1 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
-print("Hairpin&Reverse Conditional Recover Prob.")
 print(params1)
-y1 = kww_decay(x1, *params1)
+y1 = kww_decay(x1, 1, *params1)
 
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze trs')[0]
-params2, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Conditional Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params2, _ = curve_fit(lambda x, b, c: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, p0=[0.1, 0.35])
 x2 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params2)
-y2 = kww_decay(x2, *params2)
+y2 = kww_decay(x2, 1, *params2)
 
 idx = np.where(SubData['Paradigm'] == 'ReverseMaze cis')[0]
-params3, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Conditional Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params3, _ = curve_fit(lambda x, b, c: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, p0=[0.1, 0.35])
 x3 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params3)
-y3 = kww_decay(x3, *params3)
+y3 = kww_decay(x3, 1, *params3)
 
-try:
-    idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
-    params4, _ = curve_fit(lambda x, c, b: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
-                       SubData['Conditional Recover Prob.'][idx]/100)
-    x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
-    print(params4)
-except:
-    params4 = [np.nan, np.nan, np.nan]
-
+idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
+params4, _ = curve_fit(lambda x, b, c: kww_decay(x, 1, b, c), SubData['Duration'][idx], 
+                       SubData['Conditional Recover Prob.'][idx]/100, p0=[0.1, 0.35])
+x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
+print(params4)
 y4 = kww_decay(x4, 1, *params4)
+
 colors = ['#6D9BA8', '#A3CBB2', '#E9D985', '#D57A66']
 ax.plot(x1-1, y1*100, color=colors[0], linewidth = 0.5)
 ax.plot(x2-1, y2*100, color=colors[1], linewidth = 0.5)
 ax.plot(x3-1, y3*100, color=colors[2], linewidth = 0.5)
 ax.plot(x4-1, y4*100, color=colors[3], linewidth = 0.5)
+
 sns.stripplot(
     x = 'Duration',
     y = 'Conditional Recover Prob.',
@@ -669,36 +824,18 @@ sns.lineplot(
     err_kws={"edgecolor": None},
     ax = ax
 )
-ax.set_ylim(0, 40)
-ax.set_yticks(np.linspace(0, 40, 5))
+ax.set_ylim(-1, 30)
+ax.set_yticks(np.linspace(0, 30, 7))
 
 plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.svg'), dpi = 600)
 plt.close()
 
-print("HairpinMaze cis Recovery Statistic Test")
+print("HP & MA reversed paradigms - Recovery Statistic Test")
 for i in range(1, 11):
     print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]],
-                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]]))
-print()
-print("HairpinMaze trs Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]],
-                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]]))
-print()
-print("Reverse cis Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]],
-                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]]))
-print()
-print("Reverse trs Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]],
-                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]]))
+    print(ttest_rel(SubData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i))[0]],
+                    ShufData['Conditional Recover Prob.'][np.where((SubData['Duration'] == i))[0]]))
 print()
 
 # Global Recovery Prob.
@@ -723,6 +860,8 @@ params1, _ = curve_fit(kww_decay, SubData['Duration'][idx1], SubData['Global Rec
 params2, _ = curve_fit(kww_decay, SubData['Duration'][idx2], SubData['Global Recover Prob.'][idx2]/100,
                        bounds=[[0, 0, 0], [np.inf, np.inf, 1]],
                        p0=[0.5, 0.5, 0.5])
+
+print()
 print("Maze A&B global recover prob.")
 print(params1)
 print(params2, end='\n\n')
@@ -762,8 +901,8 @@ sns.lineplot(
     linewidth = 0.5,
     ax = ax
 )
-ax.set_ylim(-2, 40)
-ax.set_yticks(np.linspace(0, 40, 5))
+ax.set_ylim(-1, 40)
+ax.set_yticks(np.linspace(0, 40, 9))
 
 plt.savefig(join(loc, 'Global recover prob.png'), dpi = 600)
 plt.savefig(join(loc, 'Global recover prob.svg'), dpi = 600)
@@ -806,14 +945,17 @@ plt.savefig(join(loc, 'Global recover prob [semilogy].svg'), dpi = 600)
 plt.close()
 
 print("Maze A&B statistic test global recovery.")
-for i in range(1, 23):
+for i in range(1, 14):
     print("Day ", i)
     print(levene(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
                 ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]]))
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
-                ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]], equal_var=False))
+    try:
+        print(ttest_rel(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
+                    ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]]))
+    except:
+        pass
     
-    
+"""
 # Global Recovery Prob. Open Field
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (np.isnan(Data['Global Recover Prob.']) == False)&
@@ -908,10 +1050,10 @@ plt.close()
 print("Open Field Global recovery statistic test")
 for i in range(1, 12):
     print("Day ",i)
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
+    print(ttest_rel(SubData['Global Recover Prob.'][np.where(SubData['Duration'] == i)[0]], 
                 ShufData['Global Recover Prob.'][np.where(ShufData['Duration'] == i)[0]], alternative='greater'))
 print()
-
+"""
 
 # Global Recovery Prob. Hairpin
 idx = np.where((Data['Paradigm'] != 'CrossMaze')&
@@ -929,41 +1071,33 @@ ShufData = SubDict(Data, Data.keys(), idx=idx)
 bounds = [[0, 0, 0], [np.inf, np.inf, 1]]
 initial_guesses = [1, 1, 0.5]
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze cis')[0]
-params1, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Global Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params1, _ = curve_fit(lambda x, b, c: kww_decay(x, 5, b, c), SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, p0=[0.05, 0.4])
 x1 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
-print("Hairpin&Reverse Global Recover Prob.")
 print(params1)
-y1 = kww_decay(x1, *params1)
+y1 = kww_decay(x1, 5, *params1)
 
 idx = np.where(SubData['Paradigm'] == 'HairpinMaze trs')[0]
-params2, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Global Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params2, _ = curve_fit(lambda x, b, c: kww_decay(x, 5, b, c), SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, p0=[0.05, 0.4])
 x2 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params2)
-y2 = kww_decay(x2, *params2)
+y2 = kww_decay(x2, 5, *params2)
 
 idx = np.where(SubData['Paradigm'] == 'ReverseMaze cis')[0]
-params3, _ = curve_fit(kww_decay, SubData['Duration'][idx], 
-                       SubData['Global Recover Prob.'][idx]/100, 
-                       bounds=bounds, 
-                       p0=initial_guesses)
+params3, _ = curve_fit(lambda x, b, c: kww_decay(x, 5, b, c), SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, p0=[0.05, 0.4])
 x3 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params3)
-y3 = kww_decay(x3, *params3)
+y3 = kww_decay(x3, 5, *params3)
 
 idx = np.where(SubData['Paradigm'] == 'ReverseMaze trs')[0]
-params4, _ = curve_fit(lambda x, b, c: kww_decay(x, 36, b, c), SubData['Duration'][idx], 
-                       SubData['Global Recover Prob.'][idx]/100)
+params4, _ = curve_fit(lambda x, b, c: kww_decay(x, 5, b, c), SubData['Duration'][idx], 
+                       SubData['Global Recover Prob.'][idx]/100, p0=[0.05, 0.4])
 x4 = np.linspace(min(SubData['Duration'][idx]), max(SubData['Duration'][idx]), 10000)
 print(params4)
+y4 = kww_decay(x4, 5, *params4)
 
-
-y4 = kww_decay(x4, 36, *params4)
 colors = ['#6D9BA8', '#A3CBB2', '#E9D985', '#D57A66']
 
 fig = plt.figure(figsize=(4, 2))
@@ -996,8 +1130,8 @@ sns.lineplot(
     err_kws={"edgecolor": None},
     ax = ax
 )
-ax.set_ylim(-1, 40)
-ax.set_yticks(np.linspace(0, 40, 5))
+ax.set_ylim(-1, 30)
+ax.set_yticks(np.linspace(0, 30, 7))
 
 plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob.png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob.svg'), dpi = 600)
@@ -1034,33 +1168,15 @@ sns.lineplot(
     ax = ax
 )
 ax.semilogy()
-ax.set_ylim(0.01, 40)
+ax.set_ylim(0.01, 30)
 
 plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob [semilogy].png'), dpi = 600)
 plt.savefig(join(loc, '[Hairpin&Reverse] global recover prob [semilogy].svg'), dpi = 600)
 plt.close()
 
-print("HairpinMaze cis Global Recovery Statistic Test")
+print("All test")
 for i in range(1, 11):
     print("Day ",i)
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]],
-                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze cis'))[0]]))
-print()
-print("HairpinMaze trs Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]],
-                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'HairpinMaze trs'))[0]]))
-print()
-print("Reverse cis Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]],
-                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze cis'))[0]]))
-print()
-print("Reverse trs Recovery Statistic Test")
-for i in range(1, 11):
-    print("Day ",i)
-    print(ttest_ind(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]],
-                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i)&(SubData['Paradigm'] == 'ReverseMaze trs'))[0]]))
+    print(ttest_rel(SubData['Global Recover Prob.'][np.where((SubData['Duration'] == i))[0]],
+                    ShufData['Global Recover Prob.'][np.where((SubData['Duration'] == i))[0]]))
 print()

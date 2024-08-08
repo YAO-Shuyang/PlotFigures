@@ -13,12 +13,12 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 
-idx = np.where((Data['MiceID'] != 11092)&(Data['MiceID'] != 11094))[0]
+idx = np.where((Data['MiceID'] != 11092)&(Data['MiceID'] != 11094)&(Data['MiceID'] != 11095))[0]
 Data = SubDict(Data, Data.keys(), idx)
 
 Data['hue'] = np.array([Data['Maze Type'][i]+' - '+Data['Path Type'][i] for i in range(len(Data['Maze Type']))])
 
-fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8,2))
+fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(14,2), gridspec_kw={'width_ratios': [1, 2]})
 ax1 = Clear_Axes(axes[0], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 ax2 = Clear_Axes(axes[1], close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 x_ticks = ['Day '+str(i) for i in range(1, 10)] + ['>=Day 10']
@@ -45,7 +45,19 @@ sns.barplot(
     errcolor='black',
     ax=ax1
 )
-ax1.set_ylim([0,40])
+sns.stripplot(
+    x='Training Day',
+    y='Bin-wise Mean Time',
+    data=SubData,
+    hue='hue',
+    palette=['#F2E8D4', '#D4C9A8'],
+    ax=ax1,
+    size=3,
+    linewidth=0.15,
+    jitter=0.2,
+    dodge=True
+)
+ax1.set_ylim([0,45])
 
 stage2_indices = np.concatenate([np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == day))[0] for day in x_ticks])
 SubData = SubDict(Data, Data.keys(), idx=stage2_indices)
@@ -62,7 +74,19 @@ sns.barplot(
     errcolor='black',
     ax=ax2
 )
-ax2.set_ylim([0,15])
+sns.stripplot(
+    x='Training Day',
+    y='Bin-wise Mean Time',
+    data=SubData,
+    hue='hue',
+    palette=['#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A'],
+    ax=ax2,
+    size=3,
+    linewidth=0.15,
+    jitter=0.2,
+    dodge=True
+)
+ax2.set_ylim([0, 15])
 plt.savefig(join(loc, 'Bin-wise Mean Time.png'), dpi=600)
 plt.savefig(join(loc, 'Bin-wise Mean Time.svg'), dpi=600)
 plt.close()
@@ -200,16 +224,16 @@ idx = np.where((Data['Stage'] == 'Stage 1')&(Data['Training Day'] == '>=Day 10')
 data10_ip = Data['Bin-wise Mean Time'][idx]
 print_estimator(data10_ip)
 
-print("Day 1  ", ttest_1samp(data1_cp - data1_ip, 0, alternative='greater'))
-print("Day 2  ", ttest_1samp(data2_cp - data2_ip, 0, alternative='greater'))
-print("Day 3  ", ttest_1samp(data3_cp - data3_ip, 0, alternative='greater'))
-print("Day 4  ", ttest_1samp(data4_cp - data4_ip, 0, alternative='greater'))
-print("Day 5  ", ttest_1samp(data5_cp - data5_ip, 0, alternative='greater'))
-print("Day 6  ", ttest_1samp(data6_cp - data6_ip, 0, alternative='greater'))
-print("Day 7  ", ttest_1samp(data7_cp - data7_ip, 0, alternative='greater'))
-print("Day 8  ", ttest_1samp(data8_cp - data8_ip, 0, alternative='greater'))
-print("Day 9  ", ttest_1samp(data9_cp - data9_ip, 0, alternative='greater'))
-print("Day 10 ", ttest_1samp(data10_cp - data10_ip, 0, alternative='greater'), end='\n\n\n')
+print("Day 1  ", ttest_rel(data1_cp,data1_ip))
+print("Day 2  ", ttest_rel(data2_cp,data2_ip))
+print("Day 3  ", ttest_rel(data3_cp,data3_ip))
+print("Day 4  ", ttest_rel(data4_cp,data4_ip))
+print("Day 5  ", ttest_rel(data5_cp,data5_ip))
+print("Day 6  ", ttest_rel(data6_cp,data6_ip))
+print("Day 7  ", ttest_rel(data7_cp,data7_ip))
+print("Day 8  ", ttest_rel(data8_cp,data8_ip))
+print("Day 9  ", ttest_rel(data9_cp,data9_ip))
+print("Day 10 ", ttest_rel(data10_cp,data10_ip), end='\n\n\n')
 
 
 
@@ -285,16 +309,16 @@ idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')
 data10_ip = Data['Bin-wise Mean Time'][idx]
 print_estimator(data10_ip)
 
-print("Day 1  ", ttest_1samp(data1_cp - data1_ip, 0, alternative='greater'))
-print("Day 2  ", ttest_1samp(data2_cp - data2_ip, 0, alternative='greater'))
-print("Day 3  ", ttest_1samp(data3_cp - data3_ip, 0, alternative='greater'))
-print("Day 4  ", ttest_1samp(data4_cp - data4_ip, 0, alternative='greater'))
-print("Day 5  ", ttest_1samp(data5_cp - data5_ip, 0, alternative='greater'))
-print("Day 6  ", ttest_1samp(data6_cp - data6_ip, 0, alternative='greater'))
-print("Day 7  ", ttest_1samp(data7_cp - data7_ip, 0, alternative='greater'))
-print("Day 8  ", ttest_1samp(data8_cp - data8_ip, 0, alternative='greater'))
-print("Day 9  ", ttest_1samp(data9_cp - data9_ip, 0, alternative='greater'))
-print("Day 10 ", ttest_1samp(data10_cp - data10_ip, 0, alternative='greater'), end='\n\n\n')
+print("Day 1  ", ttest_rel(data1_cp,data1_ip))
+print("Day 2  ", ttest_rel(data2_cp,data2_ip))
+print("Day 3  ", ttest_rel(data3_cp,data3_ip))
+print("Day 4  ", ttest_rel(data4_cp,data4_ip))
+print("Day 5  ", ttest_rel(data5_cp,data5_ip))
+print("Day 6  ", ttest_rel(data6_cp,data6_ip))
+print("Day 7  ", ttest_rel(data7_cp,data7_ip))
+print("Day 8  ", ttest_rel(data8_cp,data8_ip))
+print("Day 9  ", ttest_rel(data9_cp,data9_ip))
+print("Day 10 ", ttest_rel(data10_cp,data10_ip), end='\n\n\n')
 
 
 
@@ -369,13 +393,13 @@ idx = np.where((Data['Stage'] == 'Stage 2')&(Data['Training Day'] == '>=Day 10')
 data10_ip = Data['Bin-wise Mean Time'][idx]
 print_estimator(data10_ip)
 
-print("Day 1  ", ttest_1samp(data1_cp - data1_ip, 0, alternative='greater'))
-print("Day 2  ", ttest_1samp(data2_cp - data2_ip, 0, alternative='greater'))
-print("Day 3  ", ttest_1samp(data3_cp - data3_ip, 0, alternative='greater'))
-print("Day 4  ", ttest_1samp(data4_cp - data4_ip, 0, alternative='greater'))
-print("Day 5  ", ttest_1samp(data5_cp - data5_ip, 0, alternative='greater'))
-print("Day 6  ", ttest_1samp(data6_cp - data6_ip, 0, alternative='greater'))
-print("Day 7  ", ttest_1samp(data7_cp - data7_ip, 0, alternative='greater'))
-print("Day 8  ", ttest_1samp(data8_cp - data8_ip, 0, alternative='greater'))
-print("Day 9  ", ttest_1samp(data9_cp - data9_ip, 0, alternative='greater'))
-print("Day 10 ", ttest_1samp(data10_cp - data10_ip, 0, alternative='greater'), end='\n\n\n')
+print("Day 1  ", ttest_rel(data1_cp,data1_ip))
+print("Day 2  ", ttest_rel(data2_cp,data2_ip))
+print("Day 3  ", ttest_rel(data3_cp,data3_ip))
+print("Day 4  ", ttest_rel(data4_cp,data4_ip))
+print("Day 5  ", ttest_rel(data5_cp,data5_ip))
+print("Day 6  ", ttest_rel(data6_cp,data6_ip))
+print("Day 7  ", ttest_rel(data7_cp,data7_ip))
+print("Day 8  ", ttest_rel(data8_cp,data8_ip))
+print("Day 9  ", ttest_rel(data9_cp,data9_ip))
+print("Day 10 ", ttest_rel(data10_cp,data10_ip), end='\n\n\n')

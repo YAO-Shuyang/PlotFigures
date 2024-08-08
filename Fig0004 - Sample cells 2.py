@@ -25,7 +25,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
     ms_time = cp.deepcopy(trace['ms_time_behav'])
     spike_nodes = spike_nodes_transform(trace['spike_nodes'], nx=12)
     spikes = cp.deepcopy(trace['Spikes'][i, :])
-    place_fields = GetPlaceField(trace, i, thre_type=2, parameter=0.3)
+    place_fields = cp.deepcopy(trace['place_field_all_multiday'][i])
     
     _, im, cbar = RateMapAxes(
         ax=ax1,
@@ -101,7 +101,7 @@ def plot_sample_cell(trace, i, save_loc: str, file_name: str):
         spike_time=ms_time,
         maze_type=maze_type,
         behav_nodes=behav_nodes,#[indices],
-        line_kwargs={'markeredgewidth': 0, 'markersize': 0.6, 'color': 'black'},
+        line_kwargs={'linewidth': 0.1, 'color': 'gray'},
         bar_kwargs={'markeredgewidth': 0.2, 'markersize':3}
     )
     ax4.set_xlim([0, len(CP)+0.5])
@@ -123,35 +123,39 @@ def plot_cells(f: pd.DataFrame, i: int, cells: list, save_loc: str):
 
 loc = os.path.join(figpath, "0004 - Sample Cells to CC")
 mkdir(loc)
+
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230726)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[161], save_loc=loc)
+
 i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230930)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[261], save_loc=loc)
+plot_cells(f=f1, i=i, cells=[198], save_loc=loc)
 
-i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230928)&(f1['session'] == 2))[0][0]
-plot_cells(f=f1, i=i, cells=[5, 162], save_loc=loc)
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230721)&(f1['session'] == 3))[0][0]
+plot_cells(f=f1, i=i, cells=[161], save_loc=loc)
 
-i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230928)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[3, 111], save_loc=loc)
-
-i = np.where((f1['MiceID'] == 10227)&(f1['date'] == 20230930)&(f1['session'] == 2))[0][0]
-plot_cells(f=f1, i=i, cells=[280, 140], save_loc=loc)
-
-i = np.where((f1['MiceID'] == 10227)&(f1['date'] == 20230930)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[85, 165], save_loc=loc)
-
-i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230728)&(f1['session'] == 2))[0][0]
-plot_cells(f=f1, i=i, cells=[126, 76], save_loc=loc)
 
 i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230728)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[107, 36], save_loc=loc)
+plot_cells(f=f1, i=i, cells=[20, 34, 35, 36, 41, 86, 90, 91], save_loc=loc)
 
-i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230724)&(f1['session'] == 2))[0][0]
-plot_cells(f=f1, i=i, cells=[101, 7], save_loc=loc)
+i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230724)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[162, 111, 98], save_loc=loc)
 
-i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230724)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[145, 33], save_loc=loc)
+i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230726)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[1], save_loc=loc)
 
-i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230728)&(f1['session'] == 3))[0][0]
-plot_cells(f=f1, i=i, cells=[9, 64, 65], save_loc=loc)
+i = np.where((f1['MiceID'] == 10209)&(f1['date'] == 20230728)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[2, 8, 11, 13, 15, 55, 57], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10212)&(f1['date'] == 20230728)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[22, 90, 165, 190, 264], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10224)&(f1['date'] == 20230930)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[1, 215, 9, 16, 17, 19, 21, 25, 30, 36], save_loc=loc)
+
+i = np.where((f1['MiceID'] == 10227)&(f1['date'] == 20230930)&(f1['session'] == 2))[0][0]
+plot_cells(f=f1, i=i, cells=[9], save_loc=loc)
+
+
 """
 new_emerge_loc = join(loc, 'newly emerge fields sample')
 mkdir(new_emerge_loc)

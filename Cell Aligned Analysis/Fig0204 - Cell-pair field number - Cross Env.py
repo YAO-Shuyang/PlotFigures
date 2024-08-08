@@ -18,7 +18,8 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
         "date": np.array([]),
         "Training Day": np.array([]),
         "Stage": np.array([]),
-        "Corr": np.array([], np.float64)
+        "Corr": np.array([], np.float64),
+        "P-value": np.array([], np.float64)
     }
     
     for i in tqdm(range(len(f_CellReg_env))):
@@ -43,11 +44,11 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
             cellpair_idx = np.where((temp[1, :] == 1) & (temp[2, :] == 1))[0]
             index_map = index_map[:, cellpair_idx].astype(np.int64)
             
-            cellpair_idx = np.where((trace1['place_field_num'][index_map[1, :]-1] > 0)&
-                                    (trace2['place_field_num'][index_map[2, :]-1] > 0))[0]
+            cellpair_idx = np.where((trace1['place_field_num_multiday'][index_map[1, :]-1] > 0)&
+                                    (trace2['place_field_num_multiday'][index_map[2, :]-1] > 0))[0]
             index_map = index_map[:, cellpair_idx]
             
-            Data['Field Number'] = np.concatenate([Data['Field Number'], trace1['place_field_num'][index_map[1, :]-1], trace2['place_field_num'][index_map[2, :]-1]])
+            Data['Field Number'] = np.concatenate([Data['Field Number'], trace1['place_field_num_multiday'][index_map[1, :]-1], trace2['place_field_num_multiday'][index_map[2, :]-1]])
 
             Data['Stage'] = np.concatenate([Data['Stage'], np.repeat(f_CellReg_env['Stage'][i], index_map.shape[1]*2)])
             Data['MiceID'] = np.concatenate([Data['MiceID'], np.repeat(f_CellReg_env['MiceID'][i], index_map.shape[1]*2)])
@@ -58,9 +59,10 @@ if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
             Corr['MiceID'] = np.concatenate([Corr['MiceID'], np.repeat(f_CellReg_env['MiceID'][i], 1)])
             Corr['date'] = np.concatenate([Corr['date'], np.repeat(f_CellReg_env['date'][i], 1)])
             Corr['Training Day'] = np.concatenate([Corr['Training Day'], np.repeat(f_CellReg_env['Training Day'][i], 1)])
-            pear_corr, _ = pearsonr(trace1['place_field_num'][index_map[1, :]-1], trace2['place_field_num'][index_map[2, :]-1])
+            pear_corr, p = pearsonr(trace1['place_field_num_multiday'][index_map[1, :]-1], trace2['place_field_num_multiday'][index_map[2, :]-1])
             
             Corr['Corr'] = np.append(Corr['Corr'], pear_corr)
+            Corr['P-value'] = np.append(Corr['P-value'], p)
             
     with open(os.path.join(figdata, code_id+'.pkl'), 'wb') as handle:
         pickle.dump(Data, handle)
@@ -90,9 +92,11 @@ Corr = SubDict(Corr, Corr.keys(), idx=idx)
 idx = np.where((Corr['Training Day'] == '>=Day 10')&(Corr['Stage'] == 'Stage 2'))[0]
 SubData = SubDict(Corr, Corr.keys(), idx=idx)
 
+
 fig = plt.figure(figsize=(3,3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 idx = np.where((Data['MiceID'] == 10224)&(Data['date'] == 20230918))[0]
+print(pearsonr(Data['Field Number'][idx[:int(idx.shape[0]/2)]], Data['Field Number'][idx[int(idx.shape[0]/2):]]))
 ax.plot(
     Data['Field Number'][idx[:int(idx.shape[0]/2)]] + 0.4*(np.random.rand(int(idx.shape[0]/2))-0.5), 
     Data['Field Number'][idx[int(idx.shape[0]/2):]] + 0.4*(np.random.rand(int(idx.shape[0]/2))-0.5), 
@@ -102,9 +106,9 @@ ax.plot(
     markersize = 2
 )
 ax.set_aspect('equal')
-ax.axis([0, 11, 0, 11])
-ax.set_xticks(np.linspace(0, 10, 6))
-ax.set_yticks(np.linspace(0, 10, 6))
+ax.axis([0, 16, 0, 16])
+ax.set_xticks(np.linspace(0, 16, 5))
+ax.set_yticks(np.linspace(0, 16, 5))
 ax.set_xlabel('Maze A')
 ax.set_ylabel('Maze B')
 plt.savefig(os.path.join(loc, 'Maze A vs Maze B.png'))
