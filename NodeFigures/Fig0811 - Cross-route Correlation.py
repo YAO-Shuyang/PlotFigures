@@ -111,7 +111,67 @@ if os.path.exists(os.path.join(figdata, code_id+' [with length].pkl')) == False:
 else:
     with open(os.path.join(figdata, code_id+' [with length].pkl'), 'rb') as handle:
         Data = pickle.load(handle)
-
+        
+if os.path.exists(os.path.join(figdata, code_id+' [Shuffle].pkl')) == False:
+    I = np.intersect1d
+    routes = [0, 1, 2, 3, 0, 0, 4, 5, 6, 0]
+    shared_dist = np.zeros((10, 10))
+    for i in range(10):
+        for j in range(10):
+            shared_dist[i, j] = I(CP[routes[i]], CP[routes[j]]).shape[0]
+            
+    dist = np.triu(shared_dist, 1)
+    triu_idx = np.where(dist != 0)
+    dist = dist[triu_idx]
+    print(dist)
+    SData = {
+        "MiceID": [],
+        "Shared Distance": [],
+        "Correlation": [],
+        "Date": []
+    }
+    
+    for i in range(len(f2)):
+        print(f"{i}, #{f2['MiceID'][i]}, {f2['date'][i]}")
+        with open(f2['Trace File'][i], 'rb') as handle:
+            trace = pickle.load(handle)
+        
+        for j in tqdm(range(10)):
+            shuf_corr = np.zeros((10, 10), dtype=np.float64) * np.nan
+            
+            for x in range(len(shuf_corr)-1):
+                for y in range(x+1, len(shuf_corr)):
+                    idx = np.where(
+                        (trace['node '+str(x)]['is_placecell'] == 1) |
+                        (trace['node '+str(y)]['is_placecell'] == 1)
+                    )[0]
+                    bins = get_son_area(I(CP_DSP[routes[x]], CP_DSP[routes[y]]))-1
+                    shuf_corr[x, y] = np.nanmean(
+                        np.array([
+                            pearsonr(
+                                trace['node '+str(x)]['smooth_map_all'][cell_x, bins],
+                                trace['node '+str(y)]['smooth_map_all'][cell_y, bins]
+                            )[0] for cell_x, cell_y in zip(idx, np.random.permutation(idx))
+                        ])
+                    )
+                    
+            SData['MiceID'].append(np.repeat(int(f2['MiceID'][i]), dist.shape[0]))
+            SData['Correlation'].append(shuf_corr[triu_idx])
+            SData['Shared Distance'].append(dist)
+            SData['Date'].append(np.repeat(int(f2['date'][i]), dist.shape[0]))
+        
+    for k in Data.keys():
+        SData[k] = np.concatenate(Data[k])
+    
+    with open(os.path.join(figdata, code_id+' [Shuffle].pkl'), 'wb') as handle:
+        pickle.dump(Data, handle)
+        
+    D = pd.DataFrame(Data)
+    D.to_excel(os.path.join(figdata, code_id+' [Shuffle].xlsx'), index = False)
+else:
+    with open(os.path.join(figdata, code_id+' [Shuffle].pkl'), 'rb') as handle:
+        SData = pickle.load(handle)
+"""
 idx = np.where(Data['Control Type'] != 'Not Control')[0]
 SubData = SubDict(Data, Data.keys(), idx)
 fig = plt.figure(figsize=(2.5,3))
@@ -132,6 +192,22 @@ sns.lineplot(
 )
 plt.show()
 """        
+print(np.unique(Data['Shared Distance']))
+
+idx_route_4 = np.where((Data['Shared Distance'] == 27) & (Data['Group'] == 'Exp.'))[0]
+idx_route_7 = np.where((Data['Shared Distance'] == 34) & (Data['Group'] == 'Exp.'))[0]
+
+idx_route_4_shuf = np.where(SData['Shared Distance'] == 27)[0]
+idx_route_7_shuf = np.where(SData['Shared Distance'] == 34)[0]
+print_estimator(Data['Correlation'][idx_route_4])
+print_estimator(SData['Correlation'][idx_route_4_shuf])
+print_estimator(Data['Correlation'][idx_route_7])
+print_estimator(SData['Correlation'][idx_route_7_shuf])
+
+print(f"Route 4, {ttest_ind(Data['Correlation'][idx_route_4], SData['Correlation'][idx_route_4_shuf])}")
+print(f"Route 7, {ttest_ind(Data['Correlation'][idx_route_7], SData['Correlation'][idx_route_7_shuf])}")
+print(f"Route 4 - Route 7, {ttest_ind(Data['Correlation'][idx_route_4], Data['Correlation'][idx_route_7])}")
+
 fig = plt.figure(figsize=(2.5,3))
 Data['Shared Distance'] = 111-Data['Shared Distance']
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
@@ -149,6 +225,16 @@ sns.lineplot(
     err_style='bars',
     err_kws={'capsize': 3, 'elinewidth': 0.5, 'capthick': 0.5},
 )
+SData['Shared Distance'] = 111-SData['Shared Distance']
+sns.lineplot(
+    x = 'Shared Distance',
+    y = 'Correlation',
+    data = SData,
+    linewidth=0.5,
+    err_kws={'edgecolor':None},
+    errorbar='sd',
+    ax=ax
+)
 ax.set_xlim([-5, 111])
 ax.set_xticks([0, 11, 31, 51, 71, 91, 111])
 ax.set_ylim([0, 0.6])
@@ -157,7 +243,7 @@ plot_segments(ax, dy=0.05)
 plt.savefig(os.path.join(loc, f'withlength.svg'), dpi=600)
 plt.savefig(os.path.join(loc, f'withlength.png'), dpi=600)
 plt.close()
-
+"""
 uniq_dist = np.unique(Data['Shared Distance'])
 for i in range(uniq_dist.shape[0]):
     idx_exp = np.where((Data['Shared Distance'] == uniq_dist[i])&(Data['Group'] == 'Exp.'))[0]
