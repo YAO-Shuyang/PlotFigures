@@ -60,7 +60,13 @@ for i in range(1, 7):
 
 for k in StatRes.keys():
     StatRes[k] = np.array(StatRes[k])
-    
+
+# Span: 0816 - Segmented Correlation across Routes Under Egocentric [stats]
+# Route 2: 12 bins
+# Route 3: 11 bins
+# Route 5: 21 bins
+# Route 6: 13 bins
+
 StatResD = pd.DataFrame(StatRes)
 StatResD.to_excel(join(figdata, code_id+' [stats].xlsx'), index=False)
 

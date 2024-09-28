@@ -24,8 +24,7 @@ sns.barplot(
     palette=palette,
     width=0.8,
     capsize=0.3,
-    errcolor='black',
-    errwidth=0.5,
+    err_kws={"linewidth": 0.5, "color": 'k'},
     zorder=2
 )
 
@@ -33,6 +32,7 @@ sns.stripplot(
     x='Segment',
     y='Proportion',
     data = Data,
+    hue = 'Segment',
     ax = ax,
     palette=palette,
     edgecolor='black',
@@ -43,8 +43,8 @@ sns.stripplot(
     zorder=1
 )
 
-ax.set_yticks(np.linspace(0, 1, 6))
-ax.set_ylim(0, 1)
+ax.set_yticks(np.linspace(0, 0.5, 6))
+ax.set_ylim(0, 0.5)
 ax.set_xlim(-1, 6)
 plt.savefig(os.path.join(loc, 'Allocentric Field Proportion.png'), dpi=600)
 plt.savefig(os.path.join(loc, 'Allocentric Field Proportion.svg'), dpi=600)

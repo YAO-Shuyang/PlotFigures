@@ -65,3 +65,5 @@ for d in np.unique(Data['Training Day']):
     
     F, p = f_oneway(*grouplists)
     print(f"{d} - F = {F}, p = {p}")
+
+print_estimator(Data['Correct Rate'])
