@@ -22,7 +22,7 @@ else:
     )
     
 Data['hue'] = np.array([Data['Paradigm'][i] + Data['Maze Type'][i] + Data['Pair Type'][i] for i in range(Data['Paradigm'].shape[0])])
-
+"""
 # Dim = 5 =======================================================================
 idx = np.where((Data['Paradigm'] != 'CrossMaze') & 
                (Data['Dimension'] == 5) & 
@@ -614,3 +614,50 @@ for x in range(1, 3):
         print("      with 0:", ttest_1samp(Data['delta-P'][sib], 0))
         print("      with 0:", ttest_1samp(Data['delta-P'][non], 0))
     print()
+    
+"""
+
+sfn_loc = join(figpath, "SfN Poster", code_id)
+mkdir(sfn_loc)
+
+idx = np.where((Data['Dimension'] == 2) & 
+               (np.isnan(Data['delta-P']) == False)&
+               (Data['Axis'] == 'IP axis')&(Data['X'] <= 3))[0]
+
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(6, 2))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x = 'X',
+    y = 'delta-P',
+    data = SubData,
+    hue = 'hue',
+    palette=['#003366', '#0099CC'],
+    width=0.8,
+    capsize=0.3,
+    errcolor='black',
+    errwidth=0.5,
+    zorder=2
+)
+ax.axhline(y = 0, color = 'black', linewidth = 0.5, ls=':')
+sns.stripplot(
+    x='X',
+    y='delta-P',
+    data=SubData,
+    hue='hue',
+    palette=['#003366', '#0099CC', '#66CCCC', '#99CCFF',
+             '#F2E8D4', '#D4C9A8', '#8E9F85', '#527C5A', 
+             '#C3AED6', '#66C7B4', '#A7D8DE', '#F67280'],
+    edgecolor='black',
+    size=3,
+    linewidth=0.3,
+    jitter=0.2,
+    dodge=True,
+    ax=ax,
+    zorder=1
+)
+ax.set_ylim(-0.1, 0.1)
+ax.set_yticks(np.linspace(-0.1, 0.1, 11))
+plt.savefig(join(sfn_loc, "Synchronized Change.png"), dpi=600)
+plt.savefig(join(sfn_loc, "Synchronized Change.svg"), dpi=600)
+plt.show()
