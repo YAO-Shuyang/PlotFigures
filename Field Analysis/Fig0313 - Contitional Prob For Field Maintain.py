@@ -5,6 +5,8 @@ from mylib.multiday.core import MultiDayCore
 code_id = "0313 - Conditional Probability for Field Maintain"
 loc = join(figpath, code_id)
 mkdir(loc)
+sfn_loc = join(figpath, "SfN Poster", code_id)
+mkdir(sfn_loc)
 
 if os.path.exists(join(figdata, code_id+'.pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
@@ -376,7 +378,7 @@ sns.stripplot(
     hue = "Maze Type",
     palette = markercolors,
     edgecolor='black',
-    size=2,
+    size=4,
     linewidth=0.1,
     alpha=0.8,
     ax = ax,
@@ -385,9 +387,9 @@ sns.stripplot(
 )
 ax.set_ylim(0, 103)
 ax.set_yticks(np.linspace(0, 100, 6))
-
-plt.savefig(join(loc, 'conditional prob.png'), dpi = 600)
-plt.savefig(join(loc, 'conditional prob.svg'), dpi = 600)
+plt.savefig(join(sfn_loc, "conditional prob.svg"))
+#plt.savefig(join(loc, 'conditional prob.png'), dpi = 600)
+#plt.savefig(join(loc, 'conditional prob.svg'), dpi = 600)
 plt.close()
 
 fig = plt.figure(figsize=(5, 2.5))
@@ -461,7 +463,7 @@ sns.stripplot(
     hue = "Maze Type",
     palette = markercolors,
     edgecolor='black',
-    size=3,
+    size=4,
     linewidth=0.15,
     ax = ax,
     dodge=True,
@@ -478,9 +480,9 @@ sns.lineplot(
 )
 ax.set_ylim(-1, 40)
 ax.set_yticks(np.linspace(0, 40, 9))
-
-plt.savefig(join(loc, 'Conditional recover prob.png'), dpi = 600)
-plt.savefig(join(loc, 'Conditional recover prob.svg'), dpi = 600)
+plt.savefig(join(sfn_loc, "Conditional recover prob.svg"))
+#plt.savefig(join(loc, 'Conditional recover prob.png'), dpi = 600)
+#plt.savefig(join(loc, 'Conditional recover prob.svg'), dpi = 600)
 plt.close()
 
 print("Maze A&B Conditional Recovery Prob. -----------------------------------------")
@@ -736,17 +738,17 @@ sns.stripplot(
     hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
     palette = colors,
     edgecolor='black',
-    size=2,
+    size=4,
     linewidth=0.1,
-    alpha=0.9,
+    alpha=0.8,
     ax = ax,
-    jitter=0.2
+    jitter=0.1
 )
 ax.set_ylim(0, 103)
 ax.set_yticks(np.linspace(0, 100, 6))
-
-plt.savefig(join(loc, '[Hairpin&Reverse] conditional prob.png'), dpi = 600)
-plt.savefig(join(loc, '[Hairpin&Reverse] conditional prob.svg'), dpi = 600)
+plt.savefig(join(sfn_loc, '[Hairpin&Reverse] conditional prob.svg'))
+#plt.savefig(join(loc, '[Hairpin&Reverse] conditional prob.png'), dpi = 600)
+#plt.savefig(join(loc, '[Hairpin&Reverse] conditional prob.svg'), dpi = 600)
 plt.close()
 
 
@@ -808,11 +810,11 @@ sns.stripplot(
     hue_order=['HairpinMaze cis', 'HairpinMaze trs', 'ReverseMaze cis', 'ReverseMaze trs'],
     palette = colors,
     edgecolor='black',
-    size=2,
+    size=4,
     linewidth=0.1,
-    alpha=0.9,
+    alpha=0.8,
     ax = ax,
-    jitter=0.2
+    jitter=0.1
 )
 sns.lineplot(
     x = ShufData['Duration']-1,
@@ -826,9 +828,9 @@ sns.lineplot(
 )
 ax.set_ylim(-1, 30)
 ax.set_yticks(np.linspace(0, 30, 7))
-
-plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.png'), dpi = 600)
-plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.svg'), dpi = 600)
+plt.savefig(join(sfn_loc, '[Hairpin&Reverse] conditional recover prob.svg'))
+#plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.png'), dpi = 600)
+#plt.savefig(join(loc, '[Hairpin&Reverse] conditional recover prob.svg'), dpi = 600)
 plt.close()
 
 print("HP & MA reversed paradigms - Recovery Statistic Test")

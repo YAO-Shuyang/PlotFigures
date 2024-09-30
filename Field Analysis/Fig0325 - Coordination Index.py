@@ -21,7 +21,7 @@ else:
     
 Data['hue'] = np.array([Data['Maze Type'][i]+Data['Pair Type'][i]+Data['Paradigm'][i] for i in range(Data['Type'].shape[0])])      
 Data['Coordinate Index'] = Data['Coordinate Index'] * 100 
-
+"""
 # Maze A and B
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&(Data['Maze Type'] != 'Open Field')&
                (np.isnan(Data['Coordinate Index']) == False)&
@@ -322,3 +322,42 @@ sns.stripplot(
 plt.savefig(join(loc, '[Crossday Comparison] [Hairpin & Reverse] Coordinate Index.png'), dpi = 600)
 plt.savefig(join(loc, '[Crossday Comparison] [Hairpin & Reverse] Coordinate Index.svg'), dpi = 600)
 plt.close()
+"""
+
+X = np.array([f"{Data['Maze Type'][i]}_{Data['Paradigm'][i]}" for i in range(Data['Maze Type'].shape[0])])
+Data['X'] = X
+sfn_loc = join(figpath, "SfN Poster", code_id)
+mkdir(sfn_loc)
+idx = np.where((Data['Dimension'] == 2)&(np.isnan(Data['Coordinate Index']) == False))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(4, 3))
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.barplot(
+    x = 'X',
+    y = 'Coordinate Index',
+    data = SubData,
+    hue = 'Pair Type',
+    palette=['#003366', '#0099CC'],
+    width=0.8,
+    capsize=0.3,
+    errcolor='black',
+    errwidth=0.5,
+)
+sns.stripplot(
+    x='X',
+    y='Coordinate Index',
+    data=SubData,
+    hue='Pair Type',
+    palette=['#F2E8D4', '#527C5A'],
+    edgecolor='black',
+    size=3,
+    linewidth=0.3,
+    jitter=0.2,
+    dodge=True,
+    ax=ax
+)
+ax.set_ylim(0, 20)
+ax.set_yticks(np.linspace(0, 20, 11))
+plt.savefig(join(sfn_loc, "Degree of Coodination.png"), dpi=600)
+plt.savefig(join(sfn_loc, "Degree of Coodination.svg"), dpi=600)
+plt.show()
