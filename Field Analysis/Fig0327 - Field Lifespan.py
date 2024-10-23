@@ -31,7 +31,7 @@ idxs = [np.where((np.isnan(Data['Count']) == False) & (Data['Type'] == 'Real') &
         np.where((np.isnan(Data['Count']) == False) & (Data['Type'] == 'Real') & (Data['Paradigm'] == 'ReverseMaze cis'))[0],
         np.where((np.isnan(Data['Count']) == False) & (Data['Type'] == 'Real') & (Data['Paradigm'] == 'ReverseMaze trs'))[0]]
 xlims = [26, 26, 26, 26, 26, 26]
-fig = plt.figure(figsize=(4,3))
+fig = plt.figure(figsize=(8,2.6))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 colors = ['#003366', '#66CCCC', '#F2E8D4', '#8E9F85', '#C3AED6', '#A7D8DE']
 for i, idx in enumerate(idxs):

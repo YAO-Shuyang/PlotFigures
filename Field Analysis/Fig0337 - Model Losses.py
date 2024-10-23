@@ -26,6 +26,14 @@ def fit_models(field_reg, file_name: str):
 
     tracker = Tracker2d(field_reg=field_reg)
     sequences = tracker.convert_to_sequence()
+    lengths = np.array([len(seq) for seq in sequences])
+    max_length = np.max(lengths)
+    if max_length > 10:
+        idx = np.where(lengths >= 10)[0]
+        sequences = [sequences[i] for i in idx]
+    else:
+        idx = np.where(lengths >= 5)[0]
+        sequences = [sequences[i] for i in idx]
     
     train_size = int(len(sequences) * 0.8)
     train_indices = np.random.choice(len(sequences), train_size, replace=False)
@@ -82,6 +90,11 @@ def fit_models(field_reg, file_name: str):
     M53.fit(train_seq)
     res['Loss'].append(M53.calc_loss(test_seq))
     res['Model Type'].append("Model V - poly2")
+    
+    M54 = ContinuousHiddenStateModel('poly3')
+    M54.fit(train_seq)
+    res['Loss'].append(M54.calc_loss(test_seq))
+    res['Model Type'].append("Model V - poly3")
 
     M61 = ProbabilityRNN.process_fit(
         sequences,
@@ -92,7 +105,7 @@ def fit_models(field_reg, file_name: str):
         batch_size=2048
     )
     res['Loss'].append(M61.calc_loss(test_seq))
-    res['Model Type'].append("Model VI - 8")
+    res['Model Type'].append("Model VI - 8") 
 
     M62 = ProbabilityRNN.process_fit(
         sequences,
@@ -116,7 +129,7 @@ def fit_models(field_reg, file_name: str):
     res['Loss'].append(M63.calc_loss(test_seq))
     res['Model Type'].append("Model VI - 32")
 
-    Models = [M1, M2, M3, M41, M42, M43, M44, M51, M52, M53, M61, M62, M63]
+    Models = [M1, M2, M3, M41, M42, M43, M44, M51, M52, M53, M54, M61, M62, M63]
     
     with open(join(loc, file_name), 'wb') as f:
         pickle.dump(Models, f)
