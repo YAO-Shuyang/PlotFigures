@@ -4,11 +4,31 @@ code_id = '0018 - Spatial Information Regression Out Speed'
 loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
-idx = np.where((np.isin(f1['MiceID'], [10209, 10212, 10224, 10227]))&(f1['maze_type'] != 0))[0]
+from mazepy.basic.convert import coordinate_recording_time
+
+def separate_speed_bins(trace):
+    beg, end = trace['lap beg time'], trace['lap end time']
+    Speed = np.zeros(end.shape[0], np.float64)
+    
+    for i in range(end.shape[0]):
+        behav_idx = np.where((trace['correct_time'] >= beg[i]) & (trace['correct_time'] <= end[i]))[0]
+
+        dx = np.ediff1d(trace['processed_pos_new'][behav_idx, 0])/10
+        dy = np.ediff1d(trace['processed_pos_new'][behav_idx, 1])/10
+        
+        dt = trace['correct_time'][behav_idx[-1]] - trace['correct_time'][behav_idx[0]]
+        Speed[i] = np.sum(np.sqrt(dx**2+dy**2))/dt*1000
+    
+    speed_labels = np.clip((Speed // 10).astype(np.int64), 0, 4)
+    
+    
+
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ["SI", "Speed Level"], f = f1, 
-                              function = SI_RegressOut_Speed_Interface, file_idx=idx,
-                              file_name = code_id, behavior_paradigm = 'CrossMaze')
+    for mouse in [10209, 10212, 10224, 10227]:
+        for maze_type in [1, 2]:
+            idx = np.where((f1['MiceID'] == mouse)&(f1['maze_type'] == maze_type))[0]
+
+            
 else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
