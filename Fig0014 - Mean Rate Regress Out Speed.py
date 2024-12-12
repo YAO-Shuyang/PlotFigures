@@ -1,6 +1,6 @@
 from mylib.statistic_test import *
 
-code_id = '0018 - Spatial Information Regression Out Speed'
+code_id = '0014 - Mean Rate Regress Out Speed'
 loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
@@ -18,7 +18,7 @@ def separate_speed_bins(trace):
         
     Speed = np.convolve(Speed, np.ones(3)/3, mode='same')
 
-    speed_labels = np.clip((Speed // 10).astype(np.int64), 0, 2)
+    speed_labels = np.clip(((Speed+10) // 20).astype(np.int64), 0, 3)
     
     coordinate_indices = coordinate_recording_time(trace['ms_time'], trace['behav_time'][:-1])
     ms_speed_labels = speed_labels[coordinate_indices]
@@ -41,13 +41,13 @@ idx = np.where(
     (np.isin(f1['MiceID'], [10209, 10212, 10224, 10227])) &
     (f1['maze_type'] != 0)
 )
-if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
+if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
     Data = {
         "MiceID": [],
         "Maze Type": [],
         "Training Day": [],
         "Stage": [],
-        "SI": [],
+        "Mean Rate": [],
         "Speed": []
     }
     for mouse in [10209, 10212, 10224, 10227]:
@@ -55,42 +55,7 @@ if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
             CP = cp.deepcopy(correct_paths[(maze_type, 48)])-1
             idx = np.where((f1['MiceID'] == mouse) & (f1['maze_type'] == maze_type))[0]
             
-            bins = [cp.deepcopy(CP), cp.deepcopy(CP), cp.deepcopy(CP), cp.deepcopy(CP)]
-            print(f"{mouse}, Maze {maze_type}")
-            for j in tqdm(idx):
-                if f1['include'][j] == 0:
-                    continue
-                with open(f1['Trace File'][j], 'rb') as handle:
-                    trace = pickle.load(handle)
-                    
-                ms_speed_labels = separate_speed_bins(trace)[:-1]
-                beg, end = trace['lap beg time'], trace['lap end time']
-                
-                spike_idx = np.concatenate([
-                    np.where((trace['ms_time'] >= beg[i]) & (trace['ms_time'] <= end[i]) & (np.isnan(trace['spike_nodes_original']) == False))[0] 
-                    for i in range(beg.shape[0])
-                ])
-                
-                dt = np.ediff1d(trace['ms_time'][spike_idx])
-                spike_nodes = trace['spike_nodes_original'][spike_idx]
-                Spikes = trace['Spikes_original'][:, spike_idx]
-                
-                remain_idx = np.where(dt <= 10000)[0]
-                ms_speed_labels = ms_speed_labels[remain_idx]
-
-                for s in range(3):
-                    d = np.where(ms_speed_labels == s)[0]
-                    occu_time = scipy.stats.binned_statistic(
-                        spike_nodes[d],
-                        dt[d],
-                        bins=2304,
-                        statistic="sum",
-                        range=[0, 2304 + 0.0001]
-                    )[0]
-                    
-                    a = np.where(occu_time > 0)[0]
-                    a = np.intersect1d(a, CP)
-                    bins[s] = np.intersect1d(bins[s], a)        
+            print(f"{mouse}, Maze {maze_type}")    
             
             for j in tqdm(idx):
                 if f1['include'][j] == 0:
@@ -114,8 +79,8 @@ if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
                 remain_idx = np.where(dt <= 10000)[0]
                 ms_speed_labels = ms_speed_labels[remain_idx]
                 
-                for s in range(3):
-                    d = np.where((ms_speed_labels == s)&(np.isin(spike_nodes[remain_idx], bins[s]+1)))[0]
+                for s in range(4):
+                    d = np.where((ms_speed_labels == s))[0]
                     d = remain_idx[d]
                     occu_time = scipy.stats.binned_statistic(
                         spike_nodes[d],
@@ -124,34 +89,16 @@ if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
                         statistic="sum",
                         range=[0, 2304 + 0.0001]
                     )[0]
-                    
-                    rate_map = calc_ratemap(
-                        Spikes = Spikes[:, d], 
-                        spike_nodes = spike_nodes[d],
-                        _nbins = 48*48, 
-                        occu_time = occu_time, 
-                        Ms = trace['Ms'], 
-                        is_silent = trace['SilentNeuron']
-                    )[0]
-                    occu_time = occu_time[bins[s]]
-                    rate_map = rate_map[:, bins[s]]
-                
                     t_total = np.nansum(occu_time)/1000
-                    # time fraction at each spatial bin
-                    t_nodes_frac = occu_time / 1000 / (t_total)
-                    SI = calc_SI(
-                        Spikes[:, d],
-                        rate_map = rate_map, 
-                        t_total = t_total, 
-                        t_nodes_frac = t_nodes_frac
-                    )
+                    
+                    mean_rate = np.sum(Spikes[:, d], axis = 1) / t_total
                 
                     mazet = f"Maze {f1['maze_type'][j]}"
                     Data['MiceID'].append(mouse)
                     Data['Maze Type'].append(mazet)
                     Data['Training Day'].append(f1['training_day'][j])
                     Data['Stage'].append(f1['Stage'][j])
-                    Data['SI'].append(np.nanmean(SI[trace['is_placecell'] == 1]))
+                    Data['Mean Rate'].append(np.nanmean(mean_rate))
                     Data['Speed'].append(s)
     
     for key in Data.keys():
@@ -162,7 +109,7 @@ if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
         
     D = pd.DataFrame(Data)
     D.to_excel(os.path.join(figdata, code_id+'.xlsx'), index=False)
-    print(Data['SI'].shape)
+    print(Data['Mean Rate'].shape)
                 
 else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
@@ -178,11 +125,12 @@ idx = np.where((Data['Stage'] == "Stage 1") & (Data['Maze Type'] == "Maze 1") & 
 SubData = SubDict(Data, Data.keys(), idx)
 sns.lineplot(
     x = "Training Day",
-    y = "SI",
+    y = "Mean Rate",
     data = SubData,    
     hue='Speed',
     palette = sns.color_palette("rocket", 3),
     ax = ax1,
+    legend=False,
     err_style='bars',
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5
@@ -191,7 +139,7 @@ idx = np.where((Data['Stage'] == "Stage 2") & (Data['Maze Type'] == "Maze 1") & 
 SubData = SubDict(Data, Data.keys(), idx)
 sns.lineplot(
     x = "Training Day",
-    y = "SI",
+    y = "Mean Rate",
     data = SubData,
     hue='Speed',
     palette = sns.color_palette("rocket", 3),
@@ -200,10 +148,10 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5
 )
-ax1.set_ylim(0, 4)
-ax1.set_yticks(np.linspace(0, 4, 5))
-ax2.set_ylim(0, 4)
-ax2.set_yticks(np.linspace(0, 4, 5))
+ax1.set_ylim(0, 1)
+ax1.set_yticks(np.linspace(0, 1, 6))
+ax2.set_ylim(0, 1)
+ax2.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(os.path.join(loc, 'SI [Maze 1].png'), dpi=600)
 plt.savefig(os.path.join(loc, 'SI [Maze 1].svg'), dpi=600)
 plt.show()
@@ -215,7 +163,7 @@ idx = np.where((Data['Stage'] == "Stage 2") & (Data['Maze Type'] == "Maze 2") & 
 SubData = SubDict(Data, Data.keys(), idx)
 sns.lineplot(
     x = "Training Day",
-    y = "SI",
+    y = "Mean Rate",
     data = SubData,
     hue='Speed',
     palette = sns.color_palette("rocket", 3),
@@ -225,8 +173,8 @@ sns.lineplot(
     err_kws={'elinewidth':0.5, 'capthick':0.5, 'capsize':3},
     linewidth=0.5
 )
-ax1.set_ylim(0, 4)
-ax1.set_yticks(np.linspace(0, 4, 5))
+ax1.set_ylim(0, 1)
+ax1.set_yticks(np.linspace(0, 1, 6))
 plt.savefig(os.path.join(loc, 'SI [Maze 2].png'), dpi=600)
 plt.savefig(os.path.join(loc, 'SI [Maze 2].svg'), dpi=600)
 plt.show()

@@ -59,7 +59,7 @@ for day in range(1, 8):
     
         sns.heatmap(
             ratemap,
-            cmap=sns.color_palette("rocket", as_cmap=True),
+            cmap=sns.color_palette("Blues", as_cmap=True),
             ax=axes[i],
             cbar=False,
             rasterized=True
