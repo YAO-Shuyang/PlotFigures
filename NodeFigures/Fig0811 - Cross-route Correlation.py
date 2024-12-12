@@ -10,18 +10,17 @@ loc = os.path.join(figpath, 'Dsp', code_id)
 mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    mat = np.zeros((10, 10))
-    for mice in [10209, 10212, 10224, 10227]:
+    mat = np.zeros((50, 70))
+    for j, mice in enumerate([10209, 10212, 10224, 10227, 10232]):
         idx = np.where(f2['MiceID'] == mice)[0]
     
-        for i in idx:
+        for d, i in enumerate(idx):
             with open(f2['Trace File'][i], 'rb') as handle:
                 trace = pickle.load(handle)
         
-            mat += trace['route_wise_corr']
-        
-    mat /= 28
-    mat[(np.arange(10), np.arange(10))] = np.nan
+            idx = np.ix_(np.arange(10) + 10 * j, np.arange(10) + 10 * d)
+            mat[idx] += trace['route_wise_corr']
+            mat[(np.arange(10) + 10 * j, np.arange(10) + 10 * d)] = np.nan
     
     with open(os.path.join(figdata, code_id+'.pkl'), 'wb') as handle:
         pickle.dump(mat, handle)
@@ -29,7 +28,7 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         mat = pickle.load(handle)
         
-if os.path.exists(os.path.join(figdata, code_id+' [with length].pkl')) == False:
+if os.path.exists(os.path.join(figdata, code_id+'  [with length].pkl')) == False:
     I = np.intersect1d
     routes = [0, 1, 2, 3, 0, 0, 4, 5, 6, 0]
     shared_dist = np.zeros((10, 10))
@@ -50,7 +49,7 @@ if os.path.exists(os.path.join(figdata, code_id+' [with length].pkl')) == False:
         "Control Type": []
     }
     
-    for mice in [10209, 10212, 10224, 10227]:
+    for mice in [10209, 10212, 10224, 10227, 10232]:
         idx = np.where(f2['MiceID'] == mice)[0]
     
         print(f"Mouse {mice}")
@@ -243,23 +242,27 @@ plot_segments(ax, dy=0.05)
 plt.savefig(os.path.join(loc, f'withlength.svg'), dpi=600)
 plt.savefig(os.path.join(loc, f'withlength.png'), dpi=600)
 plt.close()
-"""
+
 uniq_dist = np.unique(Data['Shared Distance'])
 for i in range(uniq_dist.shape[0]):
     idx_exp = np.where((Data['Shared Distance'] == uniq_dist[i])&(Data['Group'] == 'Exp.'))[0]
     idx_ctrl = np.where((Data['Shared Distance'] == uniq_dist[i])&(Data['Group'] == 'Ctrl.'))[0]
     print(uniq_dist[i], ttest_ind(Data['Correlation'][idx_exp], Data['Correlation'][idx_ctrl]))
 
+# Sort Day
+sort_day_idx = np.concatenate([np.arange(7)*10 + i for i in range(10)])
+sort_mice_idx = np.concatenate([np.arange(4, -1, -1)*10 + i for i in range(10)])
+sorted_mat = mat[sort_mice_idx, :][:, sort_day_idx]
 fig = plt.figure(figsize=(4,3))
 ax = Clear_Axes(plt.axes())
 sns.heatmap(
-    mat, vmin = 0, ax=ax
+    sorted_mat, vmin = 0, ax=ax, cmap='Blues'
 )
 ax.set_aspect("equal")
 plt.savefig(os.path.join(loc, f'allmice.svg'), dpi=600)
 plt.savefig(os.path.join(loc, f'allmice.png'), dpi=600)
 plt.close()
-
+"""
 
 mat[(np.arange(10), np.arange(10))] = 0
 

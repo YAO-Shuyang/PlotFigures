@@ -27,8 +27,8 @@ def add_color_path(
             ax.fill_betweenx([y+d, y-d], x-d, x+d, color=color, **kwargs)
             continue
             
-        if xp is not None and d == 0.5 and is_plot_line:
-            ax.plot([xp, x], [yp, y], **line_kw)
+        #if xp is not None and d == 0.5 and is_plot_line:
+        #    ax.plot([xp, x], [yp, y], **line_kw)
 
         if xp is not None and line_band:
             if type(band_color) is str or type(band_color) is tuple:
@@ -187,8 +187,8 @@ plt.close()
 # DSPCorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[1], sns.color_palette("crest", 9)[0], sns.color_palette("flare", 9)[0]]
 # DSPIncorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[3], sns.color_palette("crest", 9)[2], sns.color_palette("flare", 9)[2]]
 
-DSPCorrectTrackPalette = ['#A9CCE3', '#A8DADC', '#9C8FBC', '#D9A6A9']
-DSPIncorrectTrackPalette = ['#A9CCE3', '#F2E2C5', '#647D91', '#C06C84']
+DSPCorrectTrackPalette = [DSPPalette[0], DSPPalette[1], DSPPalette[2], DSPPalette[3]]
+DSPIncorrectTrackPalette = [DSPPalette[0], DSPPalette[4], DSPPalette[5], DSPPalette[6]]
 
 fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8,8))
 ax1, ax2, ax3, ax4 = Clear_Axes(axes[0, 0]), Clear_Axes(axes[0, 1]), Clear_Axes(axes[1, 0]), Clear_Axes(axes[1, 1])
