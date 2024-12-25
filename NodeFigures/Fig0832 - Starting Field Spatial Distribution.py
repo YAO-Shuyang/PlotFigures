@@ -4,9 +4,9 @@ code_id = '0832 - Starting Field Spatial Distribution'
 loc = os.path.join(figpath, 'Dsp', code_id)
 mkdir(loc)
 
-if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
+if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
     Data = DataFrameEstablish(variable_names = ["Relative Pos", "Density"],
-                              f=f2, 
+                              f=f2, file_idx=np.where(f2['MiceID']!=10209)[0],
                               function = StartingFieldSpatialDistribution_DSP_Interface, 
                               file_name = code_id, behavior_paradigm = 'DSPMaze')
 else:

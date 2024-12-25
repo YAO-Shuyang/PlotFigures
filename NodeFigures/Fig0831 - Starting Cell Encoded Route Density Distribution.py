@@ -7,7 +7,7 @@ mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
     Data = DataFrameEstablish(variable_names = ['Route', 'Number'],
-                              f=f2, 
+                              f=f2, file_idx=np.where(f2['MiceID'] != 10209)[0],
                               function = StartingCellEncodedRouteDensityDistribution_DSP_Interface, 
                               file_name = code_id, behavior_paradigm = 'DSPMaze')
 else:

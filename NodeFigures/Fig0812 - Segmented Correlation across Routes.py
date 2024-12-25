@@ -6,7 +6,7 @@ mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
     Data = DataFrameEstablish(variable_names = ['Segments', 'Mean PVC', 'Compare Groups', 'Routes'],
-                              f=f2, 
+                              f=f2, file_idx=np.where(f2['MiceID'] != 10209)[0],
                               function = SegmentedCorrelationAcrossRoutes_DSP_Interface, 
                               file_name = code_id, behavior_paradigm = 'DSPMaze')
 else:
@@ -35,6 +35,54 @@ ax.set_xlim(75, 112)
 ax.set_xticks(np.linspace(75, 112.5, 7))
 plt.savefig(join(loc, 'pvc - R4&7.svg'), dpi = 600)
 plt.savefig(join(loc, 'pvc - R4&7.png'), dpi = 600)
+plt.close()
+
+idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Segments'] >= 75) & (Data['Training Day'] == 'Day 1'))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(3,2)),
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.lineplot(
+    x = 'Segments',
+    y = 'Mean PVC',
+    data = SubData,
+    hue = 'Routes',
+    palette=[DSPPalette[0], DSPPalette[3], DSPPalette[6]],
+    hue_order=[0, 3, 6],
+    linewidth=0.5,
+    ax = ax,
+    err_kws={'edgecolor':None}
+)
+ax = plot_segments(ax, dy=0.8)
+ax.set_ylim([-0.1, 0.7])
+ax.set_yticks(np.linspace(-0.1, 0.7, 9))
+ax.set_xlim(75, 112)
+ax.set_xticks(np.linspace(75, 112.5, 7))
+plt.savefig(join(loc, 'pvc - R4&7 [First Day].svg'), dpi = 600)
+plt.savefig(join(loc, 'pvc - R4&7 [First Day].png'), dpi = 600)
+plt.close()
+
+idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Segments'] >= 75) & (Data['Training Day'] == 'Day 7'))[0]
+SubData = SubDict(Data, Data.keys(), idx)
+fig = plt.figure(figsize=(3,2)),
+ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
+sns.lineplot(
+    x = 'Segments',
+    y = 'Mean PVC',
+    data = SubData,
+    hue = 'Routes',
+    palette=[DSPPalette[0], DSPPalette[3], DSPPalette[6]],
+    hue_order=[0, 3, 6],
+    linewidth=0.5,
+    ax = ax,
+    err_kws={'edgecolor':None}
+)
+ax = plot_segments(ax, dy=0.8)
+ax.set_ylim([-0.1, 0.6])
+ax.set_yticks(np.linspace(-0.1, 0.6, 8))
+ax.set_xlim(75, 112)
+ax.set_xticks(np.linspace(75, 112.5, 7))
+plt.savefig(join(loc, 'pvc - R4&7 [Last Day].svg'), dpi = 600)
+plt.savefig(join(loc, 'pvc - R4&7 [Last Day].png'), dpi = 600)
 plt.close()
 
 idx = np.where(((Data['Routes'] != 3) & (Data['Routes'] != 6)))[0]
