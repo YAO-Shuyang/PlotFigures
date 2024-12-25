@@ -4,9 +4,9 @@ code_id = '0830 - Starting Cell Encoded Route Number Distribution'
 loc = os.path.join(figpath, 'Dsp', code_id)
 mkdir(loc)
 
-if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
+if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
     Data = DataFrameEstablish(variable_names = ['Number Of Routes', 'Proportion'],
-                              f=f2, 
+                              f=f2, file_idx=np.where(f2['MiceID'] != 10209)[0],
                               function = StartingCellEncodedRouteNumberDistribution_DSP_Interface, 
                               file_name = code_id, behavior_paradigm = 'DSPMaze')
 else:
@@ -31,6 +31,7 @@ sns.barplot(
     y="Proportion",
     data=Data,
     ax=ax,
+    hue="Number Of Routes",
     palette="rainbow",
     width=0.8,
     capsize=0.3,
@@ -50,8 +51,8 @@ sns.stripplot(
     size=5,
     linewidth=0.2
 )
-ax.set_ylim(0, 0.25)
-ax.set_yticks(np.linspace(0, 0.25, 6))
+ax.set_ylim(0, 0.5)
+ax.set_yticks(np.linspace(0, 0.5, 6))
 
 plt.savefig(join(loc, 'Starting Cell Encoded Route Number Distribution.svg'))
 plt.savefig(join(loc, 'Starting Cell Encoded Route Number Distribution.png'), dpi=600)

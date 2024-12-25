@@ -9,7 +9,7 @@ if os.path.exists(join(figdata, code_id+'.pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
-    Data = DataFrameEstablish(variable_names = ['Proportion'], 
+    Data = DataFrameEstablish(variable_names = ['Proportion'], file_idx=np.where(f2['MiceID'] != 10209)[0],
                              f = f2, file_name=code_id, behavior_paradigm="DSPMaze",
                              function = ProportionOfStartingPointTuningCell_Interface)
 
