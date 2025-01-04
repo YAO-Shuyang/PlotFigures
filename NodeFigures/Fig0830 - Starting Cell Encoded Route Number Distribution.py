@@ -51,8 +51,8 @@ sns.stripplot(
     size=5,
     linewidth=0.2
 )
-ax.set_ylim(0, 0.5)
-ax.set_yticks(np.linspace(0, 0.5, 6))
+ax.set_ylim(0, 0.4)
+ax.set_yticks(np.linspace(0, 0.4, 5))
 
 plt.savefig(join(loc, 'Starting Cell Encoded Route Number Distribution.svg'))
 plt.savefig(join(loc, 'Starting Cell Encoded Route Number Distribution.png'), dpi=600)
