@@ -259,9 +259,14 @@ def counts(traces, index_map):
     return map_clusters, session_traj, dist_clusters, dists, route_traj, lap_traj, pos_traj, speed_traj, beg, end, reduced_data, centroid, raddi
 
 def draw(traces, index_map, elev = 50, azim = 160):
+    """
+    with open(join(loc, f"{traces[0]['MiceID']}.pkl"), 'rb') as handle:
+        map_clusters, session_traj, dist_clusters, dists, route_traj, lap_traj, pos_traj, speed_traj, beg, end, reduced_data, centroid, raddi = pickle.load(handle)
+    """
     map_clusters, session_traj, dist_clusters, dists, route_traj, lap_traj, pos_traj, speed_traj, beg, end, reduced_data, centroid, raddi = counts(
         traces, index_map
     )
+    
     PC1, PC2, PC3 = reduced_data[:, 0], reduced_data[:, 1], reduced_data[:, 2]
     D = GetDMatrices(1, 48)
     dist_traj = D[pos_traj, 2303]
@@ -315,7 +320,7 @@ def draw(traces, index_map, elev = 50, azim = 160):
         )
     
     axes[1, 1].plot(centroid[CP_DSP[0]-1, 0], centroid[CP_DSP[0]-1, 1], centroid[CP_DSP[0]-1, 2], linewidth=0.5, color='k')
-    colors2 = plt.get_cmap("rainbow")(np.linspace(0, 0.9999, CP_DSP[0].shape[0]))
+    colors2 = plt.get_cmap("rainbow")(np.linspace(0.9999, 0, CP_DSP[0].shape[0]))
     axes[1, 1].scatter( 
         centroid[CP_DSP[0]-1, 0], centroid[CP_DSP[0]-1, 1], centroid[CP_DSP[0]-1, 2],
         color=colors2,
@@ -357,7 +362,8 @@ def draw(traces, index_map, elev = 50, azim = 160):
     plt.savefig(join(loc, f"{traces[0]['MiceID']} [example] position.png"), dpi=600)
     plt.savefig(join(loc, f"{traces[0]['MiceID']} [example] position.svg"), dpi=600)
     plt.show()
-    
+
+
 traces = []
 mouse = 10212
 for i in np.where(f2['MiceID'] == mouse)[0]:
@@ -372,7 +378,14 @@ with open(f_CellReg_dsp['cellreg_folder'][np.where(f_CellReg_dsp['MiceID'] == mo
         index_map = index_map[1:, :]
     
     index_map = index_map.astype(np.int64)
-# draw(traces, index_map, 33, -29) #10227
-# draw(traces, index_map, 33, -29) #10224
-#draw(traces, index_map, 33, -29) #10232
+
+draw(traces, index_map, 33, -29) #10227
+draw(traces, index_map, 33, -29) #10224
+draw(traces, index_map, 33, -29) #10232
 draw(traces, index_map, 17, -163) #10212
+"""
+draw([{"MiceID":10227}], 0, 33, -29) #10227
+draw([{"MiceID":10224}], 0, 33, -29) #10224
+draw([{"MiceID":10232}], 0, 33, -29) #10232
+draw([{"MiceID":10212}], 0, 17, -163) #10212
+"""

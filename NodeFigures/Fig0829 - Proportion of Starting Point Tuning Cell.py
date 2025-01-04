@@ -43,8 +43,8 @@ sns.stripplot(
     hue="MiceID",
     palette=['#D4C9A8', '#8E9F85', '#C3AED6', '#FED7D7']
 )
-ax.set_ylim(0,1)
-ax.set_yticks(np.linspace(0, 1, 6))
+ax.set_ylim(0, 0.4)
+ax.set_yticks(np.linspace(0, 0.4, 5))
 plt.savefig(join(loc, 'Proportion of Starting Point Tuning Cell.svg'))
 plt.savefig(join(loc, 'Proportion of Starting Point Tuning Cell.png'), dpi=600)
 plt.show()

@@ -156,12 +156,13 @@ for b in box.patches:
 
 ax.set_ylim(-0.2, 0.8)
 for i in range(7):
-    res = ttest_ind(
+    res = ttest_ind(/
         SubData['Mean PVC'][(SubData['Control For Route'] == 'Real') & (SubData['Training Day'] == f"Day {i+1}")], 
         SubData['Mean PVC'][(SubData['Control For Route'] == 'Control') & (SubData['Training Day'] == f"Day {i+1}")]
     )
     print(f"Day {i+1}: {res}")
 plt.savefig(join(loc, "Barplots.png"), dpi=600)
+
 plt.savefig(join(loc, "Barplots.svg"), dpi=600)
 plt.show()
     

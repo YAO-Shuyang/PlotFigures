@@ -73,9 +73,12 @@ def plot_cell_examples_ego(
     with open(f2['Trace File'][idx[0]], 'rb') as handle:
         trace = pickle.load(handle)
         
+        if isinstance(cell_list, str):
+            cell_list = np.where(trace['SC'] == 1)[0]
+        
     mkdir(save_loc)   
     
-    for cell in cell_list:
+    for cell in tqdm(cell_list):
         fig = plt.figure(figsize=(3, 4))
         ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
         
@@ -122,6 +125,8 @@ def plot_cell_examples_ego(
 #plot_cell_examples_ego(10224, 20231010, np.array([289, 316]) - 1, save_loc=join(loc, "Ego"))
 #plot_cell_examples_ego(10227, 20231012, np.array([162, 121, 314, 59, 82]) - 1, save_loc=join(loc, "Ego"))
 
+plot_cell_examples_ego(10232, 20241025, 'all', save_loc=join(loc, "10232 - Ego"))
+
 #plot_cell_examples(10209, 20230602, np.array([233])-1)
 #plot_cell_examples(10212, 20230528, np.array([21])-1)
 
@@ -136,7 +141,7 @@ def plot_cell_examples_ego(
 #plot_cell_examples(10227, 20231013, np.array([38, 57, 77]) - 1)
 #plot_cell_examples(10227, 20231014, np.array([6, 7, 8]) - 1)
 #plot_cell_examples(10227, 20231015, np.array([1, 3, 5, 17, 50, 93]) - 1)
-plot_cell_examples(10232, 20241025, np.array([6, 8, 10, 14, 16, 18, 24, 39])-1)
+#plot_cell_examples(10232, 20241025, np.array([6, 8, 10, 14, 16, 18, 24, 39])-1)
 #plot_cell_examples(10232, 20241026, np.array([2, 10, 11, 14, 62])-1)
 #plot_cell_examples(10232, 20241027, np.array([2, 4, 6, 10, 23, 24, 46])-1)
 #plot_cell_examples(10232, 20241030, np.array([6, 18, 20])-1)
