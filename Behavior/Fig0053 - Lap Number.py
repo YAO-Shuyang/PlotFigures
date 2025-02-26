@@ -4,16 +4,25 @@ code_id = '0053 - Lap Number'
 loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
-maze_indices = np.where(f_pure_behav['maze_type'] != 0)[0]
-if os.path.exists(join(figdata, code_id+'.pkl')):
+maze_indices = np.where(f1['maze_type'] != 0)[0]
+if os.path.exists(join(figdata, code_id+' .pkl')):
     with open(join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
     Data = DataFrameEstablish(variable_names = ['Lap Num'], is_behav=True,
                               file_idx=maze_indices,
-                              f = f_pure_behav, function = LapNum_Interface, 
+                              f = f1, function = LapNum_Interface, 
                               file_name = code_id, behavior_paradigm = 'CrossMaze')
-    
+
+print("Trained lap number before DSP:")
+for mouse in [10212, 10224, 10227, 10232]:
+    if mouse == 10212:
+        idx = np.where((Data['MiceID'] == mouse)&(Data['Maze Type'] == 'Maze 1')&(Data['Stage'] == 'Stage 1'))[0]
+        print(f"{mouse}: {np.sum(Data['Lap Num'][idx])}")
+    else:
+        idx = np.where((Data['MiceID'] == mouse)&(Data['Maze Type'] == 'Maze 1'))[0]
+        print(f"{mouse}: {np.sum(Data['Lap Num'][idx])}")
+
 uniq_day = ['Day 1', 'Day 2', 'Day 3', 'Day 4',
             'Day 5', 'Day 6', 'Day 7', 'Day 8',
             'Day 9', '>=Day 10']

@@ -71,7 +71,7 @@ for k in Data.keys():
 
 
 fig = plt.figure(figsize=(2, 3))
-idx = np.where((np.isin(Data['Routes'], [3, 7, 4])) & (Data['Group'] == 'Exp.'))[0]
+idx = np.where((np.isin(Data['Routes'], [2, 6, 3])) & (Data['Group'] == 'Exp.'))[0]
 SubData = SubDict(Data, Data.keys(), idx)
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 
@@ -79,23 +79,25 @@ sns.lineplot(
     x = 'Training Day',
     y = 'Correlation',
     hue = 'Routes',
-    hue_order=[3, 7, 4],
+    hue_order=[2, 6, 3],
     data = SubData,
     palette=[DSPPalette[2], DSPPalette[6], DSPPalette[3]],
     linewidth=0.5,
-    err_style="bars",
-    err_kws={'elinewidth': 0.5, 'capsize': 3, 'capthick': 0.5},
+    err_kws={'edgecolor':None},
+    ax=ax,
+    #err_style="bars",
+    #err_kws={'elinewidth': 0.5, 'capsize': 3, 'capthick': 0.5},
     marker='o',
     markersize=4,
     markeredgewidth = 0,
 )
-ax.set_ylim([0, 0.5])
-ax.set_yticks(np.linspace(0, 0.5, 6))
+ax.set_ylim([0, 0.6])
+ax.set_yticks(np.linspace(0, 0.6, 7))
 plt.savefig(join(loc, "Similarity with Route 1.png"), dpi = 600)
 plt.savefig(join(loc, "Similarity with Route 1.svg"), dpi = 600)
 plt.show()
 
-for i in [3, 7, 4]:
+for i in [2, 6, 3]:
     idxs = [
         np.where(
             (Data['Routes'] == i) & 

@@ -13,4 +13,4 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:    
         Data = pickle.load(handle)
         
-print_estimator(Data['Proportion'])
+print_estimator(Data['Proportion'][Data['MiceID'] != 10209])

@@ -12,6 +12,10 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 
+SubData = SubDict(Data, Data.keys(), np.where(Data['MiceID'] != 10209)[0])
+X = np.zeros_like(SubData['Route'])
+for i in range(7):
+    X[SubData['Training Day'] == f'Day {i+1}'] = i
 fig = plt.figure(figsize=(4, 3))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 """
@@ -29,7 +33,7 @@ box = sns.boxplot(
 )
 for line in box.patches:
     line.set_linewidth(0)
-"""
+
 sns.stripplot(
     x='Training Day',
     y='Correct Rate',
@@ -44,14 +48,39 @@ sns.stripplot(
     dodge=True,
     jitter=0.1
 )
-ax.set_ylim(0, 1.03)
-ax.set_yticks(np.linspace(0, 1, 6))
+"""
+for i, r in enumerate([0, 4, 1, 5, 2, 6, 3]):
+    idx = np.where(SubData['Route'] == r)[0]
+    sns.lineplot(
+        x=X[idx] + i*9,
+        y=SubData['Correct Rate'][idx],
+        hue=SubData['Route'][idx],
+        ax=ax,
+        palette=[DSPPalette[r]],
+        linewidth=0.5,
+        err_kws={"edgecolor": None},
+        legend=False
+    )
+ax.set_ylim(0.7, 1)
+ax.set_yticks(np.linspace(0.7, 1, 7))
 plt.savefig(os.path.join(loc, 'correct decision rate.png'), dpi=600)
 plt.savefig(os.path.join(loc, 'correct decision rate.svg'), dpi=600)
-plt.close()
+plt.show()
 
 # Perform One-way ANOVA
 from scipy.stats import f_oneway
+for route in np.unique(Data['Route']):
+    
+    grouplists = []
+    for d in np.unique(Data['Training Day']):
+        idx = np.where((Data['Training Day'] == d) & (Data['Route'] == route))[0]
+        grouplists.append(Data['Correct Rate'][idx])
+    
+    F, p = f_oneway(*grouplists)
+    print(f"R {route+1} - F = {F}, p = {p}")
+
+print_estimator(Data['Correct Rate'])
+"""
 for d in np.unique(Data['Training Day']):
     
     grouplists = []
@@ -63,3 +92,4 @@ for d in np.unique(Data['Training Day']):
     print(f"{d} - F = {F}, p = {p}")
 
 print_estimator(Data['Correct Rate'])
+"""

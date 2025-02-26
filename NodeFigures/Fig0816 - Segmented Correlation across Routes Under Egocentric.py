@@ -156,11 +156,18 @@ for b in box.patches:
 
 ax.set_ylim(-0.2, 0.8)
 for i in range(7):
-    res = ttest_ind(/
+    res = ttest_ind(
         SubData['Mean PVC'][(SubData['Control For Route'] == 'Real') & (SubData['Training Day'] == f"Day {i+1}")], 
         SubData['Mean PVC'][(SubData['Control For Route'] == 'Control') & (SubData['Training Day'] == f"Day {i+1}")]
     )
     print(f"Day {i+1}: {res}")
+    
+print("Across Days")
+X = np.zeros(SubData['Control For Route'].shape[0])
+for i in range(7):
+    X[(SubData['Control For Route'] == 'Real') & (SubData['Training Day'] == f"Day {i+1}")] = i
+
+print(linregress(X[SubData['Control For Route'] == 'Real'], SubData['Mean PVC'][SubData['Control For Route'] == 'Real']))
 plt.savefig(join(loc, "Barplots.png"), dpi=600)
 
 plt.savefig(join(loc, "Barplots.svg"), dpi=600)
