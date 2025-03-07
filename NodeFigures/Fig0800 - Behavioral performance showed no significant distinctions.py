@@ -16,7 +16,7 @@ SubData = SubDict(Data, Data.keys(), np.where(Data['MiceID'] != 10209)[0])
 X = np.zeros_like(SubData['Route'])
 for i in range(7):
     X[SubData['Training Day'] == f'Day {i+1}'] = i
-fig = plt.figure(figsize=(4, 3))
+fig = plt.figure(figsize=(4, 2.5))
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 """
 box = sns.boxplot(
@@ -59,7 +59,10 @@ for i, r in enumerate([0, 4, 1, 5, 2, 6, 3]):
         palette=[DSPPalette[r]],
         linewidth=0.5,
         err_kws={"edgecolor": None},
-        legend=False
+        legend=False,
+        marker='s',
+        markersize=3,
+        markeredgewidth=0
     )
 ax.set_ylim(0.7, 1)
 ax.set_yticks(np.linspace(0.7, 1, 7))
