@@ -10,198 +10,191 @@ from mazepy.datastruc.variables import VariableBin
 from mylib.calcium.dsp_ms import classify_lap
 from mazepy.basic._time_sync import _coordinate_recording_time
 
-# Segment of Interests
-SIG1 = np.array([4, 5, 8, 7, 6, 18, 17, 29, 30, 31, 19, 20, 21, 9, 10, 11, 12, 24])
-SIG2 = np.array([23, 22, 34, 33, 32, 44, 45, 46, 47, 48, 60, 59, 58, 57, 56])
-SIG3 = np.array([84, 83, 95, 93, 105, 106, 94, 82, 81, 80, 92, 104, 103, 91, 90, 78, 79, 67, 55, 54, 66, 65, 64, 63, 75, 74, 62, 
-                 50, 51, 39, 38, 37, 49])
-SIG4 = np.array([61, 73, 85, 97, 135, 134, 133, 121, 109, 110, 122, 123, 111, 112, 100])
+dir_name1 = join(figpath, "Dsp", "0850 - Lisa Paper Revisits")
+dir_name0 = join(figpath, "Dsp", "0844 - Manifold of Initialization")
 
-
-def get_neural_traj(trace: dict, is_shuffle=False):    
-    beg_time, end_time = trace['lap beg time'], trace['lap end time']
-    beg_idx = np.array([np.where(trace['correct_time'] >= beg_time[i])[0][0] for i in range(beg_time.shape[0])])
-    routes = classify_lap(spike_nodes_transform(trace['correct_nodes'], 12), beg_idx)
-    
-    neural_trajs = []
-    pos_trajs = []
-    route_trajs = []
-    lap_trajs = []
-    map_trajs = []
-    speed_trajs = []
-
-    for i in range(beg_idx.shape[0]):
-        if trace['is_perfect'][i] != 1:
-            continue
-        
-        spike_idx = np.where(
-            (trace['ms_time'] >= beg_time[i]) & (trace['ms_time'] <= end_time[i]) &
-            (np.isnan(trace['spike_nodes_original']) == False)
-        )[0]
-        
-        spike_nodes = trace['spike_nodes_original'][spike_idx].astype(np.int64)-1
-        Spikes = trace['Spikes_original'][:, spike_idx]
-        
-        if is_shuffle:
-            for j in range(Spikes.shape[0]):
-                Spikes[j, :] = Spikes[j, np.random.permutation(Spikes.shape[1])]
-        
-        spike_train = SpikeTrain(
-            activity=Spikes,
-            time=trace['ms_time'][spike_idx],
-            variable=VariableBin(spike_nodes),
-        )
-        
-        neural_traj = spike_train.calc_neural_trajectory(500, 100)
-        neural_traj_vec = neural_traj.to_array()
-        pos_traj = neural_traj.variable.to_array()
-        time_traj = neural_traj.time
-        
-        neural_trajs.append(neural_traj_vec)
-        pos_trajs.append(pos_traj)
-        dx, dy = np.ediff1d(trace['correct_pos'][:, 0]), np.ediff1d(trace['correct_pos'][:, 1])
-        dt = np.ediff1d(trace['correct_time'])
-        speed = np.sqrt(dx**2+dy**2) / dt * 100
-        speed = np.convolve(speed, np.ones(3)/3, mode='same')
-        idx = _coordinate_recording_time(time_traj.astype(np.float64), trace['correct_time'].astype(np.float64))
-        speed_trajs.append(speed[idx])
-        route_trajs.append(np.repeat(routes[i], neural_traj_vec.shape[1]).astype(np.int64))
-        lap_trajs.append(np.repeat(i, neural_traj_vec.shape[1]).astype(np.int64))
-        map_trajs.append(np.repeat(trace['map_cluster'][i], neural_traj_vec.shape[1]))
-    
-    return np.concatenate(neural_trajs, axis=1), np.concatenate(pos_trajs), np.concatenate(route_trajs), np.concatenate(lap_trajs), np.concatenate(map_trajs), np.concatenate(speed_trajs)
-
-def hex_to_rgba(hex_color):
+def get_transient_map(mouse: int):
     """
-    Convert a hex color (#RRGGBB or #RRGGBBAA) to RGBA format (0-255).
+    Get Final Maps and Information
     """
-    hex_color = hex_color.lstrip('#')  # Remove '#' if present
-    if len(hex_color) == 6:
-        r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
-        a = 255  # Default alpha
-    elif len(hex_color) == 8:
-        r, g, b, a = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16), int(hex_color[6:8], 16)
+    if exists(join(dir_name1, f"transient_{mouse}.pkl")):
+        with open(join(dir_name1, f"transient_{mouse}.pkl"), "rb") as f:
+            return pickle.load(f)
     else:
-        raise ValueError("Invalid hex color format. Use #RRGGBB or #RRGGBBAA.")
-    return r, g, b, a
-
-def hex_to_rgba_normalized(hex_color):
-    """
-    Convert a hex color (#RRGGBB or #RRGGBBAA) to RGBA format (0-1).
-    """
-    r, g, b, a = hex_to_rgba(hex_color)
-    return np.array([r / 255, g / 255, b / 255, a / 255])
-
-DSPPaletteRGBA = np.vstack([hex_to_rgba_normalized(c) for c in DSPPalette])
-MAPPaletteRGBA = np.vstack([hex_to_rgba_normalized(c) for c in ['#333766', '#A4C096']])
+        raise FileNotFoundError(
+            f"Please run Fig0850 - Lisa Paper Revisits.ipynb first "
+            f"to generate transient_{mouse}.pkl"
+        )
 
 from umap.umap_ import UMAP
 from matplotlib import cm
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.decomposition import PCA
 from sklearn.svm import SVC
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, KMeans
 import hdbscan
 
-def counts(traces, index_map, is_shuffle=False):
-    count_map = np.where(index_map > 0, 1, 0)
-    sums = np.sum(count_map, axis=0)
-    idx = np.where(sums == 7)[0]
+def counts(mouse: int):
+    with open(join(dir_name0, f"{mouse}.pkl"), 'rb') as handle:
+        _, session_traj, _, _, route_traj, lap_traj, pos_traj, speed_traj, _, _, _, _, _, neural_traj = pickle.load(handle)
+
+    #bins = np.concatenate([Father2SonGraph[i] for i in np.setdiff1d(CP_DSP[6], CP_DSP[3])])
+    idx = np.where(
+        #(np.isin(pos_traj, bins-1)) &
+        (np.isin(route_traj, [0, 1, 2, 3, 4, 5, 6]))
+    )[0]
     
-    neural_trajs, pos_trajs, route_trajs, lap_trajs, map_trajs, speed_trajs = [], [], [], [], [], []
-    session_trajs = []
-    for i in range(len(traces)):
-        neural_traj, pos_traj, route_traj, lap_traj, map_traj, speed_traj = get_neural_traj(traces[i], is_shuffle=is_shuffle)
-        neural_trajs.append(neural_traj[index_map[i, idx]-1, :])
-        pos_trajs.append(pos_traj)
-        route_trajs.append(route_traj)
-        lap_trajs.append(lap_traj)
-        session_trajs.append(np.repeat(i, len(lap_traj)))
-        map_trajs.append(map_traj)
-        speed_trajs.append(speed_traj)
-        
-    neural_traj = np.concatenate(neural_trajs, axis=1)
-    pos_traj = np.concatenate(pos_trajs)
-    route_traj = np.concatenate(route_trajs)
-    lap_traj = np.concatenate(lap_trajs)
-    session_traj = np.concatenate(session_trajs)
-    map_traj = np.concatenate(map_trajs)
-    speed_traj = np.concatenate(speed_trajs)
-    map_traj[map_traj==2] = 1
-
-    #overlapping_bins = np.concatenate([Father2SonGraph[i] for i in [None, SIG1, SIG2, SIG3, SIG4][sig_type]])-1
-    #overlapping_bins = np.concatenate([Father2SonGraph[i] for i in CP_DSP[3]])-1
-    #idx = np.where((np.isin(pos_traj, overlapping_bins) == False))[0]
-
-    idx = np.concatenate([
-        np.where(
-            (np.isin(pos_traj, np.concatenate([Father2SonGraph[j] for j in np.setdiff1d(CP_DSP[6], CP_DSP[3])]))) &
-            (np.isin(route_traj, [i]))
-        )[0] for i in [1, 2, 3, 4, 5, 6]
-    ])
-    
-    neural_traj = neural_traj[:, idx]
-    pos_traj = pos_traj[idx]
-    route_traj = route_traj[idx]
-    lap_traj = lap_traj[idx]
-    session_traj = session_traj[idx]
-    map_traj = map_traj[idx]
-    speed_traj = speed_traj[idx]
-    print(neural_traj.shape, pos_traj.shape, route_traj.shape, lap_traj.shape)
-
     D = GetDMatrices(1, 48)
     dist_traj = D[pos_traj, 2303]
-    dists = (dist_traj // 2).astype(np.int64)
-
-    pca = PCA(n_components=30, random_state=42)
-    denoised_data = pca.fit_transform(neural_traj.T)
-    model = UMAP(n_components=3)
-    reduced_data = model.fit_transform(denoised_data)
-
-    with open(join(loc, f"{traces[0]['MiceID']}.pkl"), "wb") as f:
+    
+    with open(join(loc, f"{mouse}.pkl"), "wb") as f:
         pickle.dump([
-            neural_traj, pos_traj, route_traj, lap_traj, session_traj, 
-            map_traj, speed_traj, reduced_data
+            neural_traj, 
+            session_traj, 
+            route_traj, 
+            lap_traj, 
+            pos_traj, 
+            speed_traj
         ], f)
 
 def get_data(mouse):
+    """All Data"""
     if exists(join(loc, f"{mouse}.pkl")) == False:
-        traces = []
-        for i in np.where(f2['MiceID'] == mouse)[0]:
-            with open(f2['Trace File'][i], 'rb') as handle:
-                trace = pickle.load(handle)
-            traces.append(trace)
-
-        with open(f_CellReg_dsp['cellreg_folder'][1+m], 'rb') as handle:
-            index_map = pickle.load(handle)
-            
-            if mouse != 10232:
-                index_map = index_map[1:, :]
-            
-        counts(traces, index_map.astype(np.int64), is_shuffle=True)
+        counts(mouse)
         
     with open(join(loc, f"{mouse}.pkl"), 'rb') as handle:
         return pickle.load(handle)
-          
+    
+def get_fate(mouse: int):
+    (
+        kmeans_dist_traj2, 
+        neural_traj2, 
+        session_traj2, 
+        old_pos_traj2, 
+        route_traj2, 
+        lap_traj2, 
+        pos_traj2, 
+        speed_traj2,
+        dists
+    ) = get_transient_map(mouse)
+    
+    beg2 = np.concatenate([[0], np.where(np.ediff1d(lap_traj2) != 0)[0]+1])
+    end2 = np.concatenate([np.where(np.ediff1d(lap_traj2) != 0)[0]+1, [lap_traj2.shape[0]]])
+    
+    mat = np.corrcoef(neural_traj2[:, beg2].T)
+    avg_mat = np.zeros((7, 7))
+    for i in range(7):
+        for j in range(i, 7):
+            idxi = np.where(route_traj2[beg2] == i)[0]
+            idxj = np.where(route_traj2[beg2] == j)[0]
+            idx = np.ix_(idxi, idxj)
+            avg_mat[i, j] = avg_mat[j, i] = np.nanmean(mat[idx])
+
+    median_kmean_dists = np.zeros(beg2.shape[0])
+    for i in range(beg2.shape[0]):
+        median_kmean_dists[i] = np.nanmean(kmeans_dist_traj2[beg2[i]:end2[i]])
+
+    labels = np.where(median_kmean_dists > 0, 0, 1)
+    return median_kmean_dists, labels
+
+from sklearn.decomposition import PCA
+from umap.umap_ import UMAP
+
+mouse = 10224
+elev, azim = 25, 30
 (            
-    neural_traj, 
-    pos_traj, 
+    neural_traj,
+    session_traj,  
     route_traj, 
     lap_traj, 
-    session_traj, 
-    map_traj, 
-    speed_traj, 
-    reduced_data
-) = get_data(10232)
+    pos_traj, 
+    speed_traj
+) = get_data(mouse)
 
-fig = plt.figure(figsize=(3, 3))
-ax = fig.add_subplot(projection='3d')
-ax.scatter(
-    reduced_data[:, 0],
-    reduced_data[:, 1],
-    reduced_data[:, 2],
-    s=5,
-    linewidth = 0,
-    color=DSPPaletteRGBA[route_traj, :]
+beg = np.concatenate([[0], np.where(np.ediff1d(lap_traj) != 0)[0]+1])
+end = np.concatenate([np.where(np.ediff1d(lap_traj) != 0)[0]+1, [lap_traj.shape[0]]])
+mean_kmean_dists, lap_labels = get_fate(mouse)
+
+label_traj = np.zeros(lap_traj.shape[0], np.int64)
+for i in range(beg.shape[0]):
+    label_traj[beg[i]:end[i]] = lap_labels[i]
+
+idx = np.where((np.isin(S2F[pos_traj], CP_DSP[6])))[0]
+
+neural_traj = neural_traj[:, idx]
+lap_traj = lap_traj[idx]
+session_traj = session_traj[idx]
+pos_traj = pos_traj[idx]
+route_traj = route_traj[idx]
+speed_traj = speed_traj[idx]
+label_traj = label_traj[idx]
+
+pca = PCA(n_components=30)
+denoised_data = pca.fit_transform(neural_traj.T)
+umap_model = UMAP(n_components=3, n_neighbors=20)
+red_data = umap_model.fit_transform(denoised_data)
+
+idx = np.where(route_traj == 6)[0]
+neural_traj = neural_traj[:, idx]
+lap_traj = lap_traj[idx]
+session_traj = session_traj[idx]
+pos_traj = pos_traj[idx]
+route_traj = route_traj[idx]
+speed_traj = speed_traj[idx]
+label_traj = label_traj[idx]
+red_data = red_data[idx, :]
+
+beg = np.concatenate([[0], np.where(np.ediff1d(lap_traj) != 0)[0]+1])
+end = np.concatenate([np.where(np.ediff1d(lap_traj) != 0)[0]+1, [lap_traj.shape[0]]])
+  
+x, y = pos_traj % 48, pos_traj // 48
+x = x.astype(np.float64) + np.random.rand(x.shape[0]) - 0.5
+y = y.astype(np.float64) + np.random.rand(y.shape[0]) - 0.5
+D = GetDMatrices(1, 48)
+vmin, vmax = np.nanmin(D[pos_traj, 2303]), np.nanmax(D[pos_traj, 2303])
+
+fig = plt.figure(figsize=(6, 6))
+ax0 = fig.add_subplot(2, 2, 1, projection='3d')
+ax1 = fig.add_subplot(2, 2, 2, projection='3d')
+ax2 = fig.add_subplot(2, 2, 3, projection='3d')
+ax3 = fig.add_subplot(2, 2, 4)
+ax0.scatter(
+    red_data[:, 0],
+    red_data[:, 1],
+    red_data[:, 2],
+    s=1,
+    edgecolors=None,
+    c=sns.color_palette("rainbow", as_cmap=True)((D[pos_traj, 2303] - vmin) /(vmax - vmin + 1e-8)),
 )
+ax0.view_init(elev=elev, azim=azim)
+ax1.scatter(
+    red_data[:, 0],
+    red_data[:, 1],
+    red_data[:, 2],
+    s=1,
+    edgecolors=None,
+    c=MAPPaletteRGBA[label_traj, :]
+)
+ax1.view_init(elev=elev, azim=azim)
+
+ax2.scatter(
+    red_data[:, 0],
+    red_data[:, 1],
+    red_data[:, 2],
+    s=1,
+    edgecolors=None,
+    c=sns.color_palette("rainbow", as_cmap=True)(session_traj/(6 + 1e-8)),
+)
+ax2.view_init(elev=elev, azim=azim)
+
+ax3 = DrawMazeProfile(axes=ax3, color='k', linewidth=0.5)
+ax3.scatter(
+    x,
+    y,
+    s=1,
+    edgecolors=None,
+    c=sns.color_palette("rainbow", as_cmap=True)((D[pos_traj, 2303] - vmin) /(vmax - vmin + 1e-8)),
+    alpha=0.5
+)
+ax3.axis([0, 48, 48, 0])
 plt.show()
