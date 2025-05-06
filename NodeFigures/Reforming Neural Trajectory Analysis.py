@@ -21,7 +21,7 @@ mkdir(loc)
 
 dir_name = join(figpath, "Dsp", "0850 - Lisa Paper Revisits")
 
-mouse = 10212
+mouse = 10227
 
 def visualize_neural_traj(mouse):
     
@@ -32,14 +32,17 @@ def visualize_neural_traj(mouse):
     pos_traj = res['pos_traj']
     manifold_traj = res['manifold_traj']
     neural_traj = res['neural_traj']
+    route_traj = res['route_traj']
 
     t1 = time.time()
     print("Start Isomap")
     #dmap_model = dm.DiffusionMap.from_sklearn(n_evecs=10, epsilon='bgh', alpha=0.5)
-    pca = PCA(n_components=30)
-    denoised_data = pca.fit_transform(neural_traj.T)
-    umap_model = UMAP(n_neighbors=15, n_components=3, metric='correlation')
-    reduced_traj = umap_model.fit_transform(denoised_data)
+    #pca = PCA(n_components=30)
+    #denoised_data = pca.fit_transform(neural_traj.T)
+    umap_model = UMAP(n_neighbors=15, n_components=3)
+    #reduced_traj = umap_model.fit_transform(denoised_data)
+    reduced_traj = umap_model.fit_transform(neural_traj.T[route_traj == 0, :])
+
 
     # Fit to your data
     #reduced_traj = dmap_model.fit_transform(neural_traj.T)    
@@ -59,7 +62,7 @@ def visualize_neural_traj(mouse):
         reduced_traj[:, 2],
         s=1,
         edgecolor=None,
-        c=pos_colors
+        c=pos_colors[route_traj == 0, :]
     )
     
     ax1.scatter(
@@ -68,10 +71,9 @@ def visualize_neural_traj(mouse):
         reduced_traj[:, 2],
         s=1,
         edgecolor=None,
-        c=MAPPaletteRGBA[manifold_traj, :]
+        c=MAPPaletteRGBA[manifold_traj, :][route_traj == 0, :]
     )
     plt.show()
     
-visualize_neural_traj(mouse)
-    
-    
+#visualize_neural_traj(mouse)
+
