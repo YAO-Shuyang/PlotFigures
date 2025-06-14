@@ -60,7 +60,7 @@ def fit_kmeans(X, R: int, kmeans_init=None, is_return_model: bool = False):
     else:
         return U, V
 
-pre_and_final_segment_bins = np.concatenate([CP_DSP[6], [97, 98, 86, 128, 140, 139, 143, 118, 119, 107, 108, 120]]) #np.concatenate([np.array([135, 134, 133, 121, 109, 110, 122, 123, 111, 112, 100]), CP_DSP[3]])
+pre_and_final_segment_bins = np.concatenate([CP_DSP[6][:20], [97, 98, 86]]) #pre_and_final_segment_bins = np.concatenate([CP_DSP[6], [97, 98, 86, 128, 140, 139, 143, 118, 119, 107, 108, 120]]) #np.concatenate([np.array([135, 134, 133, 121, 109, 110, 122, 123, 111, 112, 100]), CP_DSP[3]])
 region_label = np.zeros(144)
 region_label[pre_and_final_segment_bins[4:7]-1] = -1
 region_label[pre_and_final_segment_bins[-8:]-1] = 1
@@ -122,7 +122,7 @@ def visualize_phase_plot(reduced_data:np.ndarray, lap_traj: np.ndarray):
     )
     plt.show()
     
-def visualize(mouse: int):
+def visualize(mouse: int, azim: int = 152, elev: int = 9):
     mouse_date = {
         10212: [3, 4, 5],
         10224: [0],
@@ -237,7 +237,7 @@ def visualize(mouse: int):
     
     D = GetDMatrices(1, 48)
     
-    dist_arr = D[node_traj-1, 2303]
+    dist_arr = D[node_traj, 2303]
     colors = sns.color_palette('rainbow', as_cmap=True)(1-(dist_arr - dist_arr.min()) / (dist_arr.max() + 1e-10 - dist_arr.min()))
     map_colors = MAPPaletteRGBA[map_traj, :]
     session_colors = [sns.color_palette('rainbow', len(np.unique(session_traj)))[i] for i in session_traj - np.min(session_traj)]
@@ -287,20 +287,103 @@ def visualize(mouse: int):
          
     beg = np.concatenate([[0], np.where(np.diff(lap_traj) != 0)[0] + 1])
     end = np.concatenate([np.where(np.diff(lap_traj) != 0)[0], [len(lap_traj)]])
-    fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(8, 4), subplot_kw={'projection': '3d'})
-    ax0 = Clear_Axes(axes[0], close_spines=['top', 'right'])
-    ax1 = Clear_Axes(axes[1], close_spines=['top', 'right'])
-    x, y, z = reduced_data[:, 2], reduced_data[:, 3], reduced_data[:, 4]
+    fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8, 8), subplot_kw={'projection': '3d'})
+    ax0, ax1, ax2, ax3 = axes.flatten()
+    #ax0 = Clear_Axes(axes[0], close_spines=['top', 'right'])
+    #ax1 = Clear_Axes(axes[1], close_spines=['top', 'right'])
+    #ax2 = Clear_Axes(axes[2], close_spines=['top', 'right'])
+    #ax3 = Clear_Axes(axes[3], close_spines=['top', 'right'])
+    x, y, z = reduced_data[:, 0], reduced_data[:, 1], reduced_data[:, 2]
+    x2, y2, z2 = reduced_data[map_traj == 1, 3], reduced_data[map_traj == 1, 4], reduced_data[map_traj == 1, 5]
+    
+    centroid_m0 = np.zeros((len(pre_and_final_segment_bins)-7, 6))
+    centroid_m1 = np.zeros((len(pre_and_final_segment_bins)-7, 6))
+    
+    for i, bin in enumerate(CP_DSP[6][4:20]):
+        if i >= len(centroid_m0):
+            break
+        idx = np.where((S2F[node_traj] == bin)&(map_traj == 0)&(np.isin(route_traj, [1, 4])))[0]
+        idx2 = np.where((S2F[node_traj] == bin)&(((map_traj == 1)&(route_traj == 6)&(session_traj == 1))|(route_traj == 3)))[0]
+        if len(idx) > 0:
+            centroid_m0[i] = np.mean(np.vstack([reduced_data[idx, d] for d in range(6)]), axis=1)
+            centroid_m1[i] = np.mean(np.vstack([reduced_data[idx2, d] for d in range(6)]), axis=1)
+            
+    print(centroid_m0[:, 0])
+    print(centroid_m1[:, 1])
+    
+    centroid_colors = sns.color_palette("rainbow", len(centroid_m0))
     ax0.scatter(
         x, y, z,
         c=colors, 
         s=1,
         alpha=0.8, 
         edgecolors=None
-    )    ·
+    )
+    ax2.scatter(
+        centroid_m0[:, 0],
+        centroid_m0[:, 1],
+        centroid_m0[:, 2],
+        c=centroid_colors, 
+        marker='s',
+        edgecolors=None
+    )
+    ax2.plot(
+        centroid_m0[:, 0],
+        centroid_m0[:, 1],
+        centroid_m0[:, 2],
+        lw=0.5,
+        color=RemappingPalette[0]
+    )
+    ax2.scatter(
+        centroid_m1[:, 0],
+        centroid_m1[:, 1],
+        centroid_m1[:, 2],
+        marker='s',
+        c=centroid_colors, 
+        edgecolors=None
+    )
+    ax2.plot(
+        centroid_m1[:, 0],
+        centroid_m1[:, 1],
+        centroid_m1[:, 2],
+        lw=0.5,
+        color=RemappingPalette[1]
+    )
+    
+    ax3.scatter(
+        centroid_m0[:, 3],
+        centroid_m0[:, 4],
+        centroid_m0[:, 5],
+        c=centroid_colors, 
+        marker='s',
+        edgecolors=None
+    )
+    ax3.plot(
+        centroid_m0[:, 3],
+        centroid_m0[:, 4],
+        centroid_m0[:, 5],
+        lw=0.5,
+        color=RemappingPalette[0]
+    )
+    ax3.scatter(
+        centroid_m1[:, 3],
+        centroid_m1[:, 4],
+        centroid_m1[:, 5],
+        marker='s',
+        c=centroid_colors, 
+        edgecolors=None
+    )
+    ax3.plot(
+        centroid_m1[:, 3],
+        centroid_m1[:, 4],
+        centroid_m1[:, 5],
+        lw=0.5,
+        color=RemappingPalette[1]
+    )
+    
     for i in range(len(beg)):
         
-        ax0.plot(
+        ax1.plot(
                 x[beg[i]:end[i]],
                 y[beg[i]:end[i]],
                 z[beg[i]:end[i]],
@@ -331,6 +414,14 @@ def visualize(mouse: int):
         s=1, 
         edgecolors=None##
     )
+    """
+    ax3.scatter(
+        x, y, z,
+        c=map_colors, 
+        s=1, 
+        edgecolors=None##
+    )
+    """
     plt.show()
-
-visualize(10232)
+# 27 elev 9 azim 152
+visualize(10227)
