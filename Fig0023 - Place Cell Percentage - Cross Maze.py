@@ -5,8 +5,10 @@ code_id = '0023 - Place cell percentage'
 loc = os.path.join(figpath, code_id)
 mkdir(loc)
 
-if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['percentage', 'place cell num', 'total cell num'], f = f1, function = PlaceCellPercentage_Interface, 
+file_idx = np.where(np.isin(f1['MiceID'], [10209, 10212, 10224, 10226, 10228, 10232, 10234]))[0]
+if os.path.exists(os.path.join(figdata, code_id+' .pkl')) == False:
+    Data = DataFrameEstablish(variable_names = ['percentage', 'place cell num', 'total cell num'], f = f1, 
+                              function = PlaceCellPercentage_Interface, file_idx = file_idx,
                               file_name = code_id, behavior_paradigm = 'CrossMaze')   
 else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
