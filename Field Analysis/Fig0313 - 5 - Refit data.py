@@ -426,7 +426,6 @@ plt.savefig(join(loc, 'on-next num.svg'), dpi = 600)
 plt.close()
 
 
-fig = plt.figure(figsize=(4,2))
 idx = np.where((Data['Paradigm'] == 'CrossMaze')&
                (np.isnan(Data['Conditional Recover Prob.']) == False)&
                (Data['Maze Type'] != 'Open Field')&

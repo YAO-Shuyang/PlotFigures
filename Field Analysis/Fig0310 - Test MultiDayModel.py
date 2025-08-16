@@ -31,7 +31,7 @@ dates = [ 20230806, 20230808, 20230810, 20230812,
 for n in range(26, 1, -1):
     
     idx = np.where(cellnum == n)[0]
-    print(n, idx)
+    print,(n, idx)
     mkdir(join(loc, '10227-Stage 1+2-Maze 1 [footprint]', str( n)+' Cells'))
 
     MultiDayLayout.visualize_cells(
@@ -55,9 +55,17 @@ for n in range(26, 1, -1):
 # Reverse dates
 # dates = [20230605, 20230606, 20230607, 20230608, 20230609, 20230613, 20230614, 20230615, 20230616, 20230617, 20230618, 20230619]
 # dates = [20230613, 20230614, 20230615, 20230616, 20230617, 20230618, 20230619]
-dates = [20231017, 20231018, 20231019, 20231020, 20231021, 20231022, 20231023]
-mouse = 10224
-index_map = GetMultidayIndexmap(mouse=mouse, stage='Stage 3', session=1, occu_num=2, f=f_CellReg_modi)
+dates = [
+    20240829, 20240831, 20240902, 20240904, 20240906,
+    20240908, 20240910, 20240912, 20240914,
+    20240916, 20240918, 20240920, 20240922,
+    20240924, 20240926, 20240928, 20240930,
+    20241003, 20241004, 20241006, 20241008,
+    20241011, 20241013, 20241015, 20241017,
+    20241019
+]#[20231017, 20231018, 20231019, 20231020, 20231021, 20231022, 20231023]
+mouse = 10232
+index_map = GetMultidayIndexmap(mouse=mouse, stage='Stage 1+2', session=1, occu_num=2, f=f_CellReg_modi)
 index_map[np.where(np.isnan(index_map))] = 0
 index_map = index_map.astype(np.int64)
 
@@ -67,7 +75,7 @@ cellnum = np.nansum(cellnum, axis=0)
 print(index_map.shape)
 
 
-for n in range(7, 1, -1):
+for n in range(26, 1, -1):
     
     idx = np.where(cellnum == n)[0]
     print(n, idx)
