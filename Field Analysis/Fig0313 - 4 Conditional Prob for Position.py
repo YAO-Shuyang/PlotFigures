@@ -7,7 +7,7 @@ mkdir(loc)
 
 # Need ~ 18 min
 idx = np.where(f_CellReg_modi['maze_type'] != 0)[0]
-if os.path.exists(join(figdata, code_id+' [Position].pkl')):
+if os.path.exists(join(figdata, code_id+'[Position].pkl')):
     with open(join(figdata, code_id+' [Position].pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 else:
