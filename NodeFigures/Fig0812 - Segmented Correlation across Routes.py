@@ -5,7 +5,7 @@ loc = os.path.join(figpath, 'Dsp', code_id)
 mkdir(loc)
 
 if os.path.exists(os.path.join(figdata, code_id+'.pkl')) == False:
-    Data = DataFrameEstablish(variable_names = ['Segments', 'Mean PVC', 'Compare Groups', 'Routes'],
+    Data = DataFrameEstablish(variable_names = ['Position', 'aPVC', 'Routes'],
                               f=f2, file_idx=np.where(f2['MiceID'] != 10209)[0],
                               function = SegmentedCorrelationAcrossRoutes_DSP_Interface, 
                               file_name = code_id, behavior_paradigm = 'DSPMaze')
@@ -13,13 +13,13 @@ else:
     with open(os.path.join(figdata, code_id+'.pkl'), 'rb') as handle:
         Data = pickle.load(handle)
 
-idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Segments'] >= 75))[0]
+idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Position'] >= 75))[0]
 SubData = SubDict(Data, Data.keys(), idx)
 fig = plt.figure(figsize=(3,2)),
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
-    x = 'Segments',
-    y = 'Mean PVC',
+    x = 'Position',
+    y = 'aPVC',
     data = SubData,
     hue = 'Routes',
     palette=[DSPPalette[0], DSPPalette[3], DSPPalette[6]],
@@ -37,13 +37,13 @@ plt.savefig(join(loc, 'pvc - R4&7.svg'), dpi = 600)
 plt.savefig(join(loc, 'pvc - R4&7.png'), dpi = 600)
 plt.close()
 
-idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Segments'] >= 75) & (Data['Training Day'] == 'Day 1'))[0]
+idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Position'] >= 75) & (Data['Training Day'] == 'Day 1'))[0]
 SubData = SubDict(Data, Data.keys(), idx)
 fig = plt.figure(figsize=(3,2)),
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
-    x = 'Segments',
-    y = 'Mean PVC',
+    x = 'Position',
+    y = 'aPVC',
     data = SubData,
     hue = 'Routes',
     palette=[DSPPalette[0], DSPPalette[3], DSPPalette[6]],
@@ -61,13 +61,13 @@ plt.savefig(join(loc, 'pvc - R4&7 [First Day].svg'), dpi = 600)
 plt.savefig(join(loc, 'pvc - R4&7 [First Day].png'), dpi = 600)
 plt.close()
 
-idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Segments'] >= 75) & (Data['Training Day'] == 'Day 7'))[0]
+idx = np.where(((Data['Routes'] == 3) | (Data['Routes'] == 6) | (Data['Routes'] == 0)) & (Data['Position'] >= 75) & (Data['Training Day'] == 'Day 7'))[0]
 SubData = SubDict(Data, Data.keys(), idx)
 fig = plt.figure(figsize=(3,2)),
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
-    x = 'Segments',
-    y = 'Mean PVC',
+    x = 'Position',
+    y = 'aPVC',
     data = SubData,
     hue = 'Routes',
     palette=[DSPPalette[0], DSPPalette[3], DSPPalette[6]],
@@ -90,8 +90,8 @@ SubData = SubDict(Data, Data.keys(), idx)
 fig = plt.figure(figsize=(3,2)),
 ax = Clear_Axes(plt.axes(), close_spines=['top', 'right'], ifxticks=True, ifyticks=True)
 sns.lineplot(
-    x = 'Segments',
-    y = 'Mean PVC',
+    x = 'Position',
+    y = 'aPVC',
     data = SubData,
     hue = 'Routes',
     palette=[DSPPalette[0], DSPPalette[1], DSPPalette[2], DSPPalette[4], DSPPalette[5]],
@@ -117,50 +117,50 @@ plt.close()
 # Route 6: 18 bins
 # Statistical test
 StatRes = {
-    "Segments": [],
+    "Position": [],
     "Comparison": [],
     "P-value": []
 }
 for i in range(111):
     idx0 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 0)
     )[0]
     
     idx1 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 1)
     )[0]
     
     idx2 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 2)
     )[0]
     
     idx3 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 3)
     )[0]
     
     idx4 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 4)
     )[0]
     
     idx5 = np.where(
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 5)
     )[0]
     
     idx6 = np.where(    
-        (Data['Segments'] == i) &
+        (Data['Position'] == i) &
         (Data['Routes'] == 6)
     )[0]
     
     for j, idx in enumerate([idx1, idx2, idx3, idx4, idx5, idx6]):
-        _, p = ttest_ind(Data['Mean PVC'][idx0], Data['Mean PVC'][idx])
+        _, p = ttest_ind(Data['aPVC'][idx0], Data['aPVC'][idx])
         
-        StatRes["Segments"].append(i)
+        StatRes["Position"].append(i)
         StatRes["Comparison"].append(j+1)
         StatRes["P-value"].append(p)
 
