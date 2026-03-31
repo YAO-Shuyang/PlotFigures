@@ -187,8 +187,11 @@ plt.close()
 # DSPCorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[1], sns.color_palette("crest", 9)[0], sns.color_palette("flare", 9)[0]]
 # DSPIncorrectTrackPalette = [sns.color_palette('Blues', 9)[1], sns.color_palette('YlOrRd', 9)[3], sns.color_palette("crest", 9)[2], sns.color_palette("flare", 9)[2]]
 
+from mylib.statistic_test import *
+
 DSPCorrectTrackPalette = [DSPPalette[0], DSPPalette[1], DSPPalette[2], DSPPalette[3]]
 DSPIncorrectTrackPalette = [DSPPalette[0], DSPPalette[4], DSPPalette[5], DSPPalette[6]]
+DSPSC = [DSPPalette[0], DSPPalette[7], DSPPalette[8], DSPPalette[9]]
 
 fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8,8))
 ax1, ax2, ax3, ax4 = Clear_Axes(axes[0, 0]), Clear_Axes(axes[0, 1]), Clear_Axes(axes[1, 0]), Clear_Axes(axes[1, 1])
@@ -232,8 +235,8 @@ add_color_path(ax4, correct_routes[0][:60], edgecolor = None, line_band=True, is
 add_color_path(ax4, correct_routes[0][60:], edgecolor = None, line_band=True, band_color = DSPCorrectTrackPalette[2])
 add_color_path(ax3, correct_routes[0][:84], edgecolor = None, line_band=True, is_plot_line=False, band_color = sns.color_palette("Greys", 9)[1])
 add_color_path(ax3, correct_routes[0][84:], edgecolor = None, line_band=True, band_color = DSPCorrectTrackPalette[3])
-plt.savefig(os.path.join(loc,'dsp paradigm [correct].png'), dpi=600)
-plt.savefig(os.path.join(loc,'dsp paradigm [correct].svg'), dpi=600)
+plt.savefig(os.path.join(loc,'dsp paradigm [SA].png'), dpi=600)
+plt.savefig(os.path.join(loc,'dsp paradigm [SA].svg'), dpi=600)
 plt.close()
 
 
@@ -267,8 +270,37 @@ add_color_path(ax4, correct_routes[0][:46], edgecolor = None, line_band=True, is
 add_color_path(ax4, incorrect_routes[2], edgecolor = None, line_band=True, band_color = DSPIncorrectTrackPalette[2])
 add_color_path(ax3, correct_routes[0][:77], edgecolor = None, line_band=True, is_plot_line=False, band_color = sns.color_palette("Greys", 9)[1])
 add_color_path(ax3, incorrect_routes[3], edgecolor = None, line_band=True, band_color = DSPIncorrectTrackPalette[3])
-plt.savefig(os.path.join(loc,'dsp paradigm [incorrect].png'), dpi=600)
-plt.savefig(os.path.join(loc,'dsp paradigm [incorrect].svg'), dpi=600)
+plt.savefig(os.path.join(loc,'dsp paradigm [SB].png'), dpi=600)
+plt.savefig(os.path.join(loc,'dsp paradigm [SB].svg'), dpi=600)
+plt.close()
+
+# Plot dsp paradigm for incorrect path
+fig, axes = plt.subplots(ncols=2, nrows=2, figsize=(8,8))
+ax1, ax2, ax3, ax4 = Clear_Axes(axes[0, 0]), Clear_Axes(axes[0, 1]), Clear_Axes(axes[1, 0]), Clear_Axes(axes[1, 1])
+DrawMazeProfile(maze_type=1, axes=ax1, nx=12, color='black', linewidth=.6)
+DrawMazeProfile(maze_type=1, axes=ax2, nx=12, color='black', linewidth=.6)
+DrawMazeProfile(maze_type=1, axes=ax3, nx=12, color='black', linewidth=.6)
+DrawMazeProfile(maze_type=1, axes=ax4, nx=12, color='black', linewidth=.6)
+
+ax1.axis([-0.6, 11.6, 11.6, -0.6])
+ax2.axis([-0.6, 11.6, 11.6, -0.6])
+ax3.axis([-0.6, 11.6, 11.6, -0.6])
+ax4.axis([-0.6, 11.6, 11.6, -0.6])
+
+ax1.set_aspect('equal')
+ax2.set_aspect('equal')
+ax3.set_aspect('equal')
+ax4.set_aspect('equal')
+
+add_color_path(ax1, CP_DSP1[0], edgecolor = None, line_band=True, band_color = DSPIncorrectTrackPalette[0])
+add_color_path(ax2, CP_DSP1[0][:15], edgecolor = None, line_band=True, is_plot_line=False, band_color = sns.color_palette("Greys", 9)[1])
+add_color_path(ax2, CP_DSP1[7], edgecolor = None, line_band=True, band_color = DSPPalette[7])
+add_color_path(ax4, CP_DSP1[0][:46], edgecolor = None, line_band=True, is_plot_line=False, band_color = sns.color_palette("Greys", 9)[1])
+add_color_path(ax4, CP_DSP1[8], edgecolor = None, line_band=True, band_color = DSPPalette[8])
+add_color_path(ax3, CP_DSP1[0][:77], edgecolor = None, line_band=True, is_plot_line=False, band_color = sns.color_palette("Greys", 9)[1])
+add_color_path(ax3, CP_DSP1[9], edgecolor = None, line_band=True, band_color = DSPPalette[9])
+plt.savefig(os.path.join(loc,'dsp paradigm [SC].png'), dpi=600)
+plt.savefig(os.path.join(loc,'dsp paradigm [SC].svg'), dpi=600)
 plt.close()
 """
 
